@@ -76,7 +76,13 @@ public abstract class Boss : Enemy
         room = r;
     }
 
-    public IEnumerator Summon(int count, int strength, int defense, int nextAttacks)
+    /*
+     * Summons `count` enemies randomly selected from `summonPrefabs`,
+     * with Random[1, `strength`] strength and Random[1, `defense`] defense;
+     * `healthMult` times as much base health, `powMult` times as much base power, and `speedMult` times as much base speed
+     * then increments the current move to one of the `nextAttacks` amount of next attacks.
+     */
+    public IEnumerator Summon(int count, int strength, int defense, float healthMult, float powMult, float speedMult, int nextAttacks)
     {
         //Spawn covers
         state = ActionState.Attacking;
@@ -107,9 +113,9 @@ public abstract class Boss : Enemy
 
         for (int i = 0; i < count; i++)
         {
-            //summons[i].SetMaxHealth(summons[i].GetMaxHealth() * healthMult);
-            //summons[i].SetPower(summons[i].GetPower() * powerMult);
-            //summons[i].SetSpeed(summons[i].GetSpeed() * speedMult);
+            summons[i].SetMaxHealth(summons[i].GetMaxHealth() * healthMult);
+            summons[i].SetPower(summons[i].GetPower() * powMult);
+            summons[i].SetSpeed(summons[i].GetSpeed() * speedMult);
             summons[i].ChangeStrength(Random.Range(1, strength+1));
             summons[i].ChangeDefense(Random.Range(1, defense+1));
         }

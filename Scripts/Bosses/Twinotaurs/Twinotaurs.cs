@@ -315,7 +315,7 @@ public class Twinotaurs : Boss
                 break;
             case 1: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(3, 3, 3, 1));
+                StartCoroutine(Summon(3, 3, 3, 1, 2, 1.5f, 1));
                 while (state != ActionState.Waiting) yield return null;
                 currentAttack++;
                 break;

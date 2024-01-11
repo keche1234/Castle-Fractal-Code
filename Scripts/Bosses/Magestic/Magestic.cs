@@ -9,14 +9,15 @@ public class Magestic : Boss
 
     [Header("Pyrostorm")]
     [SerializeField] protected Projectile pyroPrefab;
-    protected float pyroStart = 3.5f;
-    protected float pyroEnd = 3.5f;
+    protected float pyroStart = 3f;
+    protected float pyroEnd = 3f;
 
     [Header("Pyrospiral")]
     protected float pyroRotateSpeed = -1440; //degrees per second
     protected float pyroSpiralShots = 10f;
     protected float pyroDegreesToShoot; //rotate this much before shooting
     protected float pyroActive;
+    protected float pyroBallCount = 2;
 
     [Header("Frostflash")]
     [SerializeField] protected Hitbox bang;
@@ -25,18 +26,21 @@ public class Magestic : Boss
     [SerializeField] protected GameObject bangWarning;
     [SerializeField] protected List<GameObject> surroundWarning;
     [SerializeField] protected List<GameObject> focusWarning;
-    protected float frostStart = 2.5f;
+    protected float frostStart = 1.5f;
     protected float frostActive = 1f;
-    protected float frostEnd = 1.5f;
+    protected float frostEnd = 1f;
 
     [Header("Chaser Lasers")]
     [SerializeField] protected List<Hitbox> laserLateralBeams;
-    [SerializeField] protected List<Hitbox> laserLongBeams;
+    [SerializeField] protected List<Hitbox> laserLongBeamsX; // Rotate on the x-axis
+    [SerializeField] protected List<Hitbox> laserLongBeamsZ; // Rotate on the z-axis
     [SerializeField] protected List<GameObject> laserWarning;
     protected float laserRotateSpeedLateralMin = 30f; //degrees per second
     protected float laserRotateSpeedLateralMax = 45f; //degrees per second
-    protected float laserRotateSpeedLong = 60f; //degrees per second
+    protected float laserRotateSpeedLongMin = 60f; //degrees per second
+    protected float laserRotateSpeedLongMax = 90f; //degrees per second
     protected float laserActive;
+    protected float laserLinger = 2f;
 
     [Header("Claim Summons")]
     protected float claimDuration = 1f;
@@ -86,8 +90,6 @@ public class Magestic : Boss
 
         pyroDegreesToShoot = Mathf.Abs(pyroRotateSpeed / 2) + Random.Range(99f, 144f);
         pyroActive = pyroDegreesToShoot * pyroSpiralShots / Mathf.Abs(pyroRotateSpeed);
-
-        laserActive = 1080 / laserRotateSpeedLong;
     }
 
     // Update is called once per frame
@@ -126,15 +128,15 @@ public class Magestic : Boss
         {
             case 0: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(5, 2, 4, 2));
+                StartCoroutine(Summon(5, 2, 4, 2f, 1.5f, 1.25f, 2));
                 break;
             case 1: //Pyrostorm
                 //startup
                 state = ActionState.Startup;
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < pyroBallCount; i++)
                 {
                     t = 0;
-                    while (t < (pyroStart / (3 - i)))
+                    while (t < (pyroStart / (pyroBallCount - i)))
                     {
                         if (freezeTime <= 0)
                         {
@@ -159,7 +161,7 @@ public class Magestic : Boss
 
                     //wait
                     state = ActionState.Cooldown;
-                    if (i >= 2)
+                    if (i >= pyroBallCount - 1)
                     {
                         while (GameObject.Find("Pyroball(Clone)") != null || GameObject.Find("Pyroball(Clone)(Clone)") != null || GameObject.Find("Pyroball(Clone)(Clone)(Clone)") != null)
                         {
@@ -171,7 +173,7 @@ public class Magestic : Boss
                     else
                     {
                         t = 0;
-                        while (t < (pyroEnd / (2 - i)))
+                        while (t < (pyroEnd / (pyroBallCount - 1 - i)))
                         {
                             if (freezeTime <= 0)
                             {
@@ -225,7 +227,7 @@ public class Magestic : Boss
                                 p.gameObject.transform.position += p.gameObject.transform.forward;
                                 p.gameObject.transform.localScale *= 0.4f;
                                 p.SetSource(this);
-                                p.SetDamageMod(0.3f);
+                                ((Explosive)p).SetExplosionMod(0.1f);
                                 p.SetSpeed(4.5f);
                                 p.gameObject.GetComponent<Splitting>().enabled = false;
                             }
@@ -430,7 +432,7 @@ public class Magestic : Boss
                     currentAttack++;
                 state = ActionState.Waiting;
                 break;
-            case 4: //Glacier Laser
+            case 4: //Glacier Lasers
                 //Startup
                 state = ActionState.Startup;
                 bangWarning.transform.parent.gameObject.SetActive(true);
@@ -445,7 +447,7 @@ public class Magestic : Boss
                     {
                         // Rotate towards facing straight down.
                         if (Vector3.Angle(transform.forward, -Vector3.forward) != 0)
-                            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-Vector3.forward), rotateSpeed * Time.deltaTime);
+                            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-Vector3.forward), 120 * Time.deltaTime);
 
                         float progress = t / frostStart;
                         bangWarning.transform.localScale = new Vector3(progress, 1, progress);
@@ -462,16 +464,64 @@ public class Magestic : Boss
                 foreach (GameObject w in laserWarning)
                     w.transform.parent.gameObject.SetActive(false);
 
+                bang.gameObject.SetActive(true);
                 for (int i = 0; i < laserLateralBeams.Count; i++)
                 {
                     laserLateralBeams[i].gameObject.SetActive(true);
-                    laserLateralBeams[i].gameObject.transform.rotation = transform.rotation * Quaternion.Euler(0, -90 + (180 * i), 0);
+                    laserLateralBeams[i].gameObject.transform.rotation = transform.rotation * Quaternion.Euler(0, 90 - (180 * i), 0);
                 }
 
-                for (int i = 0; i < laserLongBeams.Count; i++)
+                for (int i = 0; i < laserLongBeamsX.Count; i++)
                 {
-                    laserLongBeams[i].gameObject.SetActive(true);
-                    laserLongBeams[i].gameObject.transform.rotation = transform.rotation * Quaternion.Euler(180 * i, 0, 0);
+                    laserLongBeamsX[i].gameObject.SetActive(true);
+                    laserLongBeamsX[i].gameObject.transform.rotation = transform.rotation * Quaternion.Euler(-90 + (180 * i), 0, 0);
+                }
+
+                for (int i = 0; i < laserLongBeamsZ.Count; i++)
+                {
+                    laserLongBeamsZ[i].gameObject.SetActive(true);
+                    laserLongBeamsZ[i].gameObject.transform.rotation = transform.rotation * Quaternion.Euler(-90 + (180 * i), 0, 0);
+                }
+
+                float laserSpeedLateralCap = Random.Range(laserRotateSpeedLateralMin, laserRotateSpeedLateralMax);
+                float laserSpeedLongXCap = Random.Range(laserRotateSpeedLongMin, laserRotateSpeedLongMax);
+                float laserSpeedLongZCap = Random.Range(laserRotateSpeedLongMin, laserRotateSpeedLongMax);
+
+                float laserSpeedLat = 0;
+                float laserSpeedLongX = 0;
+                float laserSpeedLongZ = 0;
+
+                float laserAccelerationLat = 2 * laserSpeedLateralCap / laserLinger;
+                float laserAccelerationLongX = 2 * laserSpeedLongXCap / laserLinger;
+                float laserAccelerationLongZ = 2 * laserSpeedLongZCap / laserLinger;
+
+                laserActive = (540 - (0.5f * laserAccelerationLat * Mathf.Pow(laserLinger / 2, 2))
+                                    - ((laserSpeedLateralCap * (laserLinger / 2)) + (0.5f * laserAccelerationLat * Mathf.Pow(laserLinger / 2, 2)))) / laserSpeedLateralCap;
+
+                // Speed up the rotation
+                t = 0;
+                while (t < laserLinger)
+                {
+                    if (freezeTime <= 0)
+                    {
+                        // Rotate the hitboxes
+                        for (int i = 0; i < laserLateralBeams.Count; i++)
+                            laserLateralBeams[i].gameObject.transform.Rotate(new Vector3(0, laserSpeedLat * Time.deltaTime, 0));
+                        for (int i = 0; i < laserLongBeamsX.Count; i++)
+                            laserLongBeamsX[i].gameObject.transform.Rotate(new Vector3(laserSpeedLongX * Time.deltaTime, 0, 0));
+                        for (int i = 0; i < laserLongBeamsZ.Count; i++)
+                            laserLongBeamsZ[i].gameObject.transform.Rotate(new Vector3(0, (i == 0 ? 1 : -1) * laserSpeedLongZ * Time.deltaTime, 0));
+
+                        if (t < laserLinger / 2)
+                        {
+                            // Speed up the rotation
+                            laserSpeedLat += laserAccelerationLat * Time.deltaTime;
+                            laserSpeedLongX += laserAccelerationLongX * Time.deltaTime;
+                            laserSpeedLongZ += laserAccelerationLongZ * Time.deltaTime;
+                        }
+                        t += Time.deltaTime;
+                    }
+                    yield return null;
                 }
 
                 t = 0;
@@ -480,18 +530,63 @@ public class Magestic : Boss
                     if (freezeTime <= 0)
                     {
                         // Rotate the hitboxes
+                        for (int i = 0; i < laserLateralBeams.Count; i++)
+                            laserLateralBeams[i].gameObject.transform.Rotate(new Vector3(0, laserSpeedLat * Time.deltaTime, 0));
+                        for (int i = 0; i < laserLongBeamsX.Count; i++)
+                            laserLongBeamsX[i].gameObject.transform.Rotate(new Vector3(laserSpeedLongX * Time.deltaTime, 0, 0));
+                        for (int i = 0; i < laserLongBeamsZ.Count; i++)
+                            laserLongBeamsZ[i].gameObject.transform.Rotate(new Vector3(0, (i == 0 ? 1 : -1) * laserSpeedLongZ * Time.deltaTime, 0));
+
                         t += Time.deltaTime;
                     }
                     yield return null;
                 }
 
+                t = 0;
+                while (t < laserLinger)
+                {
+                    if (freezeTime <= 0)
+                    {
+                        if (t < laserLinger / 2)
+                        {
+                            // Rotate the hitboxes
+                            for (int i = 0; i < laserLateralBeams.Count; i++)
+                                laserLateralBeams[i].gameObject.transform.Rotate(new Vector3(0, laserSpeedLat * Time.deltaTime, 0));
+                            for (int i = 0; i < laserLongBeamsX.Count; i++)
+                                laserLongBeamsX[i].gameObject.transform.Rotate(new Vector3(laserSpeedLongX * Time.deltaTime, 0, 0));
+                            for (int i = 0; i < laserLongBeamsZ.Count; i++)
+                                laserLongBeamsZ[i].gameObject.transform.Rotate(new Vector3(0, (i == 0 ? 1 : -1) * laserSpeedLongZ * Time.deltaTime, 0));
+
+                            // Slow down the rotation
+                            laserSpeedLat -= laserAccelerationLat * Time.deltaTime;
+                            laserSpeedLongX -= laserAccelerationLongX * Time.deltaTime;
+                            laserSpeedLongZ -= laserAccelerationLongZ * Time.deltaTime;
+                        }
+
+                        t += Time.deltaTime;
+                    }
+                    yield return null;
+                }
+
+                state = ActionState.Cooldown;
                 foreach (Hitbox h in laserLateralBeams)
                     h.gameObject.SetActive(false);
-                foreach (Hitbox h in laserLongBeams)
+                foreach (Hitbox h in laserLongBeamsX)
+                    h.gameObject.SetActive(false);
+                foreach (Hitbox h in laserLongBeamsZ)
                     h.gameObject.SetActive(false);
                 bang.gameObject.SetActive(false);
 
+                t = 0;
+                while (t < frostEnd)
+                {
+                    if (freezeTime <= 0)
+                        t += Time.deltaTime;
+                    yield return null;
+                }
+
                 currentAttack += 1;
+                state = ActionState.Waiting;
                 break;
             case 5: //Claim Summons
                 state = ActionState.Attacking;
@@ -653,7 +748,7 @@ public class Magestic : Boss
                                 RaycastHit info;
                                 if (Physics.Raycast(new Ray(bushes[i].transform.position, player.transform.position - bushes[i].transform.position), out info, Mathf.Infinity, LayerMask.GetMask("Wall")))
                                 {
-                                    vineIndicators[i].transform.localScale = new Vector3(vineIndicators[i].transform.localScale.x, vineIndicators[i].transform.localScale.y, info.distance * 1.1f);
+                                    vineIndicators[i].transform.localScale = new Vector3(vineIndicators[i].transform.localScale.x, vineIndicators[i].transform.localScale.y, info.distance * 1.3f);
                                     //vineIndicators[i].transform.position += vineIndicators[i].transform.forward * info.distance * 1.1f / 2;
                                 }
                             }

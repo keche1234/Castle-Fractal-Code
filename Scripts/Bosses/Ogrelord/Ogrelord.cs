@@ -111,7 +111,7 @@ public class Ogrelord : Boss
         {
             case 0: //Summon
                 if (summons.Count < 1)
-                    StartCoroutine(Summon(1, 4, 2, 2));
+                    StartCoroutine(Summon(1, 4, 2, 1.5f, 1, 2, 2));
                 break;
             case 1: //Club Combo
                 //startup
