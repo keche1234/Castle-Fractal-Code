@@ -1,0 +1,171 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class Boss : Enemy
+{
+    //[Header("Attack Patterns")]
+    protected int numAttacks; //number of attacks
+    protected int currentAttack; //0 is for summon, attacks start at 1
+    protected Room room;
+
+    [Header("Summons")]
+    [SerializeField] protected GameObject spawnCover;
+    [SerializeField] protected List<Enemy> summonPrefabs;
+    protected List<Enemy> summons;
+    protected float summonStartup = 1;
+    protected float summonCooldown = 1;
+
+    /************************************************************
+     * Each attack needs its own framedata and set of hitboxes
+     * (attack1, attack2, etc.)
+     ************************************************************/
+
+    // Start is called before the first frame update
+    public override void Start()
+    {
+        base.Start();
+        state = ActionState.Waiting;
+        armored = true;
+        room = roomManager.GetCurrent();
+        summons = new List<Enemy>();
+    }
+
+    // Update is called once per frame
+    public override void Update()
+    {
+        if (freezeTime > 0)
+        {
+            freezeTime -= Time.deltaTime;
+            charRb.velocity *= 0;
+            rotateSpeed = 0;
+        }
+        else if (frozen) //this is the specific act of unfreezing
+        {
+            charRb.velocity = preVel;
+            rotateSpeed = 2.5f;
+            frozen = false;
+        }
+        else
+        {
+            for (int i = 0; i < summons.Count; i++)
+                if (summons[i] == null)
+                    summons.RemoveAt(i--);
+            
+            if (state == ActionState.Waiting && player.GetComponent<PlayerController>().GetCurrentHealth() > 0)
+                StartCoroutine(Attack());
+
+            ProgressBuffTime();
+
+            if (currentHealth <= 0)
+            {
+                for (int i = 0; i < summons.Count; i++)
+                {
+                    Destroy(summons[i].gameObject);
+                }
+                spawner.SetAllDefeated(true);
+                Destroy(this.gameObject);
+            }
+        }
+
+        UpdateAttributeUI();
+    }
+
+    public void SetRoom(Room r)
+    {
+        room = r;
+    }
+
+    public IEnumerator Summon(int count, int strength, int defense, int nextAttacks)
+    {
+        //Spawn covers
+        state = ActionState.Attacking;
+        List<GameObject> covers = new List<GameObject>();
+        for (int i = 0; i < count; i++)
+        {
+            covers.Add(Instantiate(spawnCover, GenerateSpawnPos(summonPrefabs[0]), Quaternion.Euler(0, 0, 0)));
+        }
+
+        //Hold the covers for the duration of the spawn
+        float t = 0;
+        while (t < summonStartup)
+        {
+            if (freezeTime <= 0)
+                t += Time.deltaTime;
+            yield return null;
+        }
+
+        //Remove the covers and create the enemies
+        for (int i = 0; i < count; i++)
+        {
+            summons.Add((Enemy)Instantiate(summonPrefabs[Random.Range(0, summonPrefabs.Count)], covers[0].transform.position, Quaternion.Euler(0, 0, 0)));
+            summons[i].transform.parent = roomManager.GetCurrent().transform;
+            Destroy(covers[0]);
+            covers.RemoveAt(0);
+        }
+        yield return null;
+
+        for (int i = 0; i < count; i++)
+        {
+            //summons[i].SetMaxHealth(summons[i].GetMaxHealth() * healthMult);
+            //summons[i].SetPower(summons[i].GetPower() * powerMult);
+            //summons[i].SetSpeed(summons[i].GetSpeed() * speedMult);
+            summons[i].ChangeStrength(Random.Range(1, strength+1));
+            summons[i].ChangeDefense(Random.Range(1, defense+1));
+        }
+
+        t = 0;
+        state = ActionState.Cooldown;
+        while (t < summonStartup)
+        {
+            if (freezeTime <= 0)
+                t += Time.deltaTime;
+            yield return null;
+        }
+
+        currentAttack += 1 + Random.Range(0, nextAttacks);
+        state = ActionState.Waiting;
+        yield return null;
+    }
+
+    public int GetCurrentAttack()
+    {
+        return currentAttack;
+    }
+
+    public int GetState()
+    {
+        if (state == ActionState.Startup)
+            return 1;
+        if (state == ActionState.Attacking)
+            return 2;
+        if (state == ActionState.Cooldown)
+            return 3;
+
+        return 0;
+    }
+
+    public void SetState(int i)
+    {
+        if (i == 1)
+            state = ActionState.Startup;
+        else if (i == 2)
+            state = ActionState.Attacking;
+        else if (i == 3)
+            state = ActionState.Cooldown;
+        else
+            state = ActionState.Waiting;
+    }
+
+    //public override void TakeDamage(int damage, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool fixKB = false)
+    //{
+    //    base.TakeDamage(damage, kbDir, triggerInvinc, kbMod, fixKB);
+    //}
+
+    protected Vector3 GenerateSpawnPos(Enemy type)
+    {
+        return new Vector3(Random.Range(-(room.GetLength() / 2f) + 0.5f, (room.GetLength() / 2f) - 0.5f),
+                            type.transform.position.y,
+                            Random.Range(-(room.GetWidth() / 2f) + 0.5f, (room.GetWidth() / 2f) - 0.5f));
+    }
+}
