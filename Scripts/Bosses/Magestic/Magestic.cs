@@ -11,13 +11,14 @@ public class Magestic : Boss
     [SerializeField] protected Projectile pyroPrefab;
     protected float pyroStart = 3f;
     protected float pyroEnd = 3f;
+    protected float pyroStormCount = 2;
 
     [Header("Pyrospiral")]
     protected float pyroRotateSpeed = -1440; //degrees per second
     protected float pyroSpiralShots = 10f;
     protected float pyroDegreesToShoot; //rotate this much before shooting
     protected float pyroActive;
-    protected float pyroBallCount = 2;
+    protected float pyroSpiralCount = 10;
 
     [Header("Frostflash")]
     [SerializeField] protected Hitbox bang;
@@ -133,10 +134,10 @@ public class Magestic : Boss
             case 1: //Pyrostorm
                 //startup
                 state = ActionState.Startup;
-                for (int i = 0; i < pyroBallCount; i++)
+                for (int i = 0; i < pyroStormCount; i++)
                 {
                     t = 0;
-                    while (t < (pyroStart / (pyroBallCount - i)))
+                    while (t < (pyroStart / (pyroStormCount - i)))
                     {
                         if (freezeTime <= 0)
                         {
@@ -161,7 +162,7 @@ public class Magestic : Boss
 
                     //wait
                     state = ActionState.Cooldown;
-                    if (i >= pyroBallCount - 1)
+                    if (i >= pyroStormCount - 1)
                     {
                         while (GameObject.Find("Pyroball(Clone)") != null || GameObject.Find("Pyroball(Clone)(Clone)") != null || GameObject.Find("Pyroball(Clone)(Clone)(Clone)") != null)
                         {
@@ -173,7 +174,7 @@ public class Magestic : Boss
                     else
                     {
                         t = 0;
-                        while (t < (pyroEnd / (pyroBallCount - 1 - i)))
+                        while (t < (pyroEnd / (pyroStormCount - 1 - i)))
                         {
                             if (freezeTime <= 0)
                             {
@@ -219,10 +220,10 @@ public class Magestic : Boss
                     {
                         while (degreesRotated >= pyroDegreesToShoot)
                         {
-                            for (int i = 0; i < 10; i++)
+                            for (int i = 0; i < pyroSpiralCount; i++)
                             {
                                 //create the fireball
-                                Projectile p = Instantiate(pyroPrefab, mage.transform.position, Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, 36 * i, 0));
+                                Projectile p = Instantiate(pyroPrefab, pointer.transform.position, Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, (360 / pyroSpiralCount) * i, 0));
                                 p.transform.parent = roomManager.GetCurrent().transform;
                                 p.gameObject.transform.position += p.gameObject.transform.forward;
                                 p.gameObject.transform.localScale *= 0.4f;
@@ -263,8 +264,13 @@ public class Magestic : Boss
                 //Startup
                 state = ActionState.Startup;
                 bangWarning.transform.parent.gameObject.SetActive(true);
+                bangWarning.transform.localScale = new Vector3(0, 1, 0);
                 foreach (GameObject w in surroundWarning)
+                {
                     w.transform.parent.gameObject.SetActive(true);
+                    w.transform.localScale = new Vector3(w.transform.localScale.x, 1, 0);
+                }
+
                 t = 0;
                 while (t < frostStart)
                 {
@@ -331,11 +337,11 @@ public class Magestic : Boss
                     {
                         if (freezeTime <= 0)
                         {
+                            t += Time.deltaTime;
                             float progress = t / frostStart;
                             bangWarning.transform.localScale = new Vector3(progress, 1, progress);
                             foreach (GameObject w in focusWarning)
                                 w.transform.localScale = new Vector3(w.transform.localScale.x, 1, progress);
-                            t += Time.deltaTime;
                         }
                         yield return null;
                     }
@@ -387,11 +393,11 @@ public class Magestic : Boss
                 {
                     if (freezeTime <= 0)
                     {
+                        t += Time.deltaTime;
                         float progress = t / frostStart;
                         bangWarning.transform.localScale = new Vector3(progress, 1, progress);
                         foreach (GameObject w in surroundWarning)
                             w.transform.localScale = new Vector3(w.transform.localScale.x, 1, progress);
-                        t += Time.deltaTime;
                     }
                     yield return null;
                 }
@@ -436,9 +442,12 @@ public class Magestic : Boss
                 //Startup
                 state = ActionState.Startup;
                 bangWarning.transform.parent.gameObject.SetActive(true);
-
+                bangWarning.transform.localScale = new Vector3(0, 1, 0);
                 foreach (GameObject w in laserWarning)
+                {
                     w.transform.parent.gameObject.SetActive(true);
+                    w.transform.localScale = new Vector3(w.transform.localScale.x, 1, 0);
+                }
 
                 t = 0;
                 while (t < frostStart)
@@ -449,11 +458,11 @@ public class Magestic : Boss
                         if (Vector3.Angle(transform.forward, -Vector3.forward) != 0)
                             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-Vector3.forward), 120 * Time.deltaTime);
 
+                        t += Time.deltaTime;
                         float progress = t / frostStart;
                         bangWarning.transform.localScale = new Vector3(progress, 1, progress);
                         foreach (GameObject w in laserWarning)
                             w.transform.localScale = new Vector3(w.transform.localScale.x, 1, progress);
-                        t += Time.deltaTime;
                     }
                     yield return null;
                 }
@@ -731,6 +740,8 @@ public class Magestic : Boss
 
                     vineIndicators[i].gameObject.SetActive(true);
                     vineIndicators[i].transform.position = new Vector3(bushes[i].transform.position.x, 0, bushes[i].transform.position.z);
+                    vineWarnings[i].transform.localScale = new Vector3(vineWarnings[i].transform.localScale.x, vineWarnings[i].transform.localScale.y, 0);
+
                     t = 0;
                     while (t < vineStart)
                     {
@@ -747,14 +758,10 @@ public class Magestic : Boss
                                 // Raycast towards player to find a wall, calculate distance to get scale for indicator
                                 RaycastHit info;
                                 if (Physics.Raycast(new Ray(bushes[i].transform.position, player.transform.position - bushes[i].transform.position), out info, Mathf.Infinity, LayerMask.GetMask("Wall")))
-                                {
                                     vineIndicators[i].transform.localScale = new Vector3(vineIndicators[i].transform.localScale.x, vineIndicators[i].transform.localScale.y, info.distance * 1.3f);
-                                    //vineIndicators[i].transform.position += vineIndicators[i].transform.forward * info.distance * 1.1f / 2;
-                                }
                             }
-                            vineWarnings[i].transform.localScale = new Vector3(vineWarnings[i].transform.localScale.x, vineWarnings[i].transform.localScale.y, t / vineStart);
-
                             t += Time.deltaTime;
+                            vineWarnings[i].transform.localScale = new Vector3(vineWarnings[i].transform.localScale.x, vineWarnings[i].transform.localScale.y, t / vineStart);
                         }
                         yield return null;
                     }

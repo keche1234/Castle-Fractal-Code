@@ -13,7 +13,7 @@ public class Sword : Weapon
     private readonly float chainMax = 3;
 
     private float sigStartup = 0.5f; //slow down time by 50% for this (realtime) duration
-    private float sigActiveTime = 4;
+    private float sigActiveTime = 3;
 
     // Start is called before the first frame update
     protected override void Start()

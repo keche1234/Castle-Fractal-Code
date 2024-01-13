@@ -11,7 +11,7 @@ public class Tome : Weapon
     private float crisisMod = 1; //increases to 1.1 in Crisis (health is 25% or less)
 
     private float sigStartup = 1f; //slow down time by 50% for this (realtime) duration
-    private float sigActiveTime = 10f;
+    private float sigActiveTime = 7f;
 
     [SerializeField] protected Canvas reticle;
 

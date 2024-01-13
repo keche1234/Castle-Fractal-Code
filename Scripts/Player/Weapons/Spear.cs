@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Spear : Weapon
 {
-    private float startupTime = 27f / 60; //27 frames of startup
-    private float activeTime = 0.067f; // 4 active frames
-    private float cooldownTime = 9f / 60; //9 frames of endlag
+    private float startupTime = 18f / 60; //18 frames of startup
+    private float activeTime = 6f / 60f; // 6 active frames
+    private float cooldownTime = 6f / 60; //6 frames of endlag
 
     private float sigStartup = 0.5f; //slow down time by 50% for this (realtime) duration
     private float sigActiveTimeA = 1f;
@@ -117,10 +117,11 @@ public class Spear : Weapon
         for (int i = 0; i < sigAttack.Count; i++)
             sigAttack[i].SetDamageMod(sigMods[i] * damage);
 
-        owner.gameObject.GetComponent<Rigidbody>().velocity = (owner.gameObject.transform.rotation * Vector3.forward * owner.GetSpeed() * 3.5f) / sigActiveTimeA;
+        owner.gameObject.GetComponent<Rigidbody>().velocity = owner.gameObject.transform.rotation * Vector3.forward * owner.GetSpeed() * 3.5f / sigActiveTimeA;
 
         //enable the inner hitbox "frame" 1-3, 6-8, 11-13, ... , 56-58.
-        for (float i = 0; i < (sigActiveTimeA * duration); i += Time.deltaTime)
+        float trueDuration = sigActiveTimeA * duration;
+        for (float i = 0; i < trueDuration; i += Time.deltaTime)
         {
             int frame = (int)Mathf.Floor(i * 60);
             if (frame % 5 < 1 || frame % 5 > 3)

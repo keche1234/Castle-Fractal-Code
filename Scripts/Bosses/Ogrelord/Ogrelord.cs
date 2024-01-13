@@ -5,19 +5,26 @@ using UnityEngine;
 public class Ogrelord : Boss
 {
     public GameObject ogre; //for pointing purposes
-    public Vector3 clubPositionDef;
-    public Vector3 clubRotationDef;
+    public Vector3 clubPositionDefault;
+    public Vector3 clubRotationDefault;
 
     [Header("Club Combo")]
     [SerializeField] protected GameObject club;
     [SerializeField] protected Hitbox swing;
     [SerializeField] protected Hitbox smack;
     [SerializeField] protected List<Hitbox> edges;
+    [SerializeField] protected GameObject comboWarning;
     protected float clubStart = 1.75f;
     protected float clubDelay = 1f;
     protected float clubActive = 0.5f;
     protected float edgeActive = 2f;
     protected float clubEnd = 3.75f;
+
+    [Header("Club Toss")]
+    [SerializeField] protected Projectile flyingClubPrefab;
+    [SerializeField] protected GameObject tossIndicator;
+    [SerializeField] protected GameObject tossWarning; //parallel to tossIndicator
+    protected int clubsToToss = 3;
 
     [Header("Rippling Geysers")]
     [SerializeField] protected Hitbox bodyBox;
@@ -36,9 +43,10 @@ public class Ogrelord : Boss
     [Header("Surging Spout")]
     [SerializeField] protected Hitbox spout;
     [SerializeField] protected Projectile rockPrefab;
+    [SerializeField] protected GameObject spoutWarning;
     protected List<Projectile> rocks = new List<Projectile>();
-    protected float rockCharge = 0;
-    protected float rockDelay = 1;
+    //protected float rockCharge = 0;
+    //protected float rockDelay = 1;
     protected float spoutSpeed = 4.5f; // m/s
     protected float spoutDecel = 4.5f; // m/s^2
     protected float spoutStart = 2.5f;
@@ -56,7 +64,7 @@ public class Ogrelord : Boss
         maxHealth = 1000;
 
         speed = 3f;
-        rotateSpeed = (1f / 3) * Mathf.PI;
+        rotateSpeed = Mathf.PI / 3;
         armored = true;
 
         miniHealthBar.SetMax(maxHealth);
@@ -74,11 +82,11 @@ public class Ogrelord : Boss
     public override void Update()
     {
         base.Update();
-        if (freezeTime <= 0 && rockCharge < rockDelay)
+        if (freezeTime <= 0) //&& rockCharge < rockDelay)
         {
-            rockCharge += Time.deltaTime;
-            if (rockCharge > rockDelay)
-                rockCharge = rockDelay;
+            //rockCharge += Time.deltaTime;
+            //if (rockCharge > rockDelay)
+            //    rockCharge = rockDelay;
         }
 
         for (int i = 0; i < rocks.Count; i++)
@@ -110,13 +118,14 @@ public class Ogrelord : Boss
         switch (currentAttack)
         {
             case 0: //Summon
-                if (summons.Count < 1)
+                if (summons.Count < 7)
                     StartCoroutine(Summon(1, 4, 2, 1.5f, 1, 2, 2));
                 break;
             case 1: //Club Combo
                 //startup
                 state = ActionState.Startup;
                 SnapTowardsPlayer();
+
                 //Chase
                 while ((transform.position - player.transform.position).magnitude > 3.5f)
                 {
@@ -130,19 +139,24 @@ public class Ogrelord : Boss
                 charRb.velocity = Vector3.zero;
 
                 //Gear up for swing
+                comboWarning.transform.parent.gameObject.SetActive(true);
+                comboWarning.transform.localScale = new Vector3(comboWarning.transform.localScale.x, 1, 0);
                 t = 0;
                 while (t < clubStart)
                 {
                     if (freezeTime <= 0)
                     {
                         club.transform.Rotate(0, (195 / clubStart) * Time.deltaTime, 0);
+
                         t += Time.deltaTime;
+                        comboWarning.transform.localScale = new Vector3(comboWarning.transform.localScale.x, 1, t / clubStart);
                     }
                     yield return null;
                 }
 
                 //Swing Out
                 state = ActionState.Attacking;
+                comboWarning.transform.parent.gameObject.SetActive(false);
                 swing.gameObject.SetActive(true);
                 t = 0;
                 while (t < clubActive)
@@ -260,10 +274,99 @@ public class Ogrelord : Boss
                     yield return null;
                 }
 
-                currentAttack++;
+                currentAttack += 2 + Random.Range(0, 2);
                 state = ActionState.Waiting;
                 break;
-            case 2: //Rippling Geyers
+            case 2: //Club Toss
+                //startup
+                state = ActionState.Startup;
+                SnapTowardsPlayer();
+                //Chase
+                while ((transform.position - player.transform.position).magnitude > 3.5f)
+                {
+                    if (freezeTime <= 0)
+                    {
+                        LookTowardsPlayer();
+                        charRb.velocity = transform.forward * speed;
+                    }
+                    yield return null;
+                }
+                charRb.velocity = Vector3.zero;
+
+                for (int i = 0; i < clubsToToss; i++)
+                {
+                    state = ActionState.Startup;
+                    tossIndicator.SetActive(true);
+                    tossWarning.transform.localScale = new Vector3(tossWarning.transform.localScale.x, 1, 0);
+
+                    float startup = clubStart * ((5 - i) / 5f);
+
+                    //Gear up for throw
+                    t = 0;
+                    while (t < startup)
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            if (t < startup / 2)
+                                club.transform.Rotate((-30 / (startup / 2)) * Time.deltaTime, 0, -(90 / (startup / 2)) * Time.deltaTime);
+                            LookTowardsPlayer();
+
+                            // Fix Indicator
+                            tossIndicator.transform.rotation = transform.rotation;
+
+                            // Raycast towards player to find a wall, calculate distance to get scale for indicator
+                            RaycastHit info;
+                            if (Physics.Raycast(new Ray(transform.position, transform.forward), out info, Mathf.Infinity, LayerMask.GetMask("Wall")))
+                                tossIndicator.transform.localScale = new Vector3(tossIndicator.transform.localScale.x, tossIndicator.transform.localScale.y, info.distance * 1.3f);
+
+                            t += Time.deltaTime;
+                            tossWarning.transform.localScale = new Vector3(tossWarning.transform.localScale.x, 1, t / startup);
+                        }
+                        yield return null;
+                    }
+
+                    //Toss
+                    state = ActionState.Attacking;
+
+                    t = 0;
+                    while (t < clubActive)
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            // Swing
+                            club.transform.Rotate((75 / clubActive) * Time.deltaTime, 0, 0);
+                            t += Time.deltaTime;
+                        }
+                        yield return null;
+                    }
+                    club.SetActive(false);
+                    tossIndicator.SetActive(false);
+
+                    Projectile flyingClub = Instantiate(flyingClubPrefab, transform.position + (transform.forward * 1.5f) + transform.up, transform.rotation, roomManager.GetCurrent().transform);
+                    flyingClub.SetSource(this);
+                    while (flyingClub != null)
+                    {
+                        LookTowardsPlayer();
+                        yield return null; //flyingClub flies until it hits a wall
+                    }
+
+                    Reset(false);
+                    club.SetActive(true);
+                }
+
+                // Cooldown
+                t = 0;
+                while (t < clubEnd / 2)
+                {
+                    if (freezeTime <= 0)
+                        t += Time.deltaTime;
+                    yield return null;
+                }
+
+                currentAttack += 1 + Random.Range(0, 2);
+                state = ActionState.Waiting;
+                break;
+            case 3: //Rippling Geyers
                 //startup
                 state = ActionState.Startup;
                 t = 0;
@@ -373,6 +476,8 @@ public class Ogrelord : Boss
                     }
                 }
 
+                state = ActionState.Cooldown;
+
                 t = 0;
                 while (t < geyserEnd)
                 {
@@ -380,43 +485,48 @@ public class Ogrelord : Boss
                         t += Time.deltaTime;
                     yield return null;
                 }
-                currentAttack++;
-                if (summons.Count == 0)
-                    currentAttack++;
+                currentAttack += 2;
                 state = ActionState.Waiting;
                 break;
-            case 3: //Rallying Cry
-                state = ActionState.Attacking;
-
-                //Startup
-                t = 0;
-                while (t < cryDuration / 2)
-                {
-                    if (freezeTime <= 0)
-                        t += Time.deltaTime;
-                    yield return null;
-                }
-
-                //Buff the summons
-                for (int i = 0; i < summons.Count; i++)
-                {
-                    Buff buff = (Buff)ScriptableObject.CreateInstance("Buff");
-                    buff.SetBuff(0.5f, -1);
-                    summons[i].AddBuff(buff, 3);
-                }
-
-                t = 0;
-                while (t < cryDuration / 2)
-                {
-                    if (freezeTime <= 0)
-                        t += Time.deltaTime;
-                    yield return null;
-                }
-                LookTowardsPlayer();
+            case 4: //Super Stomp
                 currentAttack++;
                 state = ActionState.Waiting;
                 break;
-            case 4: //Surging Spout
+            case 5: //Rallying Cry
+                if (summons.Count > 0)
+                {
+                    state = ActionState.Attacking;
+
+                    //Startup
+                    t = 0;
+                    while (t < cryDuration / 2)
+                    {
+                        if (freezeTime <= 0)
+                            t += Time.deltaTime;
+                        yield return null;
+                    }
+
+                    //Buff the summons
+                    for (int i = 0; i < summons.Count; i++)
+                    {
+                        Buff buff = (Buff)ScriptableObject.CreateInstance("Buff");
+                        buff.SetBuff(0.5f, -1);
+                        summons[i].AddBuff(buff, 3);
+                    }
+
+                    t = 0;
+                    while (t < cryDuration / 2)
+                    {
+                        if (freezeTime <= 0)
+                            t += Time.deltaTime;
+                        yield return null;
+                    }
+                    LookTowardsPlayer();
+                }
+                currentAttack++;
+                state = ActionState.Waiting;
+                break;
+            case 6: //Surging Spout
                 state = ActionState.Startup;
                 //Turn on hitbox and wait
                 spout.gameObject.SetActive(true);
@@ -497,14 +607,15 @@ public class Ogrelord : Boss
 
     public override void Reset(bool zeroSpeed)
     {
-        club.transform.localPosition = clubPositionDef;
-        club.transform.localRotation = Quaternion.Euler(clubRotationDef);
+        club.transform.localPosition = clubPositionDefault;
+        club.transform.localRotation = Quaternion.Euler(clubRotationDefault);
     }
 
     public override void OnCollisionEnter(Collision collision)
     {
+        //Jump Class
         base.OnCollisionEnter(collision);
-        if (currentAttack == 2 && collision.collider.gameObject.CompareTag("Floor") && landing)
+        if ((currentAttack == 3 || currentAttack == 4) && collision.collider.gameObject.CompareTag("Floor") && landing)
         {
             state = ActionState.Cooldown;
             //Spawn geysers
@@ -523,16 +634,17 @@ public class Ogrelord : Boss
 
     public void OnTriggerEnter(Collider collider)
     {
-        if (currentAttack == 4 && (collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door")) && state == ActionState.Attacking)
+        //Surging Spout
+        if (currentAttack == 6 && (collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door")) && state == ActionState.Attacking)
         {
             //Turn towards player
             SnapTowardsPlayer();
-            transform.Rotate(0, Random.Range(-30, 30f), 0);
+            transform.Rotate(0, Random.Range(15, 30f) * (Random.Range(0, 1f) > 0.5f ? 1 : -1), 0);
 
             //Create rocks
             Vector3 norm = transform.position - collider.ClosestPoint(transform.position);
-            if (rockCharge >= rockDelay)
-            {
+            //if (rockCharge >= rockDelay)
+            //{
                 for (int i = 0; i < 4; i++)
                 {
                     //Create rock, set angle, set parent to room
@@ -542,9 +654,9 @@ public class Ogrelord : Boss
                     rock.transform.Translate(transform.forward * 2f, Space.World);
                     rock.transform.parent = roomManager.GetCurrent().transform;
                     rocks.Add(rock);
-                    rockCharge = 0;
+                    //rockCharge = 0;
                 }
-            }
+            //}
         }
     }
 }
