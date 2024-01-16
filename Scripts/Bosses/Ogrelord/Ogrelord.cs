@@ -29,6 +29,7 @@ public class Ogrelord : Boss
     [Header("Rippling Geysers")]
     [SerializeField] protected Hitbox bodyBox;
     [SerializeField] protected Projectile geyserPrefab;
+    [SerializeField] protected GameObject landingWarning;
     protected bool landing = false;
     protected List<Projectile> geysers = new List<Projectile>();
     protected int jumps = 6;
@@ -36,6 +37,12 @@ public class Ogrelord : Boss
     protected float geyserStart = 1.5f;
     protected float geyserLand = 6f;
     protected float geyserEnd = 3f;
+
+    //[Header("Super Stomp")]
+    protected int stomps = 9;
+    protected float stompStart = 1f;
+    protected float stompLand = 2f;
+    protected float stompEnd = 0.5f;
 
     [Header("Rallying Cry")]
     protected float cryDuration = 1.5f;
@@ -489,6 +496,57 @@ public class Ogrelord : Boss
                 state = ActionState.Waiting;
                 break;
             case 4: //Super Stomp
+                //startup
+
+                for (int i = 0; i < stomps; i++)
+                {
+                    state = ActionState.Startup;
+                    t = 0;
+                    while (t < stompStart)
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            //TODO: Halfway through charge: rise in air
+                            // Get warning
+                            t += Time.deltaTime;
+                        }
+                        yield return null;
+                    }
+
+                    state = ActionState.Attacking;
+                    // TODO: Set trigger true, enable hitboxes
+                    while (state == ActionState.Attacking) //TODO: On Trigger, become cooldown
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            //Velocity is straight down
+                        }
+                        yield return null;
+                    }
+
+                    state = ActionState.Cooldown;
+                    // TODO: Set trigger to false
+                    t = 0;
+                    while (t < stompLand) //TODO: On Trigger, become cooldown
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            t += Time.deltaTime;
+                        }
+                        yield return null;
+                    }
+                }
+
+                t = 0;
+                while (t < stompEnd)
+                {
+                    if (freezeTime <= 0)
+                    {
+                        t += Time.deltaTime;
+                    }
+                    yield return null;
+                }
+
                 currentAttack++;
                 state = ActionState.Waiting;
                 break;
