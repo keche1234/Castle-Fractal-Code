@@ -276,11 +276,12 @@ public class Magestic : Boss
                 {
                     if (freezeTime <= 0)
                     {
+                        t += Time.deltaTime;
+
                         float progress = t / frostStart;
                         bangWarning.transform.localScale = new Vector3(progress, 1, progress);
                         foreach (GameObject w in surroundWarning)
                             w.transform.localScale = new Vector3(w.transform.localScale.x, 1, progress);
-                        t += Time.deltaTime;
                     }
                     yield return null;
                 }

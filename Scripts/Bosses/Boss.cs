@@ -13,6 +13,7 @@ public abstract class Boss : Enemy
     [SerializeField] protected GameObject spawnCover;
     [SerializeField] protected List<Enemy> summonPrefabs;
     protected List<Enemy> summons;
+    protected List<Vector3> summonLastPositions; // Used to keep summons in specific places (x,z) places without being too jarring
     protected float summonStartup = 1;
     protected float summonCooldown = 1;
 
@@ -49,8 +50,15 @@ public abstract class Boss : Enemy
         else
         {
             for (int i = 0; i < summons.Count; i++)
+            {
                 if (summons[i] == null)
+                {
+                    summonLastPositions.RemoveAt(i);
                     summons.RemoveAt(i--);
+                }
+                else
+                    summonLastPositions[i] = summons[i].transform.position;
+            }
             
             if (state == ActionState.Waiting && player.GetComponent<PlayerController>().GetCurrentHealth() > 0)
                 StartCoroutine(Attack());
@@ -106,6 +114,7 @@ public abstract class Boss : Enemy
         {
             summons.Add((Enemy)Instantiate(summonPrefabs[Random.Range(0, summonPrefabs.Count)], covers[0].transform.position, Quaternion.Euler(0, 0, 0)));
             summons[i].transform.parent = roomManager.GetCurrent().transform;
+            summonLastPositions.Add(summons[i].transform.position);
             Destroy(covers[0]);
             covers.RemoveAt(0);
         }
@@ -162,6 +171,8 @@ public abstract class Boss : Enemy
         else
             state = ActionState.Waiting;
     }
+
+    //TODO: Push Summon Away From Spot
 
     //public override void TakeDamage(int damage, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool fixKB = false)
     //{

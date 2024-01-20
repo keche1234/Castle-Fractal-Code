@@ -29,7 +29,9 @@ public class Ogrelord : Boss
     [Header("Rippling Geysers")]
     [SerializeField] protected Hitbox bodyBox;
     [SerializeField] protected Projectile geyserPrefab;
-    [SerializeField] protected GameObject landingWarning;
+    [SerializeField] protected GameObject landingWarning; // Used for Rippling Geysers and Super Stomp
+    [SerializeField] protected List<GameObject> rippleWarning;
+    protected int rippleGeyserCount = 5;
     protected bool landing = false;
     protected List<Projectile> geysers = new List<Projectile>();
     protected int jumps = 6;
@@ -38,9 +40,14 @@ public class Ogrelord : Boss
     protected float geyserLand = 6f;
     protected float geyserEnd = 3f;
 
-    //[Header("Super Stomp")]
-    protected int stomps = 9;
+    [Header("Super Stomp")]
+    [SerializeField] protected List<GameObject> stompGeyserWarnings;
+    protected float stompJumpHeight = 6;
+    protected float stompJumpTime; // Time spent ascending in preparation for the stomp
+    protected int stompGeyserCount = 7;
+    protected int stomps = 8;
     protected float stompStart = 1f;
+    protected float stompDescend = 0.2f; //time it takes to hit the ground once the attack starts
     protected float stompLand = 2f;
     protected float stompEnd = 0.5f;
 
@@ -73,6 +80,8 @@ public class Ogrelord : Boss
         speed = 3f;
         rotateSpeed = Mathf.PI / 3;
         armored = true;
+
+        stompJumpTime = stompStart / 2;
 
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
@@ -395,7 +404,7 @@ public class Ogrelord : Boss
                 Vector3 xDir = (new Vector3(transform.position.x - player.transform.position.x, 0, 0)).normalized;
                 if (xDir.x == 0)
                     xDir = Vector3.right;
-                float xDist = ((((roomManager.GetCurrent().GetLength() * 0.5f)- 1) * xDir.x) - transform.position.x);
+                float xDist = (((roomManager.GetCurrent().GetLength() * 0.5f) - 1) * xDir.x) - transform.position.x;
                 charRb.AddForce(new Vector3(xDist / airTime, Physics.gravity.magnitude * airTime * 0.5f, (0 - transform.position.z) / airTime), ForceMode.VelocityChange);
                 transform.rotation = Quaternion.LookRotation(-xDir);
 
@@ -422,10 +431,14 @@ public class Ogrelord : Boss
                 t = 0;
                 while (state == ActionState.Attacking)
                 {
+                    // TODO: Push summon away from where I can land!
                     landing = t > (airTime / 2);
                     GetComponent<Collider>().isTrigger = t < (airTime / 2);
                     if (freezeTime <= 0)
+                    {
+                        // TODO: Set up warnings
                         t += Time.deltaTime;
+                    }
                     yield return null;
                 }
                 bodyBox.gameObject.SetActive(false);
@@ -458,7 +471,7 @@ public class Ogrelord : Boss
                     bodyBox.gameObject.SetActive(true);
 
                     //Determine destination and set speed
-                    float z = (location * ((roomManager.GetCurrent().GetWidth() / 2) - 2f));
+                    float z = location * ((roomManager.GetCurrent().GetWidth() / 2) - 2f);
                     charRb.AddForce(new Vector3(0, Physics.gravity.magnitude * airTime * 0.5f, (z - transform.position.z) / airTime), ForceMode.VelocityChange);
 
                     //Wait for state to be cooldown (I landed)
@@ -467,7 +480,10 @@ public class Ogrelord : Boss
                     {
                         landing = t > (airTime / 2);
                         if (freezeTime <= 0)
+                        {
                             t += Time.deltaTime;
+                            //TODO: Set up warnings
+                        }
                         yield return null;
                     }
                     bodyBox.gameObject.SetActive(false);
@@ -501,38 +517,61 @@ public class Ogrelord : Boss
                 for (int i = 0; i < stomps; i++)
                 {
                     state = ActionState.Startup;
+                    charRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+                    charRb.useGravity = false;
+                    GetComponent<Collider>().isTrigger = true;
+                    // TODO: Set up warnings
+
                     t = 0;
                     while (t < stompStart)
                     {
                         if (freezeTime <= 0)
                         {
-                            //TODO: Halfway through charge: rise in air
-                            // Get warning
+                            if (t < stompJumpTime)
+                            {
+                                Vector3 jumpVector = new Vector3(player.transform.position.x - transform.position.x, 0, player.transform.position.z - transform.position.z);
+                                jumpVector /= stompJumpTime;
+                                jumpVector += new Vector3(0, stompJumpHeight / stompJumpTime, 0);
+
+                                charRb.velocity = jumpVector;
+                            }
+                            else
+                                charRb.velocity = Vector3.zero;
+
                             t += Time.deltaTime;
+                            // TODO: Draw Warnings
                         }
                         yield return null;
                     }
 
                     state = ActionState.Attacking;
-                    // TODO: Set trigger true, enable hitboxes
-                    while (state == ActionState.Attacking) //TODO: On Trigger, become cooldown
+                    bodyBox.gameObject.SetActive(true);
+                    while (state == ActionState.Attacking)
                     {
+                        landing = t > (airTime / 2);
+                        GetComponent<Collider>().isTrigger = t < (airTime / 2);
                         if (freezeTime <= 0)
                         {
-                            //Velocity is straight down
+                            charRb.velocity = Vector3.down * (stompJumpHeight / stompDescend);
+                            //TODO: Push summon away from me!
+
+                            t += Time.deltaTime;
+                            //TODO: Set up warnings
                         }
                         yield return null;
                     }
 
                     state = ActionState.Cooldown;
-                    // TODO: Set trigger to false
+                    charRb.useGravity = true;
+                    GetComponent<Collider>().isTrigger = false;
+                    charRb.velocity = Vector3.zero;
+                    bodyBox.gameObject.SetActive(false);
+
                     t = 0;
-                    while (t < stompLand) //TODO: On Trigger, become cooldown
+                    while (t < stompLand)
                     {
                         if (freezeTime <= 0)
-                        {
                             t += Time.deltaTime;
-                        }
                         yield return null;
                     }
                 }
@@ -671,13 +710,14 @@ public class Ogrelord : Boss
 
     public override void OnCollisionEnter(Collision collision)
     {
-        //Jump Class
+        //Rippling Geyers
         base.OnCollisionEnter(collision);
-        if ((currentAttack == 3 || currentAttack == 4) && collision.collider.gameObject.CompareTag("Floor") && landing)
+        if (currentAttack == 3  && collision.collider.gameObject.CompareTag("Floor") && landing)
         {
             state = ActionState.Cooldown;
+
             //Spawn geysers
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < rippleGeyserCount; i++)
             {
                 //Create geyser, set angle, set parent to room
                 Projectile geyser = Instantiate(geyserPrefab, gameObject.transform.position, transform.rotation);
@@ -692,6 +732,24 @@ public class Ogrelord : Boss
 
     public void OnTriggerEnter(Collider collider)
     {
+        //Super Stomp
+        if (currentAttack == 4 && collider.gameObject.CompareTag("Floor") && landing)
+        {
+            state = ActionState.Cooldown;
+
+            //Spawn geysers
+            for (int i = 0; i < stompGeyserCount; i++)
+            {
+                //Create geyser, set angle, set parent to room
+                Projectile geyser = Instantiate(geyserPrefab, gameObject.transform.position, transform.rotation);
+                geyser.gameObject.transform.Rotate(0, i * (360 / stompGeyserCount), 0);
+                geyser.SetSource(this);
+                geyser.transform.Translate(transform.up + (geyser.transform.forward * 1.5f), Space.World);
+                geyser.transform.parent = roomManager.GetCurrent().transform;
+                geysers.Add(geyser);
+            }
+        }
+
         //Surging Spout
         if (currentAttack == 6 && (collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door")) && state == ActionState.Attacking)
         {
@@ -703,17 +761,17 @@ public class Ogrelord : Boss
             Vector3 norm = transform.position - collider.ClosestPoint(transform.position);
             //if (rockCharge >= rockDelay)
             //{
-                for (int i = 0; i < 4; i++)
-                {
-                    //Create rock, set angle, set parent to room
-                    Projectile rock = Instantiate(rockPrefab, collider.gameObject.transform.position, Quaternion.LookRotation(norm));
-                    rock.gameObject.transform.Rotate(0, -45f + (i * 22.5f), 0);
-                    rock.SetSource(this);
-                    rock.transform.Translate(transform.forward * 2f, Space.World);
-                    rock.transform.parent = roomManager.GetCurrent().transform;
-                    rocks.Add(rock);
-                    //rockCharge = 0;
-                }
+            for (int i = 0; i < 4; i++)
+            {
+                //Create rock, set angle, set parent to room
+                Projectile rock = Instantiate(rockPrefab, collider.gameObject.transform.position, Quaternion.LookRotation(norm));
+                rock.gameObject.transform.Rotate(0, -45f + (i * 22.5f), 0);
+                rock.SetSource(this);
+                rock.transform.Translate(transform.forward * 2f, Space.World);
+                rock.transform.parent = roomManager.GetCurrent().transform;
+                rocks.Add(rock);
+                //rockCharge = 0;
+            }
             //}
         }
     }
