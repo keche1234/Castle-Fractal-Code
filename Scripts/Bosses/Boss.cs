@@ -30,6 +30,7 @@ public abstract class Boss : Enemy
         armored = true;
         room = roomManager.GetCurrent();
         summons = new List<Enemy>();
+        summonLastPositions = new List<Vector3>();
     }
 
     // Update is called once per frame

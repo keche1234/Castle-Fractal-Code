@@ -29,8 +29,7 @@ public class Ogrelord : Boss
     [Header("Rippling Geysers")]
     [SerializeField] protected Hitbox bodyBox;
     [SerializeField] protected Projectile geyserPrefab;
-    [SerializeField] protected GameObject landingWarning; // Used for Rippling Geysers and Super Stomp
-    [SerializeField] protected List<GameObject> rippleWarning;
+    //[SerializeField] protected List<GameObject> rippleWarning;
     protected int rippleGeyserCount = 5;
     protected bool landing = false;
     protected List<Projectile> geysers = new List<Projectile>();
@@ -41,14 +40,15 @@ public class Ogrelord : Boss
     protected float geyserEnd = 3f;
 
     [Header("Super Stomp")]
+    [SerializeField] protected GameObject landingWarning;
     [SerializeField] protected List<GameObject> stompGeyserWarnings;
     protected float stompJumpHeight = 6;
     protected float stompJumpTime; // Time spent ascending in preparation for the stomp
     protected int stompGeyserCount = 7;
-    protected int stomps = 8;
-    protected float stompStart = 1f;
+    protected int stomps = 6;
+    protected float stompStart = 1.5f;
     protected float stompDescend = 0.2f; //time it takes to hit the ground once the attack starts
-    protected float stompLand = 2f;
+    protected float stompLand = 3f;
     protected float stompEnd = 0.5f;
 
     [Header("Rallying Cry")]
@@ -71,7 +71,7 @@ public class Ogrelord : Boss
     public override void Start()
     {
         base.Start();
-        numAttacks = 5;
+        numAttacks = 7;
         currentAttack = 0;
         power = 20f;
         currentHealth = 1000;
@@ -81,7 +81,7 @@ public class Ogrelord : Boss
         rotateSpeed = Mathf.PI / 3;
         armored = true;
 
-        stompJumpTime = stompStart / 2;
+        stompJumpTime = stompStart / 3;
 
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
@@ -126,6 +126,30 @@ public class Ogrelord : Boss
         Vector3 lookVector = new Vector3(player.transform.position.x - ogre.transform.position.x, 0, player.transform.position.z - ogre.transform.position.z);
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, lookVector, Mathf.PI * 2, 0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+
+    protected void PushSummonsBackStomp()
+    {
+        foreach (Enemy s in summons)
+        {
+            Vector3 summonLateral = new Vector3(s.transform.position.x, 0, s.transform.position.z);
+            Vector3 bossLateral = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 differenceVector = bossLateral - summonLateral;
+
+            if (differenceVector.magnitude < 2.5f)
+            {
+                s.transform.position -= differenceVector.normalized * (2.55f - differenceVector.magnitude);
+                if (s.transform.position.x >= (room.GetLength() / 2))
+                    s.transform.position += Vector3.right * -5.1f;
+                else if (s.transform.position.x <= (-room.GetLength() / 2))
+                    s.transform.position += Vector3.right * 5.1f;
+
+                if (s.transform.position.z >= (room.GetWidth() / 2))
+                    s.transform.position += Vector3.forward * -5.1f;
+                else if (s.transform.position.z <= (-room.GetWidth() / 2))
+                    s.transform.position += Vector3.forward * 5.1f;
+            }
+        }
     }
 
     protected override IEnumerator Attack()
@@ -431,12 +455,13 @@ public class Ogrelord : Boss
                 t = 0;
                 while (state == ActionState.Attacking)
                 {
-                    // TODO: Push summon away from where I can land!
+                    // Push Summons Back
+                    PushSummonsBackStomp();
+
                     landing = t > (airTime / 2);
                     GetComponent<Collider>().isTrigger = t < (airTime / 2);
                     if (freezeTime <= 0)
                     {
-                        // TODO: Set up warnings
                         t += Time.deltaTime;
                     }
                     yield return null;
@@ -478,11 +503,13 @@ public class Ogrelord : Boss
                     t = 0;
                     while (state == ActionState.Attacking)
                     {
+                        // Push Summons Back
+                        PushSummonsBackStomp();
+
                         landing = t > (airTime / 2);
                         if (freezeTime <= 0)
                         {
                             t += Time.deltaTime;
-                            //TODO: Set up warnings
                         }
                         yield return null;
                     }
@@ -520,10 +547,17 @@ public class Ogrelord : Boss
                     charRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
                     charRb.useGravity = false;
                     GetComponent<Collider>().isTrigger = true;
-                    // TODO: Set up warnings
+                    // Set up warnings
+                    landingWarning.transform.parent.gameObject.SetActive(true);
+                    landingWarning.transform.localScale = new Vector3(0, 1, 0);
+                    foreach (GameObject w in stompGeyserWarnings)
+                    {
+                        w.transform.parent.gameObject.SetActive(true);
+                        w.transform.localScale = new Vector3(w.transform.localScale.x, 1, 0);
+                    }
 
                     t = 0;
-                    while (t < stompStart)
+                    while (t < (stompStart - (i * 0.2f)))
                     {
                         if (freezeTime <= 0)
                         {
@@ -538,14 +572,31 @@ public class Ogrelord : Boss
                             else
                                 charRb.velocity = Vector3.zero;
 
+                            // Push Summons Back
+                            PushSummonsBackStomp();
+
                             t += Time.deltaTime;
-                            // TODO: Draw Warnings
+                            float progress = t / (stompStart - (i * 0.2f));
+                            //Draw Warnings
+                            landingWarning.transform.localScale = new Vector3(progress, 1, progress);
+                            landingWarning.transform.parent.transform.position =
+                                new Vector3(landingWarning.transform.parent.transform.position.x, 0.1f, landingWarning.transform.parent.transform.position.z);
+                            foreach (GameObject w in stompGeyserWarnings)
+                            {
+                                w.transform.localScale = new Vector3(w.transform.localScale.x, 1, progress);
+                                w.transform.parent.transform.position =
+                                    new Vector3(w.transform.parent.transform.position.x, 0.1f, w.transform.parent.transform.position.z);
+                            }
                         }
                         yield return null;
                     }
 
                     state = ActionState.Attacking;
                     bodyBox.gameObject.SetActive(true);
+                    landingWarning.transform.parent.gameObject.SetActive(false);
+                    foreach (GameObject w in stompGeyserWarnings)
+                        w.transform.parent.gameObject.SetActive(false);
+
                     while (state == ActionState.Attacking)
                     {
                         landing = t > (airTime / 2);
@@ -553,10 +604,9 @@ public class Ogrelord : Boss
                         if (freezeTime <= 0)
                         {
                             charRb.velocity = Vector3.down * (stompJumpHeight / stompDescend);
-                            //TODO: Push summon away from me!
+                            PushSummonsBackStomp();
 
                             t += Time.deltaTime;
-                            //TODO: Set up warnings
                         }
                         yield return null;
                     }
@@ -568,12 +618,13 @@ public class Ogrelord : Boss
                     bodyBox.gameObject.SetActive(false);
 
                     t = 0;
-                    while (t < stompLand)
+                    while (t < (stompLand - (i * 0.4f)))
                     {
                         if (freezeTime <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
+                    landing = false;
                 }
 
                 t = 0;
@@ -712,7 +763,7 @@ public class Ogrelord : Boss
     {
         //Rippling Geyers
         base.OnCollisionEnter(collision);
-        if (currentAttack == 3  && collision.collider.gameObject.CompareTag("Floor") && landing)
+        if (currentAttack == 3 && collision.collider.gameObject.CompareTag("Floor") && landing)
         {
             state = ActionState.Cooldown;
 
