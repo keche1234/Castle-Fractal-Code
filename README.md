@@ -3,3 +3,4 @@ This includes:
 - Player mechanics
 - Enemy behaviors
 - Game system management
+- UI Scripts, such as buff icons and menu buttons
