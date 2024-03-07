@@ -31,7 +31,8 @@ public class Crossbow : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y - owner.transform.position.y));
+        float depth = new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude;
+        reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
         reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
     }
 
@@ -41,8 +42,12 @@ public class Crossbow : Weapon
         //Startup: Charge up
         state = ActionState.Startup;
         owner.SetAttackState(1);
-        Vector3 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y - owner.transform.position.y));
-        Vector3 dir = (new Vector3(mousePos.x - owner.gameObject.transform.position.x, 0, mousePos.z - owner.gameObject.transform.position.z)).normalized;
+
+        Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
+        Vector3 depthVec = (worldPoint - cam.transform.position).normalized;
+        float distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
+        worldPoint = cam.transform.position + (depthVec * distance);
+        Vector3 dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
 
         // Attack Rate, Range Up
         float rate = CalculateRate();
@@ -101,8 +106,11 @@ public class Crossbow : Weapon
                     chainNum++;
                     actionTime = chainWindow;
 
-                    mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y - owner.transform.position.y));
-                    dir = (new Vector3(mousePos.x - owner.gameObject.transform.position.x, 0, mousePos.z - owner.gameObject.transform.position.z)).normalized;
+                    worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
+                    depthVec = (worldPoint - cam.transform.position).normalized;
+                    distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
+                    worldPoint = cam.transform.position + (depthVec * distance);
+                    dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
                     yield return new WaitForSeconds(startupTime);
                 }
                 actionTime += Time.deltaTime;
@@ -158,8 +166,11 @@ public class Crossbow : Weapon
         {
             if (delay >= (6f / 60))
             {
-                Vector3 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y - owner.transform.position.y));
-                Vector3 dir = (new Vector3(mousePos.x - owner.gameObject.transform.position.x, 0, mousePos.z - owner.gameObject.transform.position.z)).normalized;
+                Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
+                Vector3 depthVec = (worldPoint - cam.transform.position).normalized;
+                float distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
+                worldPoint = cam.transform.position + (depthVec * distance);
+                Vector3 dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
 
                 Projectile arrow = Instantiate(arrowPrefab, owner.gameObject.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrow.transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * -0.6f) + ((Quaternion.AngleAxis(90, transform.up) * dir) * 0.2f);

@@ -32,7 +32,8 @@ public class Tome : Weapon
         else
             crisisMod = 1;
 
-        reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y - owner.transform.position.y));
+        float depth = Mathf.Min(new Vector3(cam.transform.position.x, cam.transform.position.y, cam.transform.position.z).magnitude, cam.transform.position.y - 2.5f);
+        reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
         reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
     }
 
@@ -41,8 +42,13 @@ public class Tome : Weapon
         owner.SetMobile(false);
         state = ActionState.Startup;
         owner.SetAttackState(1);
-        Vector3 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y - owner.transform.position.y));
-        Vector3 dir = (new Vector3(mousePos.x - owner.gameObject.transform.position.x, 0, mousePos.z - owner.gameObject.transform.position.z)).normalized;
+
+        // Find the magnitude needed for y to be cam.transform.position.y - 1f
+        Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
+        Vector3 depthVec = (worldPoint - cam.transform.position).normalized;
+        float distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
+        worldPoint = cam.transform.position + (depthVec * distance);
+        Vector3 dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
 
         // Attack Rate, Range Up
         float rate = CalculateRate();
@@ -54,7 +60,7 @@ public class Tome : Weapon
         state = ActionState.Active;
         owner.SetAttackState(2);
         //Create fireball
-        Explosive attack = Instantiate(fireball, owner.gameObject.transform.position + dir + (Vector3.up * 0.6f), Quaternion.LookRotation(dir));
+        Explosive attack = Instantiate(fireball, owner.gameObject.transform.position + dir + (Vector3.up * 0.5f), Quaternion.LookRotation(dir));
         attack.gameObject.transform.localScale *= range;
         attack.Setup(4f, owner, true, owner.GetCustomWeapon().GetPower(), -1, crisisMod);
         attack.transform.parent = roomManager.GetCurrent().transform;

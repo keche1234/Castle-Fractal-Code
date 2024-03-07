@@ -27,6 +27,10 @@ public class Twinotaurs : Boss
     protected const float DASH_COOL = 1f;
     protected const float CLOUD_DELAY = 0.5f;
 
+    //TODO: [Header("Golden Pounce")]
+    //Cage Bolt prefab
+    //use thunderGasPrefab
+
     [Header("Perilous Partition")]
     [SerializeField] protected Projectile zapPathPrefab;
     [SerializeField] protected Projectile noxPathPrefab;
@@ -39,8 +43,15 @@ public class Twinotaurs : Boss
     [Header("Syncrash")]
     [SerializeField] protected Hitbox crash;
     [SerializeField] protected GameObject boltPrefab;
-    [SerializeField] protected Projectile thunderGasPrefab;
     protected float crashCool = 4f;
+
+    [Header("Summoners' Burst")]
+    [SerializeField] protected Projectile thunderGasPrefab;
+    // Warning list for Twinotaurs
+    // Warning list for Spread
+
+    //TODO: [Header("Summoners' Cyclone")]
+    // Warning List for Cyclone
 
     // Start is called before the first frame update
     public override void Start()
@@ -190,6 +201,11 @@ public class Twinotaurs : Boss
         path[path.Count - 1].SetSource(this);
     }
 
+    protected void Syncrash()
+    {
+        
+    }
+
     protected override IEnumerator Attack()
     {
         float t;
@@ -310,16 +326,24 @@ public class Twinotaurs : Boss
                     yield return null;
                 }
 
-                currentAttack++;
+                currentAttack = 2;
                 state = ActionState.Waiting;
                 break;
-            case 1: //Summon
+            case 1: // Golden Pounce
+                // TODO: Set up poison, give time (during which, warning is set up)
+                //       Then create thunder cage
+                //       Start pouncing!
+                state = ActionState.Startup;
+                yield return null;
+                currentAttack = 2;
+                state = ActionState.Waiting;
+                break;
+            case 2: //Summon
                 state = ActionState.Startup;
                 StartCoroutine(Summon(3, 3, 3, 1, 2, 1.5f, 1));
                 while (state != ActionState.Waiting) yield return null;
-                currentAttack++;
                 break;
-            case 2: //TODO: Perilous Partition
+            case 3: //Perilous Partition
                 //startup
                 state = ActionState.Startup;
 
@@ -431,11 +455,12 @@ public class Twinotaurs : Boss
                 sparkRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 venomRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 yield return null;
-                currentAttack++;
+                currentAttack ++;
                 state = ActionState.Waiting;
                 break;
-            case 3: //Syncrash + Summoner's Wrath
-                //startup
+            case 4: //Syncrash
+                int nextMove = 1 + Random.Range(0, 2); // Determines warnings put up
+
                 state = ActionState.Startup;
 
                 //Spark and venom charge
@@ -489,7 +514,7 @@ public class Twinotaurs : Boss
                 //find surviving summons
                 //show bolt
                 List<GameObject> bolts = new List<GameObject>();
-                List<Projectile> thunderGases = new List<Projectile>();
+
                 for (int i = 0; i < summons.Count; i++)
                 {
                     bolts.Add(Instantiate(boltPrefab, summons[i].gameObject.transform.position, Quaternion.Euler(0, 0, 0)));
@@ -515,6 +540,12 @@ public class Twinotaurs : Boss
                     i--;
                 }
 
+                currentAttack += 1 + nextMove;
+                state = ActionState.Waiting;
+                break;
+            case 5: //Summoners' Burst
+                state = ActionState.Attacking;
+                List<Projectile> thunderGases = new List<Projectile>();
                 for (int i = 0; i < summons.Count; i++)
                 {
                     for (int j = 0; j < 6; j++)
@@ -538,7 +569,15 @@ public class Twinotaurs : Boss
                     yield return null;
                 }
 
-                currentAttack = 0;
+                currentAttack = 0 + Random.Range(0, 2);
+                state = ActionState.Waiting;
+                break;
+            case 6: //Summoners' Cyclone
+                state = ActionState.Attacking;
+                // TODO: Create Cyclone Projectile Class
+
+                yield return null;
+                currentAttack = 0 + Random.Range(0, 2);
                 state = ActionState.Waiting;
                 break;
             default:
