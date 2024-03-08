@@ -826,4 +826,12 @@ public class Ogrelord : Boss
             //}
         }
     }
+    public void OnDestroy()
+    {
+        foreach (Enemy e in summons)
+        {
+            Destroy(e.gameObject);
+            summons.Remove(e);
+        }
+    }
 }

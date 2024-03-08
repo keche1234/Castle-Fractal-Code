@@ -829,5 +829,11 @@ public class Magestic : Boss
             Destroy(w.gameObject);
             myWands.Remove(w);
         }
+
+        foreach (Enemy e in summons)
+        {
+            Destroy(e.gameObject);
+            summons.Remove(e);
+        }
     }
 }

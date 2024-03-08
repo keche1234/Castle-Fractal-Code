@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThunderCage : MonoBehaviour
+public class ThunderCage : ScriptableObject
 {
     protected Hitbox boltObject;
-    protected LinkedListNode<GameObject> startNode;
-    protected LinkedList<GameObject> thunderClouds;
-    protected LinkedList<GameObject> totalList;
-    protected LinkedListNode<GameObject> currentNode;
-    protected float boltDuration = 8f / 60;
+    //protected List<GameObject> thunderClouds;
+    protected List<GameObject> totalList;
+    protected int currentNode = 0;
+    protected float boltDuration = 4f / 60;
     protected float boltTimer = 0;
     protected bool bolting = true;
 
@@ -17,101 +16,91 @@ public class ThunderCage : MonoBehaviour
     // changing nodes every interval of boltDuration (with half that time as a bit of windup)
 
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
 
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
-        if (TotalListCyclic())
+        if (bolting)
         {
-            if (bolting)
+            if (boltTimer >= boltDuration)
             {
-                if (boltTimer >= boltDuration)
-                {
-                    bolting = false;
-                    boltObject.gameObject.SetActive(false);
-                    boltTimer = 0;
-                }
+                bolting = false;
+                boltObject.gameObject.SetActive(false);
+                boltTimer = 0;
             }
-            else
-            {
-                if (boltTimer >= boltDuration / 2)
-                {
-                    bolting = true;
-                    boltObject.gameObject.SetActive(true);
-                    currentNode = currentNode.Next;
-                    AimBolt();
-                    boltTimer = 0;
-                }
-            }
-
-            boltTimer += Time.deltaTime;
         }
+        else
+        {
+            if (boltTimer >= boltDuration / 2)
+            {
+                bolting = true;
+                boltObject.gameObject.SetActive(true);
+                if (currentNode < totalList.Count - 1)
+                    currentNode++;
+                else
+                    currentNode = 1;
+                AimBolt();
+                boltTimer = 0;
+            }
+        }
+
+        boltTimer += Time.deltaTime;
+
+    }
+
+    public void EnableAll()
+    {
+        foreach (GameObject obj in totalList)
+            obj.SetActive(true);
+        ResetBolt();
+    }
+
+    public void ResetBolt()
+    {
+        currentNode = 0;
+        bolting = true;
+        boltObject.gameObject.SetActive(true);
+        boltTimer = 0;
+        AimBolt();
     }
 
     public void AimBolt()
     {
-        if (currentNode == null)
-        {
-            Debug.LogError("Total list is acyclic!");
-            return;
-        }
-        Transform currentTransform = currentNode.Value.gameObject.transform;
-
-        if (currentNode.Next == null)
-        {
-            Debug.LogError("Total list is acyclic!");
-            return;
-        }
-        Transform nextTransform = currentNode.Next.Value.gameObject.transform;
+        Transform currentTransform = totalList[currentNode].gameObject.transform;
+        Transform nextTransform;
+        if (currentNode < totalList.Count - 1)
+            nextTransform = totalList[currentNode + 1].gameObject.transform;
+        else
+            nextTransform = totalList[1].gameObject.transform;
 
         Vector3 avgLocation = Vector3.Lerp(currentTransform.position, nextTransform.position, 0.5f);
-        Vector3 aim = currentNode.Next.Value.gameObject.transform.position
-            - currentNode.Value.gameObject.transform.position;
+        Vector3 aim = nextTransform.position - currentTransform.position;
         float dist = aim.magnitude;
 
         boltObject.gameObject.transform.position = avgLocation;
         boltObject.gameObject.transform.rotation = Quaternion.LookRotation(aim);
-        boltObject.gameObject.transform.localScale = new Vector3(1, 1, dist / 2);
+        boltObject.gameObject.transform.localScale = new Vector3(0.5f, 0.5f, dist / 2);
     }
 
-    private bool TotalListCyclic()
+    // Stop the bolting and return where the Twinotaur should be.
+    private Transform EndBolt()
     {
-        if (totalList == null || totalList.Count < 3)
-        {
-            Debug.Log("Total list needs a start and at least two other nodes!");
-            return false;
-        }
+        boltObject.gameObject.SetActive(false);
+        if (bolting)
+            return boltObject.gameObject.transform;
+        return totalList[currentNode].transform;
+    }
 
-        LinkedListNode<GameObject> tortoise = totalList.First;
-        LinkedListNode<GameObject> hare = totalList.First;
+    public Transform DisableAll()
+    {
+        foreach (GameObject obj in totalList)
+            obj.SetActive(false);
 
-        while (hare != null)
-        {
-            if (hare == tortoise)
-                return true;
-
-            tortoise = tortoise.Next;
-            if (tortoise == null)
-            {
-                Debug.LogError("No cycle!");
-                return false;
-            }
-
-            hare = hare.Next;
-            if (hare == null)
-            {
-                Debug.LogError("No cycle!");
-                return false;
-            }
-
-            hare = hare.Next;
-        }
-
-        return false;
+        return EndBolt();
     }
 
     public void SetThunderLinks(GameObject start, List<GameObject> gases)
@@ -128,18 +117,20 @@ public class ThunderCage : MonoBehaviour
             return;
         }
 
-        startNode = new LinkedListNode<GameObject>(start);
-        thunderClouds = new LinkedList<GameObject>(gases);
-        thunderClouds.AddLast(thunderClouds.First);
-
-        totalList = new LinkedList<GameObject>(thunderClouds);
-        totalList.AddFirst(startNode);
-        currentNode = thunderClouds.First;
+        totalList = new List<GameObject>();
+        totalList.Add(start);
+        foreach (GameObject gas in gases)
+            totalList.Add(gas);
     }
 
     public void SetBoltObject(Hitbox bolt)
     {
         boltObject = bolt;
-        boltObject.gameObject.SetActive(true);
+        boltObject.gameObject.SetActive(false);
+    }
+
+    public bool IsBolting()
+    {
+        return bolting;
     }
 }

@@ -27,9 +27,23 @@ public class Twinotaurs : Boss
     protected const float DASH_COOL = 1f;
     protected const float CLOUD_DELAY = 0.5f;
 
-    //TODO: [Header("Golden Pounce")]
-    //Cage Bolt prefab
-    //use thunderGasPrefab
+    [Header("Golden Pounce")]
+    [SerializeField] protected Hitbox pounceBoltPrefab;
+    [SerializeField] protected List<GameObject> boltIndicators;
+    [SerializeField] protected List<GameObject> boltWarnings;
+    protected List<GameObject> pounceClouds;
+    protected ThunderCage cage;
+    protected const float POUNCE_GAS_SETUP = 4f; // Set up for the clouds
+    //protected const float POUNCE_CLOUD_INITSPEED = 8f;
+    protected const float POUNCE_BOLT_STARTUP = 0.5f; // Set up for spark to charge
+    protected const float POUNCE_MAX_DIST = 6f;
+    protected const float POUNCE_STARTUP = 1f;
+    protected const float POUNCE_DURATION = 0.4f;
+    protected const float POUNCE_ENDLAG = 1f;
+    protected const int POUNCE_COUNT = 6;
+    protected const float POUNCE_COOL = 2f;
+
+    // use thunderGasPrefab from Summoners' Burst
 
     [Header("Perilous Partition")]
     [SerializeField] protected Projectile zapPathPrefab;
@@ -42,8 +56,8 @@ public class Twinotaurs : Boss
 
     [Header("Syncrash")]
     [SerializeField] protected Hitbox crash;
-    [SerializeField] protected GameObject boltPrefab;
-    protected float crashCool = 4f;
+    [SerializeField] protected GameObject wrathBoltPrefab;
+    protected const float CRASH_COOL = 4f;
 
     [Header("Summoners' Burst")]
     [SerializeField] protected Projectile thunderGasPrefab;
@@ -61,8 +75,8 @@ public class Twinotaurs : Boss
         sparkRb = spark.GetComponent<Rigidbody>();
         venomRb = venom.GetComponent<Rigidbody>();
 
-        numAttacks = 5;
-        currentAttack = 0;
+        numAttacks = 7;
+        currentAttack = 1;
         power = 10f;
         currentHealth = 600;
         maxHealth = 600;
@@ -70,6 +84,22 @@ public class Twinotaurs : Boss
         speed = 6f;
         rotateSpeed = Mathf.PI;
         armored = true;
+
+        // Set up the thunder cage
+        cage = (ThunderCage)ScriptableObject.CreateInstance("ThunderCage");
+        Hitbox cageBolt = Instantiate(pounceBoltPrefab).GetComponent<Hitbox>();
+        cageBolt.SetSource(this);
+        cage.SetBoltObject(cageBolt);
+        pounceClouds = new List<GameObject>();
+        for (int i = 0; i < 4; i++)
+        {
+            Projectile cloud = Instantiate(thunderGasPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+            cloud.gameObject.transform.localScale = new Vector3(2, 2, 2);
+            cloud.Setup(0, this, false, 0.01f, -1, 0, 0, true, true);
+            pounceClouds.Add(cloud.gameObject);
+            pounceClouds[i].gameObject.SetActive(false);
+        }
+        cage.SetThunderLinks(spark, pounceClouds);
 
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
@@ -149,7 +179,7 @@ public class Twinotaurs : Boss
         {
             Vector3 jump = new Vector3(0, Physics.gravity.magnitude * AIR_TIME * 0.5f, 0);
             Vector3 latDir = (new Vector3(side, 0, 0)).normalized;
-            float xDist = ((((0.5f * roomManager.GetCurrent().GetLength()) - 3) * latDir.x) - obj.transform.position.x);
+            float xDist = (((0.5f * roomManager.GetCurrent().GetLength()) - 3) * latDir.x) - obj.transform.position.x;
             float zDist = -obj.transform.position.z;
 
             obj.GetComponent<Rigidbody>().AddForce(new Vector3(xDist / AIR_TIME, Physics.gravity.magnitude * AIR_TIME * 0.5f, zDist / AIR_TIME), ForceMode.VelocityChange);
@@ -160,8 +190,8 @@ public class Twinotaurs : Boss
         {
             Vector3 jump = new Vector3(0, Physics.gravity.magnitude * AIR_TIME * 0.5f, 0);
             Vector3 latDir = (new Vector3(obj.transform.position.x - player.transform.position.x, 0, obj.transform.position.z - player.transform.position.z)).normalized;
-            float xDist = ((((0.5f * roomManager.GetCurrent().GetLength()) - 3) * latDir.x) - obj.transform.position.x);
-            float zDist = ((((0.5f * roomManager.GetCurrent().GetWidth()) - 3) * latDir.z) - obj.transform.position.z);
+            float xDist = (((0.5f * roomManager.GetCurrent().GetLength()) - 3) * latDir.x) - obj.transform.position.x;
+            float zDist = (((0.5f * roomManager.GetCurrent().GetWidth()) - 3) * latDir.z) - obj.transform.position.z;
 
             obj.GetComponent<Rigidbody>().AddForce(new Vector3(xDist / AIR_TIME, Physics.gravity.magnitude * AIR_TIME * 0.5f, zDist / AIR_TIME), ForceMode.VelocityChange);
             obj.GetComponent<Rigidbody>().useGravity = true;
@@ -334,6 +364,153 @@ public class Twinotaurs : Boss
                 //       Then create thunder cage
                 //       Start pouncing!
                 state = ActionState.Startup;
+
+                List<Vector3> gasGoals = new List<Vector3>();
+                List<Vector3> gasAims = new List<Vector3>();
+                List<float> gasDecels = new List<float>();
+
+                for (int i = 0; i < 4; i++)
+                {
+                    // Set start and goals
+                    float xPos = Random.Range((room.GetLength() / 2) * 0.5f, (room.GetLength() / 2) * 0.8f);
+                    float zPos = Random.Range((room.GetWidth() / 2) * 0.5f, (room.GetWidth() / 2) * 0.8f);
+                    pounceClouds[i].transform.position = venom.transform.position;
+
+                    switch (i)
+                    {
+                        case 0:
+                            xPos *= -1;
+                            pounceClouds[i].transform.position += new Vector3(-1, 1, 1);
+                            break;
+                        case 1:
+                            pounceClouds[i].transform.position += new Vector3(1, 1, 1);
+                            break;
+                        case 2:
+                            zPos *= -1;
+                            pounceClouds[i].transform.position += new Vector3(1, 1, -1);
+                            break;
+                        case 3:
+                            xPos *= -1;
+                            zPos *= -1;
+                            pounceClouds[i].transform.position += new Vector3(-1, 1, -1);
+                            break;
+                        default:
+                            break;
+                    }
+                    Vector3 goalPos = new Vector3(xPos, 1, zPos);
+                    gasGoals.Add(goalPos);
+                    //Debug.Log("Goal " + i + ": " + goalPos);
+
+                    //Determine Aim
+                    gasAims.Add(gasGoals[i] - pounceClouds[i].transform.position);
+                    pounceClouds[i].gameObject.transform.rotation = Quaternion.LookRotation(gasAims[i]);
+                    pounceClouds[i].gameObject.SetActive(true);
+
+                    // Determine decel based on POUNCE_CLOUD_INITSPEED
+                    gasDecels.Add(-2 * (goalPos - pounceClouds[i].transform.position).magnitude / Mathf.Pow(POUNCE_GAS_SETUP, 2));
+                }
+
+                // Spread out the poison with time
+                t = 0;
+                while (t < POUNCE_GAS_SETUP)
+                {
+                    if (freezeTime <= 0)
+                    {
+                        // Move each gas cloud to its target
+                        for (int i = 0; i < pounceClouds.Count; i++)
+                            pounceClouds[i].GetComponent<Projectile>().SetSpeed(Mathf.Max(gasDecels[i] * (t - POUNCE_GAS_SETUP), 0));
+                        t += Time.deltaTime;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < pounceClouds.Count; i++)
+                            pounceClouds[i].GetComponent<Projectile>().SetSpeed(0);
+                    }
+                    yield return null;
+                }
+
+                // Enable Thunder Cage and Reset Bolt
+                cage.EnableAll();
+                spark.SetActive(false);
+                miniHealthBar.gameObject.SetActive(false);
+                attributesUI.gameObject.SetActive(false);
+
+                state = ActionState.Attacking;
+                Vector3 lookVector;
+                for (int p = 0; p < POUNCE_COUNT; p++)
+                {
+                    lookVector = new Vector3(player.transform.position.x - venom.transform.position.x, 0, player.transform.position.z - venom.transform.position.z);
+                    t = 0;
+                    while (t < POUNCE_STARTUP)
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            if (t < POUNCE_STARTUP * 0.75f)
+                                lookVector = new Vector3(player.transform.position.x - venom.transform.position.x, 0, player.transform.position.z - venom.transform.position.z);
+                            cage.Update();
+                            t += Time.deltaTime;
+                        }
+                        yield return null;
+                    }
+
+                    // POUNCE!
+                    Vector3 playerLoc = player.transform.position;
+                    Vector3 aim = playerLoc - venom.transform.position;
+                    aim = new Vector3(aim.x, 0, aim.z);
+                    float pounceSpeed = Mathf.Min(aim.magnitude, POUNCE_MAX_DIST) / POUNCE_DURATION;
+                    venom.transform.rotation = Quaternion.LookRotation(lookVector);
+
+                    venomCharge.gameObject.SetActive(true);
+                    t = 0;
+                    while (t < POUNCE_DURATION)
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            venomRb.velocity = aim.normalized * pounceSpeed;
+                            cage.Update();
+                            t += Time.deltaTime;
+                        }
+                        else
+                            venomRb.velocity *= 0;
+                        yield return null;
+                    }
+
+                    venomCharge.gameObject.SetActive(false);
+
+                    // Chill
+                    while (t < POUNCE_ENDLAG)
+                    {
+                        if (freezeTime <= 0)
+                        {
+                            venomRb.velocity = aim.normalized * (pounceSpeed * (1 - (t / POUNCE_ENDLAG)));
+                            cage.Update();
+                            t += Time.deltaTime;
+                        }
+                        yield return null;
+                    }
+                    venomRb.velocity *= 0;
+                }
+
+                state = ActionState.Cooldown;
+                t = 0;
+                while (t < POUNCE_COOL)
+                {
+                    if (freezeTime <= 0)
+                    {
+                        if (cage.IsBolting())
+                            cage.Update();
+                        t += Time.deltaTime;
+                    }
+                    yield return null;
+                }
+
+                Transform endLoc = cage.DisableAll();
+                spark.SetActive(true);
+                miniHealthBar.gameObject.SetActive(true);
+                attributesUI.gameObject.SetActive(true);
+                spark.transform.position = new Vector3(endLoc.position.x, 0, endLoc.position.z);
+                spark.transform.rotation = endLoc.rotation;
+
                 yield return null;
                 currentAttack = 2;
                 state = ActionState.Waiting;
@@ -459,8 +636,7 @@ public class Twinotaurs : Boss
                 state = ActionState.Waiting;
                 break;
             case 4: //Syncrash
-                int nextMove = 1 + Random.Range(0, 2); // Determines warnings put up
-
+                int nextMove = 1 + Random.Range(0, 2); // TODO: Determines warnings to put up
                 state = ActionState.Startup;
 
                 //Spark and venom charge
@@ -469,7 +645,7 @@ public class Twinotaurs : Boss
                 {
                     if (freezeTime <= 0)
                     {
-                        Vector3 lookVector = new Vector3(venom.transform.position.x - spark.transform.position.x, 0, venom.transform.position.z - spark.transform.position.z);
+                        lookVector = new Vector3(venom.transform.position.x - spark.transform.position.x, 0, venom.transform.position.z - spark.transform.position.z);
 
                         Vector3 sparkDirection = Vector3.RotateTowards(spark.transform.forward, lookVector, rotateSpeed * Time.deltaTime, 0.0f);
                         Vector3 venomDirection = Vector3.RotateTowards(venom.transform.forward, -lookVector, rotateSpeed * Time.deltaTime, 0.0f);
@@ -517,7 +693,7 @@ public class Twinotaurs : Boss
 
                 for (int i = 0; i < summons.Count; i++)
                 {
-                    bolts.Add(Instantiate(boltPrefab, summons[i].gameObject.transform.position, Quaternion.Euler(0, 0, 0)));
+                    bolts.Add(Instantiate(wrathBoltPrefab, summons[i].gameObject.transform.position, Quaternion.Euler(0, 0, 0)));
                     yield return null;
                 }
                 sparkCharge.gameObject.SetActive(false);
@@ -562,7 +738,7 @@ public class Twinotaurs : Boss
                 state = ActionState.Cooldown;
 
                 t = 0;
-                while (t < crashCool)
+                while (t < CRASH_COOL)
                 {
                     if (!frozen)
                         t += Time.deltaTime;
@@ -574,9 +750,22 @@ public class Twinotaurs : Boss
                 break;
             case 6: //Summoners' Cyclone
                 state = ActionState.Attacking;
-                // TODO: Create Cyclone Projectile Class
+                // TODO: Create Cyclone Class
+                for (int i = 0; i < summons.Count; i++)
+                {
+                    // TODO: Create Cyclone
+                    Destroy(summons[i].gameObject);
+                }
+                state = ActionState.Cooldown;
 
-                yield return null;
+                t = 0;
+                while (t < CRASH_COOL)
+                {
+                    if (!frozen)
+                        t += Time.deltaTime;
+                    yield return null;
+                }
+
                 currentAttack = 0 + Random.Range(0, 2);
                 state = ActionState.Waiting;
                 break;
@@ -635,5 +824,20 @@ public class Twinotaurs : Boss
     public override void Reset(bool zeroSpeed)
     {
 
+    }
+
+    public void OnDestroy()
+    {
+        foreach (Enemy e in summons)
+        {
+            Destroy(e.gameObject);
+            summons.Remove(e);
+        }
+
+        //foreach (GameObject c in pounceClouds)
+        //{
+        //    Destroy(c);
+        //    pounceClouds.Remove(c);
+        //}
     }
 }
