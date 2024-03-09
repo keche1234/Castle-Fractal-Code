@@ -28,7 +28,7 @@ public class Singletaur : MonoBehaviour
                 GetComponent<Rigidbody>().velocity *= 0;
                 transform.position -= transform.forward;
             }
-            else if (twins.GetCurrentAttack() == 3 && collider.gameObject.name == "Venom") //Syncrash
+            else if (twins.GetCurrentAttack() == 4 && collider.gameObject.name == "Venom") //Syncrash
             {
                 GetComponent<Collider>().isTrigger = false;
                 collider.isTrigger = false;

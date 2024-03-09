@@ -16,6 +16,7 @@ public abstract class Boss : Enemy
     protected List<Vector3> summonLastPositions; // Used to keep summons in specific places (x,z) places without being too jarring
     protected float summonStartup = 1;
     protected float summonCooldown = 1;
+    protected int summonCount;
 
     /************************************************************
      * Each attack needs its own framedata and set of hitboxes

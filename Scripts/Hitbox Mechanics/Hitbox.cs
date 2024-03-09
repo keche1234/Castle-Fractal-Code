@@ -92,7 +92,7 @@ public class Hitbox : MonoBehaviour
         fixedKB = f;
     }
 
-    public virtual void OnTriggerEnter(Collider targetCollider)
+    public virtual void OnTriggerStay(Collider targetCollider)
     {
         Character c = targetCollider.gameObject.GetComponent<Character>();
         if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c))
@@ -116,7 +116,6 @@ public class Hitbox : MonoBehaviour
                     source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
                 else //Twinotaurs
                     source.DealDamage(damageMod, targetCollider.gameObject.transform.parent.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
-
             }
         }
     }

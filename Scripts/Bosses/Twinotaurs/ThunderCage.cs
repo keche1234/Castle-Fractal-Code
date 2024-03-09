@@ -90,9 +90,13 @@ public class ThunderCage : ScriptableObject
     private Transform EndBolt()
     {
         boltObject.gameObject.SetActive(false);
-        if (bolting)
-            return boltObject.gameObject.transform;
-        return totalList[currentNode].transform;
+        if (currentNode < totalList.Count - 1)
+            return totalList[currentNode + 1].transform;
+        return totalList[1].transform;
+
+        //if (bolting)
+        //    return boltObject.gameObject.transform;
+        //return totalList[currentNode].transform;
     }
 
     public Transform DisableAll()

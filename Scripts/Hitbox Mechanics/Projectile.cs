@@ -61,7 +61,7 @@ public class Projectile : Hitbox
             Destroy(gameObject);
     }
 
-    public override void OnTriggerEnter(Collider targetCollider)
+    public void OnTriggerEnter(Collider targetCollider)
     {
         Character c = targetCollider.gameObject.GetComponent<Character>();
         if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c))
@@ -89,7 +89,7 @@ public class Projectile : Hitbox
             Destroy(gameObject);
     }
 
-    public void OnTriggerStay(Collider targetCollider)
+    public override void OnTriggerStay(Collider targetCollider)
     {
         if (multihit)
             OnTriggerEnter(targetCollider);

@@ -64,11 +64,12 @@ public class Magestic : Boss
     public override void Start()
     {
         base.Start();
-        numAttacks = 7; // 7
+        numAttacks = 7;
         currentAttack = 0;
         power = 30f;
         currentHealth = 600;
         maxHealth = 600;
+        summonCount = 5;
 
         rotateSpeed = 15f;
         armored = true;
@@ -129,7 +130,7 @@ public class Magestic : Boss
         {
             case 0: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(5, 2, 4, 2f, 1.5f, 1.25f, 2));
+                StartCoroutine(Summon(summonCount, 2, 4, 2f, 1.5f, 1.25f, 2));
                 break;
             case 1: //Pyrostorm
                 //startup

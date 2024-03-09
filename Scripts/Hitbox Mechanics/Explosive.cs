@@ -69,7 +69,7 @@ public class Explosive : Projectile
             e.SetDamageMod(m);
     }
 
-    public override void OnTriggerEnter(Collider targetCollider)
+    public new void OnTriggerEnter(Collider targetCollider)
     {
         if (!triggered)
         {

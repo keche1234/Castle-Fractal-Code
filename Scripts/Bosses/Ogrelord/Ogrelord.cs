@@ -76,6 +76,7 @@ public class Ogrelord : Boss
         power = 20f;
         currentHealth = 1000;
         maxHealth = 1000;
+        summonCount = 1;
 
         speed = 3f;
         rotateSpeed = Mathf.PI / 3;
@@ -159,7 +160,7 @@ public class Ogrelord : Boss
         {
             case 0: //Summon
                 if (summons.Count < 7)
-                    StartCoroutine(Summon(1, 4, 2, 1.5f, 1, 2, 2));
+                    StartCoroutine(Summon(summonCount, 4, 2, 1.5f, 1, 2, 2));
                 break;
             case 1: //Club Combo
                 //startup

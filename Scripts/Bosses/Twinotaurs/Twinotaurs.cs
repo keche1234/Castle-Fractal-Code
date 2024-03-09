@@ -37,9 +37,9 @@ public class Twinotaurs : Boss
     //protected const float POUNCE_CLOUD_INITSPEED = 8f;
     protected const float POUNCE_BOLT_STARTUP = 0.5f; // Set up for spark to charge
     protected const float POUNCE_MAX_DIST = 6f;
-    protected const float POUNCE_STARTUP = 1f;
+    protected const float POUNCE_STARTUP = 0.4f;
     protected const float POUNCE_DURATION = 0.4f;
-    protected const float POUNCE_ENDLAG = 1f;
+    protected const float POUNCE_ENDLAG = 1.2f;
     protected const int POUNCE_COUNT = 6;
     protected const float POUNCE_COOL = 2f;
 
@@ -61,11 +61,13 @@ public class Twinotaurs : Boss
 
     [Header("Summoners' Burst")]
     [SerializeField] protected Projectile thunderGasPrefab;
-    // Warning list for Twinotaurs
-    // Warning list for Spread
+    // TODO: Warning list for Twinotaurs
+    // TODO: Warning list for Spread
 
-    //TODO: [Header("Summoners' Cyclone")]
-    // Warning List for Cyclone
+    [Header("Summoners' Cyclone")]
+    [SerializeField] protected Cyclone cyclonePrefab;
+    protected List<Cyclone> cycloneList;
+    // TODO: Warning List for Cyclone
 
     // Start is called before the first frame update
     public override void Start()
@@ -76,10 +78,11 @@ public class Twinotaurs : Boss
         venomRb = venom.GetComponent<Rigidbody>();
 
         numAttacks = 7;
-        currentAttack = 1;
+        currentAttack = 2;
         power = 10f;
         currentHealth = 600;
         maxHealth = 600;
+        summonCount = 3;
 
         speed = 6f;
         rotateSpeed = Mathf.PI;
@@ -100,6 +103,17 @@ public class Twinotaurs : Boss
             pounceClouds[i].gameObject.SetActive(false);
         }
         cage.SetThunderLinks(spark, pounceClouds);
+
+        // Set up cyclones
+        cycloneList = new List<Cyclone>();
+        for (int i = 0; i < summonCount; i++)
+        {
+            Cyclone cyclone = Instantiate(cyclonePrefab, transform.position, Quaternion.Euler(0, 0, 0));
+            cyclone.GetComponent<Hitbox>().SetSource(this);
+            cyclone.transform.parent = transform;
+            cyclone.gameObject.SetActive(false);
+            cycloneList.Add(cyclone);
+        }
 
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
@@ -306,7 +320,7 @@ public class Twinotaurs : Boss
                             {
                                 //spawn cloud
                                 Projectile cloud = Instantiate(poisonCloudPrefab, venom.transform.position + Vector3.up, Quaternion.Euler(0, 0, 0)); //static projectile
-                                cloud.Setup(0, this, false, 0, 7, .01f, 0, true, true, 0);
+                                cloud.Setup(0, this, false, 0, 6, .01f, 0, true, true, 0);
                                 poisonClouds.Add(cloud);
                                 poisonTimer = CLOUD_DELAY;
                             }
@@ -360,9 +374,6 @@ public class Twinotaurs : Boss
                 state = ActionState.Waiting;
                 break;
             case 1: // Golden Pounce
-                // TODO: Set up poison, give time (during which, warning is set up)
-                //       Then create thunder cage
-                //       Start pouncing!
                 state = ActionState.Startup;
 
                 List<Vector3> gasGoals = new List<Vector3>();
@@ -454,8 +465,7 @@ public class Twinotaurs : Boss
                     }
 
                     // POUNCE!
-                    Vector3 playerLoc = player.transform.position;
-                    Vector3 aim = playerLoc - venom.transform.position;
+                    Vector3 aim = lookVector;
                     aim = new Vector3(aim.x, 0, aim.z);
                     float pounceSpeed = Mathf.Min(aim.magnitude, POUNCE_MAX_DIST) / POUNCE_DURATION;
                     venom.transform.rotation = Quaternion.LookRotation(lookVector);
@@ -517,7 +527,10 @@ public class Twinotaurs : Boss
                 break;
             case 2: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(3, 3, 3, 1, 2, 1.5f, 1));
+                foreach (Cyclone c in cycloneList)
+                    c.gameObject.SetActive(false);
+
+                StartCoroutine(Summon(summonCount, 3, 3, 1, 2, 1.5f, 1));
                 while (state != ActionState.Waiting) yield return null;
                 break;
             case 3: //Perilous Partition
@@ -750,10 +763,12 @@ public class Twinotaurs : Boss
                 break;
             case 6: //Summoners' Cyclone
                 state = ActionState.Attacking;
-                // TODO: Create Cyclone Class
                 for (int i = 0; i < summons.Count; i++)
                 {
-                    // TODO: Create Cyclone
+                    // Activate cyclones
+                    Vector3 summonPos = summons[i].gameObject.transform.position;
+                    cycloneList[i].transform.position = new Vector3(summonPos.x, 0, summonPos.z);
+                    cycloneList[i].gameObject.SetActive(true);
                     Destroy(summons[i].gameObject);
                 }
                 state = ActionState.Cooldown;
@@ -834,10 +849,10 @@ public class Twinotaurs : Boss
             summons.Remove(e);
         }
 
-        //foreach (GameObject c in pounceClouds)
-        //{
-        //    Destroy(c);
-        //    pounceClouds.Remove(c);
-        //}
+        foreach (GameObject c in pounceClouds)
+        {
+            Destroy(c);
+            pounceClouds.Remove(c);
+        }
     }
 }
