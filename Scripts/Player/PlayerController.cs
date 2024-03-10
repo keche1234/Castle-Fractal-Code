@@ -74,6 +74,7 @@ public class PlayerController : Character
     [Header("Dodging")]
     [SerializeField] protected float dodgeCool;
     [SerializeField] protected float baseSigFillRate = 1; // This many pts per percentage of health save when dodging.
+    protected TrailRenderer dodgeTrail;
 
     protected int rank;
     protected int healthRank;
@@ -129,6 +130,7 @@ public class PlayerController : Character
             selectedPotions.Add(false);
 
         SetCustomWeapon(-1);
+        dodgeTrail = GetComponent<TrailRenderer>();
     }
 
     // Update is called once per frame
@@ -892,7 +894,6 @@ public class PlayerController : Character
     /*******************************************
      * DODGE!!!!
      *******************************************/
-
     protected float CalculateDodgeCool()
     {
         CustomWeapon current = GetCustomWeapon();
@@ -966,6 +967,9 @@ public class PlayerController : Character
         playerDodge = DodgeState.Dodging;
         playerRb.velocity = transform.forward * speed * 2.5f * (1 + (SummationBuffs(3) / 2)) * CalculateDodgeDistance();
         List<Hitbox> dodged = new List<Hitbox>();
+        dodgeTrail.time = 0.5f;
+        dodgeTrail.emitting = true;
+        // TODO: Show cooldown bar now
 
         float dt = 0;
         float bonus = 1 * CalculateDodgeCool();
@@ -984,6 +988,7 @@ public class PlayerController : Character
 
         while (dt < 0.5f)
         {
+            dodgeTrail.time = 0.5f * (1 - ((dt - 0.4f) / 0.1f));
             if (playerDodge != DodgeState.Fail && Physics.SphereCast(new Ray(gameObject.transform.position, transform.forward * -1), 0.5f, out hit, playerRb.velocity.magnitude * dt))
             {
                 bonus = DodgeHelp(hit, dodged, bonus);
@@ -991,9 +996,18 @@ public class PlayerController : Character
             dt += Time.deltaTime;
             yield return null;
         }
+        dodgeTrail.time = 0;
+        dodgeTrail.emitting = false;
 
         playerDodge = DodgeState.Cooldown;
-        yield return new WaitForSeconds(dodgeCool / bonus);
+        float t = 0;
+        float trueCool = dodgeCool / bonus;
+        while (t < trueCool)
+        {
+            // TOOD: UI for cooldown bar
+            t += Time.deltaTime;
+            yield return null;
+        }
         playerDodge = DodgeState.Available;
         yield return null;
     }
