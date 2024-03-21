@@ -20,6 +20,7 @@ public class PlayerController : Character
     //private bool fixDirection; //Are you looking in one direction while moving
 
     [SerializeField] protected BarUI miniDurabilityBar;
+    [SerializeField] protected BarUI miniDodgeBar;
     [SerializeField] protected BarUI healthBar;
     [SerializeField] protected BarUI inventoryBar;
     [SerializeField] protected BarUI signatureBar;
@@ -73,7 +74,7 @@ public class PlayerController : Character
 
     [Header("Dodging")]
     [SerializeField] protected float dodgeCool;
-    [SerializeField] protected float baseSigFillRate = 1; // This many pts per percentage of health save when dodging.
+    [SerializeField] protected float baseSigFillRate = 40; // This many pts per percentage of health save when dodging.
     protected TrailRenderer dodgeTrail;
 
     protected int rank;
@@ -88,6 +89,10 @@ public class PlayerController : Character
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -110));
         miniDurabilityBar.gameObject.transform.parent.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         miniDurabilityBar.gameObject.transform.parent.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -70));
+
+        miniDodgeBar.gameObject.transform.parent.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
+        miniDodgeBar.gameObject.transform.parent.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, 70));
+        miniDodgeBar.gameObject.SetActive(false);
 
         Cursor.visible = false;
         playerRb = GetComponent<Rigidbody>();
@@ -462,6 +467,8 @@ public class PlayerController : Character
                 if (playerDodge == DodgeState.Dodging)
                     playerDodge = DodgeState.Fail; //this means the coroutine is running, so it will set the dodge state back to cool or available when necessary.
 
+                dodgeTrail.time = 0;
+                dodgeTrail.emitting = false;
                 currentHealth -= damage;
 
                 if (triggerInvinc)
@@ -942,6 +949,10 @@ public class PlayerController : Character
                 damage = ((Enemy)h.GetSource()).SimulateDamage(h.GetDamageMod(), this);
             }
             int pts = (int)(damage * 100 * baseSigFillRate * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4))) / (int)maxHealth;
+            Debug.Log("Damage * 100: " + (damage * 100));
+            Debug.Log("Base: " + baseSigFillRate);
+            Debug.Log("Mult: " + signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
+            Debug.Log(pts);
             if (equippedCustomWeapon > -1)
             {
                 int pity = 1;
@@ -969,7 +980,8 @@ public class PlayerController : Character
         List<Hitbox> dodged = new List<Hitbox>();
         dodgeTrail.time = 0.5f;
         dodgeTrail.emitting = true;
-        // TODO: Show cooldown bar now
+        miniDodgeBar.gameObject.SetActive(true);
+        miniDodgeBar.SetValue(1);
 
         float dt = 0;
         float bonus = 1 * CalculateDodgeCool();
@@ -1004,11 +1016,12 @@ public class PlayerController : Character
         float trueCool = dodgeCool / bonus;
         while (t < trueCool)
         {
-            // TOOD: UI for cooldown bar
             t += Time.deltaTime;
+            miniDodgeBar.SetValue(Mathf.Max(0, (trueCool - t) / trueCool));
             yield return null;
         }
         playerDodge = DodgeState.Available;
+        miniDodgeBar.gameObject.SetActive(false);
         yield return null;
     }
 

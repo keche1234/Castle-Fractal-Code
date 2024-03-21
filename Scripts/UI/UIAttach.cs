@@ -20,7 +20,8 @@ public class UIAttach : MonoBehaviour
         {
             Vector3 screenPos = cam.WorldToScreenPoint(obj.transform.position);
             //Vector3 toCamera = (cam.transform.position - obj.transform.position).normalized * 2;
-            transform.position = cam.ScreenToWorldPoint(new Vector3(screenPos.x + offset.x, screenPos.y + offset.y, cam.transform.position.y - obj.transform.position.y));
+            float depth = Mathf.Min(new Vector3(cam.transform.position.x, cam.transform.position.y, cam.transform.position.z).magnitude, cam.transform.position.y - 1f);
+            transform.position = cam.ScreenToWorldPoint(new Vector3(screenPos.x + offset.x, screenPos.y + offset.y, depth));
         }
     }
 

@@ -78,7 +78,8 @@ public class Twinotaurs : Boss
         venomRb = venom.GetComponent<Rigidbody>();
 
         numAttacks = 7;
-        currentAttack = 2;
+        //currentAttack = Random.Range(0, 2);
+        currentAttack = 1;
         power = 10f;
         currentHealth = 600;
         maxHealth = 600;
@@ -430,6 +431,7 @@ public class Twinotaurs : Boss
                         // Move each gas cloud to its target
                         for (int i = 0; i < pounceClouds.Count; i++)
                             pounceClouds[i].GetComponent<Projectile>().SetSpeed(Mathf.Max(gasDecels[i] * (t - POUNCE_GAS_SETUP), 0));
+                        LookTowardsPlayer(venom, false);
                         t += Time.deltaTime;
                     }
                     else
@@ -447,6 +449,7 @@ public class Twinotaurs : Boss
                 attributesUI.gameObject.SetActive(false);
 
                 state = ActionState.Attacking;
+                venom.GetComponent<Collider>().isTrigger = true;
                 Vector3 lookVector;
                 for (int p = 0; p < POUNCE_COUNT; p++)
                 {
@@ -502,6 +505,8 @@ public class Twinotaurs : Boss
                 }
 
                 state = ActionState.Cooldown;
+                venom.GetComponent<Collider>().isTrigger = false;
+                venomRb.velocity *= 0;
                 t = 0;
                 while (t < POUNCE_COOL)
                 {
@@ -530,7 +535,7 @@ public class Twinotaurs : Boss
                 foreach (Cyclone c in cycloneList)
                     c.gameObject.SetActive(false);
 
-                StartCoroutine(Summon(summonCount, 3, 3, 1, 2, 1.5f, 1));
+                StartCoroutine(Summon(summonCount, 3, 3, 1, 1, 1.5f, 1));
                 while (state != ActionState.Waiting) yield return null;
                 break;
             case 3: //Perilous Partition
@@ -729,12 +734,16 @@ public class Twinotaurs : Boss
                     i--;
                 }
 
-                currentAttack += 1 + nextMove;
+                currentAttack += nextMove;
                 state = ActionState.Waiting;
                 break;
             case 5: //Summoners' Burst
                 state = ActionState.Attacking;
                 List<Projectile> thunderGases = new List<Projectile>();
+
+                // Need to destroy each object through a separate list from the summon list
+                // Due to Boss's update method altering lists
+                List<Enemy> destroyList = new List<Enemy>();
                 for (int i = 0; i < summons.Count; i++)
                 {
                     for (int j = 0; j < 6; j++)
@@ -746,8 +755,12 @@ public class Twinotaurs : Boss
                         thunderGases[i * 6 + j].Setup(6, this, false, 0, -1, 0.03f, 0, true, true, 1);
                         thunderGases[i * 6 + j].SetInvincTrigger(false);
                     }
-                    Destroy(summons[i].gameObject);
+                    destroyList.Add(summons[i]);
                 }
+
+                foreach (Enemy s in destroyList)
+                    Destroy(s.gameObject);
+
                 state = ActionState.Cooldown;
 
                 t = 0;
@@ -763,14 +776,21 @@ public class Twinotaurs : Boss
                 break;
             case 6: //Summoners' Cyclone
                 state = ActionState.Attacking;
+                // Need to destroy each object through a separate list from the summon list
+                // Due to Boss's update method altering lists
+                destroyList = new List<Enemy>();
                 for (int i = 0; i < summons.Count; i++)
                 {
                     // Activate cyclones
                     Vector3 summonPos = summons[i].gameObject.transform.position;
                     cycloneList[i].transform.position = new Vector3(summonPos.x, 0, summonPos.z);
                     cycloneList[i].gameObject.SetActive(true);
-                    Destroy(summons[i].gameObject);
+                    destroyList.Add(summons[i]);
                 }
+
+                foreach (Enemy s in destroyList)
+                    Destroy(s.gameObject);
+
                 state = ActionState.Cooldown;
 
                 t = 0;
