@@ -57,17 +57,24 @@ public class Twinotaurs : Boss
     [Header("Syncrash")]
     [SerializeField] protected Hitbox crash;
     [SerializeField] protected GameObject wrathBoltPrefab;
+    [SerializeField] protected GameObject sparkCrashIndicator;
+    [SerializeField] protected GameObject sparkCrashWarning;
+    [SerializeField] protected GameObject venomCrashIndicator;
+    [SerializeField] protected GameObject venomCrashWarning;
+    [SerializeField] protected GameObject centerCrashIndicator;
+    [SerializeField] protected GameObject centerCrashWarning;
     protected const float CRASH_COOL = 4f;
 
     [Header("Summoners' Burst")]
     [SerializeField] protected Projectile thunderGasPrefab;
+    [SerializeField] protected List<GameObject> summonKOIndicators;
+    [SerializeField] protected List<GameObject> summonKOWarnings;
     // TODO: Warning list for Twinotaurs
-    // TODO: Warning list for Spread
 
     [Header("Summoners' Cyclone")]
     [SerializeField] protected Cyclone cyclonePrefab;
+
     protected List<Cyclone> cycloneList;
-    // TODO: Warning List for Cyclone
 
     // Start is called before the first frame update
     public override void Start()
@@ -248,7 +255,7 @@ public class Twinotaurs : Boss
 
     protected void Syncrash()
     {
-        
+
     }
 
     protected override IEnumerator Attack()
@@ -424,8 +431,31 @@ public class Twinotaurs : Boss
 
                 // Spread out the poison with time
                 t = 0;
+                foreach (GameObject indicator in boltIndicators)
+                    indicator.gameObject.SetActive(true);
+
                 while (t < POUNCE_GAS_SETUP)
                 {
+                    for (int i = 0; i < pounceClouds.Count; i++)
+                    {
+                        Vector3 nextCloud;
+                        if (i < pounceClouds.Count - 1)
+                            nextCloud = pounceClouds[i + 1].transform.position;
+                        else
+                            nextCloud = pounceClouds[0].transform.position;
+
+                        // Determine direction
+                        Vector3 aim = nextCloud - pounceClouds[i].transform.position;
+                        boltIndicators[i].transform.rotation = Quaternion.LookRotation(aim.normalized);
+
+                        // Determine center
+                        Vector3 centerLoc = (nextCloud + pounceClouds[i].transform.position) / 2;
+                        boltIndicators[i].transform.position = centerLoc;
+
+                        // Determine scale
+                        boltIndicators[i].transform.localScale = new Vector3(boltIndicators[i].transform.localScale.x, boltIndicators[i].transform.localScale.y, aim.magnitude + 0.5f);
+                    }
+
                     if (freezeTime <= 0)
                     {
                         // Move each gas cloud to its target
@@ -433,6 +463,9 @@ public class Twinotaurs : Boss
                             pounceClouds[i].GetComponent<Projectile>().SetSpeed(Mathf.Max(gasDecels[i] * (t - POUNCE_GAS_SETUP), 0));
                         LookTowardsPlayer(venom, false);
                         t += Time.deltaTime;
+
+                        for (int i = 0; i < pounceClouds.Count; i++)
+                            boltWarnings[i].transform.localScale = new Vector3(boltWarnings[i].transform.localScale.x, boltWarnings[i].transform.localScale.y, t / POUNCE_GAS_SETUP);
                     }
                     else
                     {
@@ -441,6 +474,8 @@ public class Twinotaurs : Boss
                     }
                     yield return null;
                 }
+                foreach (GameObject indicator in boltIndicators)
+                    indicator.gameObject.SetActive(false);
 
                 // Enable Thunder Cage and Reset Bolt
                 cage.EnableAll();
@@ -650,7 +685,7 @@ public class Twinotaurs : Boss
                 sparkRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 venomRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 yield return null;
-                currentAttack ++;
+                currentAttack++;
                 state = ActionState.Waiting;
                 break;
             case 4: //Syncrash
@@ -658,11 +693,19 @@ public class Twinotaurs : Boss
                 state = ActionState.Startup;
 
                 //Spark and venom charge
+                sparkCrashIndicator.SetActive(true);
+                venomCrashIndicator.SetActive(true);
+                centerCrashIndicator.SetActive(true);
+
+                for (int i = 0; i < summonKOIndicators.Count; i++)
+                    summonKOIndicators[i].SetActive(false);
+
                 t = 0;
-                while (t < (DASH_START / 1.5f))
+                while (t < DASH_START)
                 {
                     if (freezeTime <= 0)
                     {
+                        Vector3 crashPoint = (spark.transform.position + venom.transform.position) / 2;
                         lookVector = new Vector3(venom.transform.position.x - spark.transform.position.x, 0, venom.transform.position.z - spark.transform.position.z);
 
                         Vector3 sparkDirection = Vector3.RotateTowards(spark.transform.forward, lookVector, rotateSpeed * Time.deltaTime, 0.0f);
@@ -671,7 +714,34 @@ public class Twinotaurs : Boss
                         spark.transform.rotation = Quaternion.LookRotation(sparkDirection);
                         venom.transform.rotation = Quaternion.LookRotation(venomDirection);
 
+                        sparkCrashIndicator.transform.rotation = Quaternion.LookRotation(crashPoint - spark.transform.position);
+                        sparkCrashIndicator.transform.position = (crashPoint + spark.transform.position) / 2;
+                        sparkCrashIndicator.transform.localScale = new Vector3(sparkCrashIndicator.transform.localScale.x, sparkCrashIndicator.transform.localScale.y, lookVector.magnitude / 2);
+
+                        venomCrashIndicator.transform.rotation = Quaternion.LookRotation(crashPoint - venom.transform.position);
+                        venomCrashIndicator.transform.position = (crashPoint + venom.transform.position) / 2;
+                        venomCrashIndicator.transform.localScale = new Vector3(venomCrashIndicator.transform.localScale.x, venomCrashIndicator.transform.localScale.y, lookVector.magnitude / 2);
+
+                        centerCrashIndicator.transform.position = crashPoint;
+
                         t += Time.deltaTime;
+                        // Dash
+                        sparkCrashWarning.transform.localScale = new Vector3(sparkCrashWarning.transform.localScale.y, sparkCrashWarning.transform.localScale.y, t / DASH_START);
+                        venomCrashWarning.transform.localScale = new Vector3(venomCrashWarning.transform.localScale.y, venomCrashWarning.transform.localScale.y, t / DASH_START);
+                        centerCrashWarning.transform.localScale = new Vector3(t / DASH_START, centerCrashWarning.transform.localScale.y, t / DASH_START);
+
+                        // Burst or Cyclone
+                        for (int i = 0; i < summonKOIndicators.Count; i++)
+                        {
+                            if (i < summons.Count)
+                            {
+                                summonKOIndicators[i].SetActive(true);
+                                summonKOIndicators[i].transform.position = summons[i].transform.position;
+                                summonKOWarnings[i].transform.localScale = new Vector3(t / DASH_START, summonKOWarnings[i].transform.localScale.y, t / DASH_START);
+                            }
+                            else
+                                summonKOIndicators[i].SetActive(false);
+                        }
                     }
                     yield return null;
                 }
@@ -684,6 +754,12 @@ public class Twinotaurs : Boss
                 venomRb.velocity = -sparkRb.velocity;
                 sparkMov = sparkRb.velocity;
                 venomMov = venomRb.velocity;
+
+                sparkCrashIndicator.SetActive(false);
+                venomCrashIndicator.SetActive(false);
+                centerCrashIndicator.SetActive(false);
+                for (int i = 0; i < summonKOIndicators.Count; i++)
+                    summonKOIndicators[i].SetActive(false);
 
                 state = ActionState.Attacking;
                 while (state == ActionState.Attacking)
