@@ -5,7 +5,7 @@ using UnityEngine;
 public class ProtoPlayerRevive : MonoBehaviour
 {
     [SerializeField] protected PlayerController player;
-    [SerializeField] protected ProtoRoomManager protoRoomManager;
+    [SerializeField] protected ProtoRoomManager01 protoRoomManager;
     [SerializeField] protected float delay;
     [SerializeField] protected bool reviving;
     // Start is called before the first frame update

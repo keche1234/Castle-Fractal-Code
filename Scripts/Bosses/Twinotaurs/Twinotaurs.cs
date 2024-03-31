@@ -85,8 +85,8 @@ public class Twinotaurs : Boss
         venomRb = venom.GetComponent<Rigidbody>();
 
         numAttacks = 7;
-        //currentAttack = Random.Range(0, 2);
-        currentAttack = 1;
+        currentAttack = Random.Range(0, 2);
+        //currentAttack = 1;
         power = 10f;
         currentHealth = 600;
         maxHealth = 600;
@@ -450,7 +450,7 @@ public class Twinotaurs : Boss
 
                         // Determine center
                         Vector3 centerLoc = (nextCloud + pounceClouds[i].transform.position) / 2;
-                        boltIndicators[i].transform.position = centerLoc;
+                        boltIndicators[i].transform.position = new Vector3(centerLoc.x, 0.1f, centerLoc.z);
 
                         // Determine scale
                         boltIndicators[i].transform.localScale = new Vector3(boltIndicators[i].transform.localScale.x, boltIndicators[i].transform.localScale.y, aim.magnitude + 0.5f);
@@ -689,7 +689,7 @@ public class Twinotaurs : Boss
                 state = ActionState.Waiting;
                 break;
             case 4: //Syncrash
-                int nextMove = 1 + Random.Range(0, 2); // TODO: Determines warnings to put up
+                int nextMove = 1 + Random.Range(0, 2);
                 state = ActionState.Startup;
 
                 //Spark and venom charge
@@ -715,12 +715,12 @@ public class Twinotaurs : Boss
                         venom.transform.rotation = Quaternion.LookRotation(venomDirection);
 
                         sparkCrashIndicator.transform.rotation = Quaternion.LookRotation(crashPoint - spark.transform.position);
-                        sparkCrashIndicator.transform.position = (crashPoint + spark.transform.position) / 2;
-                        sparkCrashIndicator.transform.localScale = new Vector3(sparkCrashIndicator.transform.localScale.x, sparkCrashIndicator.transform.localScale.y, lookVector.magnitude / 2);
+                        sparkCrashIndicator.transform.position = (Vector3.up * 0.5f) + (crashPoint + spark.transform.position) / 2;
+                        sparkCrashIndicator.transform.localScale = new Vector3(sparkCrashIndicator.transform.localScale.x, sparkCrashIndicator.transform.localScale.y, (lookVector.magnitude / 2) + 2);
 
                         venomCrashIndicator.transform.rotation = Quaternion.LookRotation(crashPoint - venom.transform.position);
-                        venomCrashIndicator.transform.position = (crashPoint + venom.transform.position) / 2;
-                        venomCrashIndicator.transform.localScale = new Vector3(venomCrashIndicator.transform.localScale.x, venomCrashIndicator.transform.localScale.y, lookVector.magnitude / 2);
+                        venomCrashIndicator.transform.position = (Vector3.up * 0.5f) + (crashPoint + venom.transform.position) / 2;
+                        venomCrashIndicator.transform.localScale = new Vector3(venomCrashIndicator.transform.localScale.x, venomCrashIndicator.transform.localScale.y, (lookVector.magnitude / 2) + 2);
 
                         centerCrashIndicator.transform.position = crashPoint;
 

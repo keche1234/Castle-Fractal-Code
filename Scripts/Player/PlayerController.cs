@@ -949,10 +949,6 @@ public class PlayerController : Character
                 damage = ((Enemy)h.GetSource()).SimulateDamage(h.GetDamageMod(), this);
             }
             int pts = (int)(damage * 100 * baseSigFillRate * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4))) / (int)maxHealth;
-            Debug.Log("Damage * 100: " + (damage * 100));
-            Debug.Log("Base: " + baseSigFillRate);
-            Debug.Log("Mult: " + signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
-            Debug.Log(pts);
             if (equippedCustomWeapon > -1)
             {
                 int pity = 1;
