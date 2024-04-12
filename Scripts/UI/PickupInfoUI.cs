@@ -56,6 +56,15 @@ public class PickupInfoUI : MonoBehaviour
         player = FindObjectOfType<PlayerController>();
         uiAttach = group.GetComponent<UIAttach>();
         uiAttach.NewCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
+
+        foreach (Image a in myAbilityIcons)
+        {
+            if (a.GetComponent<UIAttach>() != null)
+            {
+                a.GetComponent<UIAttach>().NewCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
+                a.GetComponent<UIAttach>().enabled = false;
+            }
+        }
     }
 
     // Update is called once per frame
@@ -68,11 +77,19 @@ public class PickupInfoUI : MonoBehaviour
         List<int> abilities = pickup.GetAbilities();
         for (int i = 0; i < myAbilityIcons.Count; i++)
             myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
+
+        for (int i = 0; i < myAbilityIcons.Count; i++)
+        {
+            Image a = myAbilityIcons[i];
+            UIAttach abilityAttach = a.GetComponent<UIAttach>();
+            if (abilityAttach != null)
+                abilityAttach.enabled = false;
+        }
+
         if (player != null)
         {
             if ((player.gameObject.transform.position - transform.position).magnitude <= infoRange)
             {
-                Debug.Log(player.gameObject.transform.position.z + " vs " + transform.position.z);
                 if (player.gameObject.transform.position.z > transform.position.z)
                     uiAttach.NewOffset(new Vector2(0, -120));
                 else
@@ -81,6 +98,31 @@ public class PickupInfoUI : MonoBehaviour
                 group.transform.localScale = new Vector3(Mathf.Clamp(scale.x + (spawnScaleSpeed * Time.deltaTime), 0, scaleCap),
                                                         Mathf.Clamp(scale.y + (spawnScaleSpeed * Time.deltaTime), 0, scaleCap),
                                                         Mathf.Clamp(scale.z + (spawnScaleSpeed * Time.deltaTime), 0, scaleCap));
+
+                if ((group.transform.localScale.x + group.transform.localScale.y + group.transform.localScale.z) / 3 >= scaleCap * 0.99f)
+                {
+                    for (int i = 0; i < myAbilityIcons.Count; i++)
+                    {
+                        Image a = myAbilityIcons[i];
+                        UIAttach abilityAttach = a.GetComponent<UIAttach>();
+                        if (abilityAttach != null)
+                        {
+                            abilityAttach.enabled = true;
+                            GameObject box = abilityAttach.GetAnchor();
+                            if (box != null)
+                            {
+                                Vector2 boxDim = new Vector2(box.gameObject.GetComponent<RectTransform>().rect.width, box.gameObject.GetComponent<RectTransform>().rect.height);
+                                Debug.Log("Box Dim = " + boxDim + "-->" + (boxDim / 2));
+                                Vector2 abilityDim = new Vector2(a.gameObject.GetComponent<RectTransform>().rect.width, a.gameObject.GetComponent<RectTransform>().rect.height);
+                                Debug.Log("Ability Dim = " + abilityDim + "-->" + (abilityDim / 2));
+                                Debug.Log("Loc = " + ((boxDim / 2) - (abilityDim / 2)));
+                                abilityAttach.NewOffset(new Vector2(((boxDim.x / 2) - (abilityDim.x / 2)) * 0.95f,
+                                                                    ((boxDim.y / 2) - (abilityDim.y / 2)) * (1 - (2 * i)) * 0.9f));
+                                //abilityAttach.NewOffset(new Vector2(boxDim.x, 0));
+                            }
+                        }
+                    }
+                }
             }
             else
             {
@@ -88,7 +130,7 @@ public class PickupInfoUI : MonoBehaviour
                 group.transform.localScale = new Vector3(Mathf.Clamp(scale.x - (spawnScaleSpeed * Time.deltaTime), 0, scaleCap),
                                                         Mathf.Clamp(scale.y - (spawnScaleSpeed * Time.deltaTime), 0, scaleCap),
                                                         Mathf.Clamp(scale.z - (spawnScaleSpeed * Time.deltaTime), 0, scaleCap));
-                
+
             }
         }
     }
