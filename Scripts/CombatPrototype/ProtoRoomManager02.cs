@@ -29,6 +29,18 @@ public class ProtoRoomManager02 : RoomManager
 
     public override void Step()
     {
+        if (level < 10)
+        {
+            base.Step();
+            player.TakeDamage(((int)player.GetCurrentHealth()) - 30, Vector3.zero);
+            switch(level)
+            {
+                // TODO Set Boss Wave to true when summon boss, false otherwise
+                default:
+                    break;
+            }
+        }
+
         //if (level < 6)
         //{
         //    base.Step();
