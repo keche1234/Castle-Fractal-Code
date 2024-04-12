@@ -21,9 +21,9 @@ public class InfoBox : MonoBehaviour
     [SerializeField] protected Text durabilityVal;
     [SerializeField] protected BarUI durabilityBar;
     [SerializeField] protected BarUI signatureBar;
-    [SerializeField] protected List<Image> abilityIcons;
-    [SerializeField] protected List<Image> abilityFills;
-    [SerializeField] protected List<Text> abilityNames;
+    [SerializeField] protected List<Image> abilityIcons; //MY icons (only two)
+    [SerializeField] protected List<Image> abilityFills; //MY fills (only two)
+    [SerializeField] protected List<Text> abilityNames; //MY abilities (only two)
     [SerializeField] protected List<Color> colors; //blue and red
 
     [Header("Potion Info")]

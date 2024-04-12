@@ -8,11 +8,11 @@ public class WeaponButton : MonoBehaviour
     [SerializeField] protected int weaponNumber;
     [SerializeField] protected PlayerController player;
 
-    [Header("Abilities")]
+    [Header("Ability Icons")]
     [SerializeField] protected List<Sprite> abilityIconSprites;
     [SerializeField] protected List<Image> myAbilityIcons;
 
-    [Header("Icon")]
+    [Header("Weapon Icon")]
     [SerializeField] protected List<Sprite> weaponIconSprites;
     [SerializeField] protected Image myWeaponIcon;
 

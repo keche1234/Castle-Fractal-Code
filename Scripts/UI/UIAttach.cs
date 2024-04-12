@@ -36,4 +36,9 @@ public class UIAttach : MonoBehaviour
     {
         offset = os;
     }
+
+    public void NewCamera(Camera c)
+    {
+        cam = c;
+    }
 }

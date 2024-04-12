@@ -74,7 +74,7 @@ public class PlayerController : Character
 
     [Header("Dodging")]
     [SerializeField] protected float dodgeCool;
-    [SerializeField] protected float baseSigFillRate = 40; // This many pts per percentage of health save when dodging.
+    [SerializeField] protected float baseSigFillRate = 4; // This many pts per percentage of health save when dodging.
     protected TrailRenderer dodgeTrail;
 
     protected int rank;
@@ -345,7 +345,7 @@ public class PlayerController : Character
                     weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].StartBuff();
                 }
 
-                place = System.Array.IndexOf(Ability.GetNames(), "BurstSignatureCharge");
+                place = System.Array.IndexOf(Ability.GetNames(), "BurstSignatureGain");
                 if (current.GetAbilities().Contains(place))
                 {
                     weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].StartBuff();

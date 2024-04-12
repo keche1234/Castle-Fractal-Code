@@ -21,6 +21,7 @@ public class PickupCW : MonoBehaviour
     protected Vector3 startPos;
     [SerializeField] protected float hoverOffset;
     [SerializeField] protected float hoverSpeed;
+
     //[SerializeField] protected Text mightPoints;
     private float hoverDist = 0;
     private int direction = 1; //+1 is up, -1 is down
@@ -120,7 +121,6 @@ public class PickupCW : MonoBehaviour
 
     public void OnTriggerEnter(Collider targetCollider)
     {
-        //int mp = CalculateMightPoints();
         GameObject target = targetCollider.gameObject;
         if (canPickup && target.CompareTag("Player")) // && target.GetComponent<PlayerController>().RemainingMP() >= mp)
         {
@@ -139,10 +139,6 @@ public class PickupCW : MonoBehaviour
                 //Destroy
                 Destroy(gameObject);
             }
-            else
-            {
-                //Make the text active
-            }
         }
 
         if (target.CompareTag("Wall")) //assume a bounce
@@ -154,5 +150,22 @@ public class PickupCW : MonoBehaviour
     public void SetPickup(bool b)
     {
         canPickup = b;
+    }
+
+    public float GetPower()
+    {
+        return power;
+    }
+
+    public float GetDurability()
+    {
+        return currentDurability;
+    }
+
+    public List<int> GetAbilities()
+    {
+        List<int> a = new List<int>();
+        for (int i = 0; i < abilities.Count; i++) a.Add(abilities[i]);
+        return a;
     }
 }
