@@ -2,5 +2,6 @@ This repository contains all of the scripts currently used in my upcoming action
 This includes:
 - Player mechanics
 - Enemy behaviors
-- Game system management
+- Hitbox and projectile properties
+- Game system management, including room transitions and enemy wave summons
 - UI Scripts, such as buff icons and menu buttons
