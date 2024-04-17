@@ -78,6 +78,9 @@ public class PickupInfoUI : MonoBehaviour
         for (int i = 0; i < myAbilityIcons.Count; i++)
             myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
 
+        for (int i = myAbilityIcons.Count; i < 2; i++)
+            myAbilityIcons[i].gameObject.SetActive(false);
+
         for (int i = 0; i < myAbilityIcons.Count; i++)
         {
             Image a = myAbilityIcons[i];

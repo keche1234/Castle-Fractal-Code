@@ -9,6 +9,8 @@ public class StrengthDebilitator : Ability
     {
         triggered = false;
         attribute = 1;
+        minMod = 0.4f;
+        minMod = 1f;
     }
 
     // Update is called once per frame

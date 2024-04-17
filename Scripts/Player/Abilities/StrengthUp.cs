@@ -9,6 +9,8 @@ public class StrengthUp : Ability
     {
         triggered = false;
         attribute = 1;
+        minMod = 1;
+        minMod = 3;
 
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);

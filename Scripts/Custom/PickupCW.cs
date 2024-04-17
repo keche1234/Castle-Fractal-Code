@@ -168,4 +168,19 @@ public class PickupCW : MonoBehaviour
         for (int i = 0; i < abilities.Count; i++) a.Add(abilities[i]);
         return a;
     }
+
+    public List<float> GetModifiers()
+    {
+        return new List<float>(mods);
+    }
+
+    public void SetAbilities(List<int> a)
+    {
+        abilities = a;
+    }
+
+    public void SetMods(List<float> m)
+    {
+        mods = m;
+    }
 }

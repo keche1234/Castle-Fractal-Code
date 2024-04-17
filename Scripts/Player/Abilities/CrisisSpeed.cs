@@ -10,6 +10,9 @@ public class CrisisSpeed : CrisisStrength
         triggered = false;
         attribute = 3;
 
+        minMod = 0.4f;
+        maxMod = 0.7f;
+
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }

@@ -11,6 +11,9 @@ public class BurstStrength : Ability
         attribute = 1;
         duration = 5;
 
+        minMod = 1;
+        maxMod = 2;
+
         //buff = (Buff)ScriptableObject.CreateInstance("Buff");
         //buff.SetBuff(modifier, 5);
     }

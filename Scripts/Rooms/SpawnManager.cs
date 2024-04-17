@@ -5,6 +5,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] protected List<Enemy> enemyPrefabs;
+    [SerializeField] protected List<Boss> bossPrefabs;
     [SerializeField] protected List<Enemy> spawnList;
     [SerializeField] protected GameObject spawnCover;
     protected List<Vector3> spawnPos;
@@ -153,6 +154,11 @@ public class SpawnManager : MonoBehaviour
         totalWaves = t;
 
         if (currentWave < totalWaves) allDefeated = false;
+    }
+
+    public void SetBossInfo(bool b)
+    {
+        bossWave = b;
     }
 
     public bool AllDefeated()

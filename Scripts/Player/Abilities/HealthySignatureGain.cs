@@ -10,6 +10,9 @@ public class HealthySignatureGain : HealthyStrength
         triggered = false;
         attribute = 4;
 
+        minMod = 0.4f;
+        maxMod = 1f;
+
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }

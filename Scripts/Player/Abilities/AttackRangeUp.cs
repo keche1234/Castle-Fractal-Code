@@ -7,7 +7,8 @@ public class AttackRangeUp : Ability
     // Start is called before the first frame update
     public override void Start()
     {
-
+        minMod = 0.3f;
+        maxMod = 0.7f;
     }
 
     // Update is called once per frame

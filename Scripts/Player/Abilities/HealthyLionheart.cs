@@ -12,6 +12,8 @@ public class HealthyLionheart : Ability
     public override void Start()
     {
         triggered = false;
+        minMod = 5;
+        maxMod = 9;
     }
 
     // Update is called once per frame

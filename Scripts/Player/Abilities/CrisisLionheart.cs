@@ -11,6 +11,9 @@ public class CrisisLionheart : Ability
     // Start is called before the first frame update
     public override void Start()
     {
+        minMod = 5;
+        maxMod = 9;
+
         //Debug.Log("Start c");
         //modifiers = new List<float>();
         //attributes = new List<int>();

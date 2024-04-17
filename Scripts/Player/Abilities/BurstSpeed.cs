@@ -9,6 +9,9 @@ public class BurstSpeed : BurstStrength
     {
         attribute = 3;
 
+        minMod = 0.1f;
+        maxMod = 0.2f;
+
         //buff = (Buff)ScriptableObject.CreateInstance("Buff");
         //buff.SetBuff(modifier, 5);
     }

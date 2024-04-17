@@ -9,6 +9,8 @@ public class SignatureDrain : HealthDrain
     {
         triggered = false;
         attribute = 1;
+        minMod = 1;
+        maxMod = 5;
 
         debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
         debuff.SetBuff(modifier * -5, -1);

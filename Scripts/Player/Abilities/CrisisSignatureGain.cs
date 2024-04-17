@@ -10,6 +10,9 @@ public class CrisisSignatureGain : CrisisStrength
         triggered = false;
         attribute = 4;
 
+        minMod = 0.8f;
+        maxMod = 1.4f;
+
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }

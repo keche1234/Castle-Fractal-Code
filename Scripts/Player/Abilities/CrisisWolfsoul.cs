@@ -8,6 +8,9 @@ public class CrisisWolfsoul : CrisisLionheart
     public override void Start()
     {
         base.Start();
+
+        minMod = 5;
+        maxMod = 9;
     }
 
     // Update is called once per frame

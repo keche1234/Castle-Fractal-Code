@@ -10,6 +10,9 @@ public class HealthySpeed : HealthyStrength
         triggered = false;
         attribute = 3;
 
+        minMod = 0.2f;
+        maxMod = 0.5f;
+
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }

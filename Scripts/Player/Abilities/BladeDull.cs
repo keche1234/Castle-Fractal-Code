@@ -8,6 +8,7 @@ public class BladeDull : Ability
     public override void Start()
     {
         triggered = false;
+
         //name = "BladeDull";
     }
 

@@ -10,6 +10,9 @@ public class HealthyDefense : HealthyStrength
         triggered = false;
         attribute = 2;
 
+        minMod = 2;
+        maxMod = 5;
+
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }

@@ -9,6 +9,9 @@ public class BurstDefense : BurstStrength
     {
         attribute = 2;
 
+        minMod = 1;
+        maxMod = 2;
+
         //buff = (Buff)ScriptableObject.CreateInstance("Buff");
         //buff.SetBuff(modifier, 5);
     }

@@ -8,7 +8,6 @@ public class ArmorPierce : Ability
     public override void Start()
     {
         triggered = false;
-        name = "ArmorPierce";
     }
 
     // Update is called once per frame

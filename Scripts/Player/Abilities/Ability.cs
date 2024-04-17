@@ -11,6 +11,9 @@ public abstract class Ability : MonoBehaviour
     [SerializeField] protected Buff buff;
     [SerializeField] protected Character user;
 
+    protected float minMod;
+    protected float maxMod;
+
     protected static readonly string[] names = new string[] { "StrengthUp", "DefenseUp", "StrengthDebilitator", "DefenseDebilitator",
                   "AttackRateUp", "DodgeRecoveryUp", "HealthyStrength", "HealthyDefense", "HealthySpeed", "HealthySignatureGain", "BladeDull", "ArmorPierce",
                   "AttackRangeUp", "DodgeDistanceUp", "BurstStrength", "BurstDefense", "BurstSpeed", "BurstSignatureGain", "LuckyStrike", "QuickDodge",
@@ -36,6 +39,11 @@ public abstract class Ability : MonoBehaviour
     public virtual void Initialize()
     {
 
+    }
+
+    public static explicit operator Ability(System.Type v)
+    {
+        throw new System.NotImplementedException();
     }
 
     public void Setup(Character c, float mod)
@@ -87,6 +95,26 @@ public abstract class Ability : MonoBehaviour
     public void SetTriggered(bool b)
     {
         triggered = b;
+    }
+
+    public float GetMinMod()
+    {
+        return minMod;
+    }
+
+    public float GetMaxMod()
+    {
+        return maxMod;
+    }
+
+    public float GetMeanMod()
+    {
+        return (minMod + maxMod) / 2;
+    }
+
+    public float GetRandomMod()
+    {
+        return Random.Range(minMod, maxMod);
     }
 
     public static string[] GetNames()

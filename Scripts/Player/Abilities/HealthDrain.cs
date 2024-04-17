@@ -9,7 +9,10 @@ public class HealthDrain : Ability
     public override void Start()
     {
         triggered = false;
-        attribute = 1; 
+        attribute = 1;
+
+        minMod = 1;
+        maxMod = 5;
 
         debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
         debuff.SetBuff(-5, -1);

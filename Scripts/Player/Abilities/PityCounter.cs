@@ -10,6 +10,9 @@ public class PityCounter : HealthDrain
         triggered = false;
         attribute = 2;
 
+        minMod = 1;
+        maxMod = 5;
+
         debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
         debuff.SetBuff(modifier * -9, -1);
     }

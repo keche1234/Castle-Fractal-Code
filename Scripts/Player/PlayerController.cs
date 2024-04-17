@@ -620,6 +620,12 @@ public class PlayerController : Character
             RemoveCustomWeapon(inventory[i]);
     }
 
+    public void RemoveAllCustomWeapons()
+    {
+        for (int i = inventory.Count - 1; i >= 0; i--)
+            RemoveCustomWeapon(i);
+    }
+
     public IEnumerator DropCustomWeapon(CustomWeapon cw)
     {
         PickupCW drop = Instantiate(pickupPrefab, gameObject.transform.position + (transform.forward * 1.5f), Quaternion.Euler(0, 0, 0));

@@ -10,6 +10,9 @@ public class CrisisStrength : Ability
         triggered = false;
         attribute = 1;
 
+        minMod = 4;
+        maxMod = 7;
+
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }

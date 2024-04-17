@@ -7,7 +7,8 @@ public class SignatureDurationUp : Ability
     // Start is called before the first frame update
     public override void Start()
     {
-
+        minMod = 0.22f;
+        maxMod = 0.48f;
     }
 
     // Update is called once per frame

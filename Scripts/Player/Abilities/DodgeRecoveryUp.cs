@@ -7,7 +7,8 @@ public class DodgeRecoveryUp : Ability
     // Start is called before the first frame update
     public override void Start()
     {
-
+        minMod = 0.3f;
+        maxMod = 0.9f;
     }
 
     // Update is called once per frame
