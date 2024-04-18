@@ -48,6 +48,9 @@ public class SpawnManager : MonoBehaviour
         {
             StartCoroutine("SpawnWave");
         }
+
+        if (totalWaves == 0)
+            allDefeated = true;
     }
 
     public virtual IEnumerator SpawnWave()
@@ -169,5 +172,10 @@ public class SpawnManager : MonoBehaviour
     public void SetAllDefeated(bool b)
     {
         allDefeated = b;
+    }
+
+    public void SetSpawned(bool b)
+    {
+        spawned = b;
     }
 }

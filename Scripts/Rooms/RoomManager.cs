@@ -124,15 +124,15 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         //Game Info
         level++;
 
-        if (level % 5 == 0)
-        {
-            //spawn boss
-            current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0)));
-        }
-        else
-        {
-            spawnManager.SetWaveInfo(0, 1);
-        }
+        //if (level % 5 == 0)
+        //{
+        //    //spawn boss
+        //    current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0)));
+        //}
+        //else
+        //{
+        //    spawnManager.SetWaveInfo(0, 1);
+        //}
     }
 
     protected IEnumerator DisablePlayer(float wait)

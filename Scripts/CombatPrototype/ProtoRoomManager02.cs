@@ -21,8 +21,8 @@ public class ProtoRoomManager02 : RoomManager
         mods = new List<List<float>>();
         for (int i = 0; i < 5; i++)
         {
-            abilities[i] = new List<int>();
-            mods[i] = new List<float>();
+            abilities.Add(new List<int>());
+            mods.Add(new List<float>());
         }
 
         // Sword abilities
@@ -51,10 +51,23 @@ public class ProtoRoomManager02 : RoomManager
     {
         if (!current.RoomCleared())
         {
-            roomTime += Time.deltaTime;
-            int minutes = (int)(roomTime / 60);
-            int seconds = (int)(roomTime % 60);
-            timeText.text = "<mark=#" + timeTextColor + ">Time\n" + minutes + ":" + $"{seconds:D2}";
+            //roomTime += Time.deltaTime;
+            //int minutes = (int)(roomTime / 60);
+            //int seconds = (int)(roomTime % 60);
+            //timeText.text = "<mark=#" + timeTextColor + ">Time\n" + minutes + ":" + $"{seconds:D2}";
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            Step();
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            while (level < 7)
+                Step();
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            while (level < 10)
+                Step();
         }
     }
 
@@ -124,38 +137,44 @@ public class ProtoRoomManager02 : RoomManager
         if (level < 12)
         {
             base.Step();
+            spawnManager.SetSpawned(false);
             player.TakeDamage(((int)player.GetCurrentHealth()) - 30, Vector3.zero);
             switch (level)
             {
                 // TODO Set Boss Wave to true when summon boss, false otherwise
                 //Part I
                 case 1: //Tangerine Troll
-                    PickupCW sword = Instantiate(pickupPrefab, new Vector3(0, 0.75f, 0), Quaternion.Euler(0, 0, 0));
+                    PickupCW sword = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     sword.Initialize(0, Sword.GetBasePower(), 0, 0, 0, null, null);
+                    sword.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 2: //Pink Python
                     player.RemoveCustomWeapon();
-                    PickupCW axe = Instantiate(pickupPrefab, new Vector3(0, 0.75f, 0), Quaternion.Euler(0, 0, 0));
+                    PickupCW axe = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     axe.Initialize(1, Axe.GetBasePower(), 0, 0, 0, null, null);
+                    axe.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 3: //Cerulean Satyr
                     player.RemoveCustomWeapon();
-                    PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-                    tome.Initialize(1, Tome.GetBasePower(), 0, 0, 0, null, null);
+                    PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
+                    tome.Initialize(4, Tome.GetBasePower(), 0, 0, 0, null, null);
+                    tome.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 4: //Turquoise Templar
                     player.RemoveCustomWeapon();
-                    PickupCW crossbow = Instantiate(pickupPrefab, new Vector3(0, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-                    crossbow.Initialize(1, Crossbow.GetBasePower(), 0, 0, 0, null, null);
+                    PickupCW crossbow = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
+                    crossbow.Initialize(3, Crossbow.GetBasePower(), 0, 0, 0, null, null);
+                    crossbow.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 5: //Wisteria Wizard
                     player.RemoveCustomWeapon();
-                    PickupCW spear = Instantiate(pickupPrefab, new Vector3(0, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-                    spear.Initialize(1, Spear.GetBasePower(), 0, 0, 0, null, null);
+                    PickupCW spear = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
+                    spear.Initialize(2, Spear.GetBasePower(), 0, 0, 0, null, null);
+                    spear.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 6: //Magestic
@@ -164,7 +183,8 @@ public class ProtoRoomManager02 : RoomManager
                     for (int i = 0; i < 5; i++)
                     {
                         pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 0.75f, -2f);
+                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f);
+                        pickups[i].transform.parent = GetCurrent().transform;
                     }
 
                     spawnManager.SetWaveInfo(0, 1);
@@ -172,13 +192,14 @@ public class ProtoRoomManager02 : RoomManager
                     break;
 
                 // PART II
+                // TODO: Make room weapon parent
                 case 7: //Weapon Room
                     player.RemoveAllCustomWeapons();
                     pickups = new List<PickupCW>();
                     for (int i = 0; i < 10; i++)
                     {
                         pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 0.75f, -2f + (4f * (i / 5)));
+                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f + (4f * (i / 5)));
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);
@@ -191,7 +212,7 @@ public class ProtoRoomManager02 : RoomManager
                     for (int i = 0; i < 5; i++)
                     {
                         pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 0.75f, -2f);
+                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f);
                     }
                     spawnManager.SetWaveInfo(0, 1);
                     spawnManager.SetBossInfo(true);
@@ -203,7 +224,7 @@ public class ProtoRoomManager02 : RoomManager
                     for (int i = 0; i < 10; i++)
                     {
                         pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 0.75f, -2f + (4f * (i / 5)));
+                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f + (4f * (i / 5)));
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);

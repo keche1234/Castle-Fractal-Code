@@ -32,17 +32,20 @@ public class ProtoSpawnManager02 : SpawnManager
     new void Update()
     {
         if (!spawned && spawnList.Count == 0 && currentWave < totalWaves)
-        {
+        {   
             StartCoroutine("SpawnWave");
         }
-        if (superWave >= 20 && allDefeated)
-            for (int i = 0; i < messages.Count; i++)
-            {
-                messages[0].gameObject.SetActive(true);
-                messages[1].gameObject.SetActive(true);
-                messages[2].gameObject.SetActive(false);
-                messages[3].gameObject.SetActive(false);
-            }
+
+        if (totalWaves == 0)
+            allDefeated = true;
+        //if (superWave >= 20 && allDefeated)
+        //    for (int i = 0; i < messages.Count; i++)
+        //    {
+        //        messages[0].gameObject.SetActive(true);
+        //        messages[1].gameObject.SetActive(true);
+        //        messages[2].gameObject.SetActive(false);
+        //        messages[3].gameObject.SetActive(false);
+        //    }
     }
 
     public override IEnumerator SpawnWave()
@@ -52,9 +55,9 @@ public class ProtoSpawnManager02 : SpawnManager
         superWave++;
         spawnPos = new List<Vector3>();
         List<GameObject> covers = new List<GameObject>();
-        yield return new WaitForSeconds(waveDelay);
 
-        switch(superWave)
+        yield return new WaitForSeconds(waveDelay);
+        switch (superWave)
         {
             //PART I
             case 1: //Tangerine Troll 1

@@ -75,18 +75,29 @@ public class PickupInfoUI : MonoBehaviour
         mightPoints.text = "M: " + pickup.CalculateMightPoints();
 
         List<int> abilities = pickup.GetAbilities();
-        for (int i = 0; i < myAbilityIcons.Count; i++)
-            myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
-
-        for (int i = myAbilityIcons.Count; i < 2; i++)
-            myAbilityIcons[i].gameObject.SetActive(false);
-
-        for (int i = 0; i < myAbilityIcons.Count; i++)
+        if (abilities.Count > 0)
         {
-            Image a = myAbilityIcons[i];
-            UIAttach abilityAttach = a.GetComponent<UIAttach>();
-            if (abilityAttach != null)
-                abilityAttach.enabled = false;
+            for (int i = 0; i < myAbilityIcons.Count; i++)
+            {
+                Debug.Log(i + " and " + abilities[i]);
+                myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
+            }
+
+            for (int i = myAbilityIcons.Count; i < 2; i++)
+                myAbilityIcons[i].gameObject.SetActive(false);
+
+            for (int i = 0; i < myAbilityIcons.Count; i++)
+            {
+                Image a = myAbilityIcons[i];
+                UIAttach abilityAttach = a.GetComponent<UIAttach>();
+                if (abilityAttach != null)
+                    abilityAttach.enabled = false;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 2; i++)
+                myAbilityIcons[i].gameObject.SetActive(false);
         }
 
         if (player != null)
@@ -104,24 +115,27 @@ public class PickupInfoUI : MonoBehaviour
 
                 if ((group.transform.localScale.x + group.transform.localScale.y + group.transform.localScale.z) / 3 >= scaleCap * 0.99f)
                 {
-                    for (int i = 0; i < myAbilityIcons.Count; i++)
+                    if (abilities.Count > 0)
                     {
-                        Image a = myAbilityIcons[i];
-                        UIAttach abilityAttach = a.GetComponent<UIAttach>();
-                        if (abilityAttach != null)
+                        for (int i = 0; i < myAbilityIcons.Count; i++)
                         {
-                            abilityAttach.enabled = true;
-                            GameObject box = abilityAttach.GetAnchor();
-                            if (box != null)
+                            Image a = myAbilityIcons[i];
+                            UIAttach abilityAttach = a.GetComponent<UIAttach>();
+                            if (abilityAttach != null)
                             {
-                                Vector2 boxDim = new Vector2(box.gameObject.GetComponent<RectTransform>().rect.width, box.gameObject.GetComponent<RectTransform>().rect.height);
-                                Debug.Log("Box Dim = " + boxDim + "-->" + (boxDim / 2));
-                                Vector2 abilityDim = new Vector2(a.gameObject.GetComponent<RectTransform>().rect.width, a.gameObject.GetComponent<RectTransform>().rect.height);
-                                Debug.Log("Ability Dim = " + abilityDim + "-->" + (abilityDim / 2));
-                                Debug.Log("Loc = " + ((boxDim / 2) - (abilityDim / 2)));
-                                abilityAttach.NewOffset(new Vector2(((boxDim.x / 2) - (abilityDim.x / 2)) * 0.95f,
-                                                                    ((boxDim.y / 2) - (abilityDim.y / 2)) * (1 - (2 * i)) * 0.9f));
-                                //abilityAttach.NewOffset(new Vector2(boxDim.x, 0));
+                                abilityAttach.enabled = true;
+                                GameObject box = abilityAttach.GetAnchor();
+                                if (box != null)
+                                {
+                                    Vector2 boxDim = new Vector2(box.gameObject.GetComponent<RectTransform>().rect.width, box.gameObject.GetComponent<RectTransform>().rect.height);
+                                    Debug.Log("Box Dim = " + boxDim + "-->" + (boxDim / 2));
+                                    Vector2 abilityDim = new Vector2(a.gameObject.GetComponent<RectTransform>().rect.width, a.gameObject.GetComponent<RectTransform>().rect.height);
+                                    Debug.Log("Ability Dim = " + abilityDim + "-->" + (abilityDim / 2));
+                                    Debug.Log("Loc = " + ((boxDim / 2) - (abilityDim / 2)));
+                                    abilityAttach.NewOffset(new Vector2(((boxDim.x / 2) - (abilityDim.x / 2)) * 0.95f,
+                                                                        ((boxDim.y / 2) - (abilityDim.y / 2)) * (1 - (2 * i)) * 0.9f));
+                                    //abilityAttach.NewOffset(new Vector2(boxDim.x, 0));
+                                }
                             }
                         }
                     }
@@ -138,28 +152,28 @@ public class PickupInfoUI : MonoBehaviour
         }
     }
 
-    public void OnTriggerEnter(Collider other)
-    {
-        //Show the box, update the values
-        if (other.gameObject.CompareTag("Player"))
-        {
-            group.SetActive(true);
-            power.text = "P: " + pickup.GetPower();
-            durability.text = "D: " + pickup.GetDurability();
-            mightPoints.text = "M: " + pickup.CalculateMightPoints();
+    //public void OnTriggerEnter(Collider other)
+    //{
+    //    //Show the box, update the values
+    //    if (other.gameObject.CompareTag("Player"))
+    //    {
+    //        group.SetActive(true);
+    //        power.text = "P: " + pickup.GetPower();
+    //        durability.text = "D: " + pickup.GetDurability();
+    //        mightPoints.text = "M: " + pickup.CalculateMightPoints();
 
-            List<int> abilities = pickup.GetAbilities();
-            for (int i = 0; i < myAbilityIcons.Count; i++)
-                myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
-        }
-    }
+    //        List<int> abilities = pickup.GetAbilities();
+    //        for (int i = 0; i < myAbilityIcons.Count; i++)
+    //            myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
+    //    }
+    //}
 
-    public void OnTriggerExit(Collider other)
-    {
-        //Hide the box
-        if (other.gameObject.CompareTag("Player"))
-        {
-            group.SetActive(false);
-        }
-    }
+    //public void OnTriggerExit(Collider other)
+    //{
+    //    //Hide the box
+    //    if (other.gameObject.CompareTag("Player"))
+    //    {
+    //        group.SetActive(false);
+    //    }
+    //}
 }
