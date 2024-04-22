@@ -36,4 +36,10 @@ public class HealthySpeed : HealthyStrength
     {
         return modifier * 1.1f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.2f;
+        maxMod = 0.5f;
+    }
 }

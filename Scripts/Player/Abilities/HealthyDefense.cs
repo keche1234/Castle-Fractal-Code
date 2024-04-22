@@ -31,4 +31,10 @@ public class HealthyDefense : HealthyStrength
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 2;
+        maxMod = 5;
+    }
 }

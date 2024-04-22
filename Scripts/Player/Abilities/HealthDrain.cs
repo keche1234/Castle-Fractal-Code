@@ -55,4 +55,10 @@ public class HealthDrain : Ability
         //Object.Destroy(buff);
         //Object.Destroy(this);
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 5;
+    }
 }

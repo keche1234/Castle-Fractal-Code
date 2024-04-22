@@ -31,4 +31,10 @@ public class CrisisDefense : CrisisStrength
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 4;
+        maxMod = 7;
+    }
 }

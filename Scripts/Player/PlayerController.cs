@@ -400,10 +400,20 @@ public class PlayerController : Character
 
             if (weaponTypes[current.GetWeaponType()].IsMelee() && !signing)
             {
-                if (current.GetMaxDurability() > 0f && current.DecrementDurability(1) <= 0)
+                if (current.GetWeaponType() == 0)
+                {
+                    if (!((Sword)weaponTypes[0]).ChainHitList().Contains(target)) // Only decrement on first hit of chain
+                    {
+                        ((Sword)weaponTypes[0]).ChainHit(target);
+                        if (current.GetMaxDurability() > 0f && current.DecrementDurability(1) <= 0)
+                            BreakCustomWeapon(current);
+                    }
+                }
+                else if (current.GetMaxDurability() > 0f && current.DecrementDurability(1) <= 0)
                 {
                     BreakCustomWeapon(current);
                 }
+
                 if (inventory.Count > 0 && current.DecrementDurability(0) > 0)
                     miniDurabilityBar.SetValue(current.DecrementDurability(0));
             }

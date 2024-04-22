@@ -15,7 +15,7 @@ public class Crossbow : Weapon
     private float sigActiveTime = 5;
 
     public Projectile arrowPrefab;
-    private Projectile[] arrows = new Projectile[5];
+    private Projectile[] arrows = new Projectile[7];
 
     [SerializeField] protected Canvas reticle;
 
@@ -31,7 +31,7 @@ public class Crossbow : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        float depth = new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude;
+        float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
         reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
         reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
     }

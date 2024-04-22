@@ -54,4 +54,10 @@ public class CrisisStrength : Ability
     {
         return modifier * 0.0625f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 4;
+        maxMod = 7;
+    }
 }

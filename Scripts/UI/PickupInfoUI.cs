@@ -79,7 +79,7 @@ public class PickupInfoUI : MonoBehaviour
         {
             for (int i = 0; i < myAbilityIcons.Count; i++)
             {
-                Debug.Log(i + " and " + abilities[i]);
+                //Debug.Log(i + " and " + abilities[i]);
                 myAbilityIcons[i].sprite = abilityIconSprites[abilities[i]];
             }
 
@@ -128,10 +128,10 @@ public class PickupInfoUI : MonoBehaviour
                                 if (box != null)
                                 {
                                     Vector2 boxDim = new Vector2(box.gameObject.GetComponent<RectTransform>().rect.width, box.gameObject.GetComponent<RectTransform>().rect.height);
-                                    Debug.Log("Box Dim = " + boxDim + "-->" + (boxDim / 2));
+                                    //Debug.Log("Box Dim = " + boxDim + "-->" + (boxDim / 2));
                                     Vector2 abilityDim = new Vector2(a.gameObject.GetComponent<RectTransform>().rect.width, a.gameObject.GetComponent<RectTransform>().rect.height);
-                                    Debug.Log("Ability Dim = " + abilityDim + "-->" + (abilityDim / 2));
-                                    Debug.Log("Loc = " + ((boxDim / 2) - (abilityDim / 2)));
+                                    //Debug.Log("Ability Dim = " + abilityDim + "-->" + (abilityDim / 2));
+                                    //Debug.Log("Loc = " + ((boxDim / 2) - (abilityDim / 2)));
                                     abilityAttach.NewOffset(new Vector2(((boxDim.x / 2) - (abilityDim.x / 2)) * 0.95f,
                                                                         ((boxDim.y / 2) - (abilityDim.y / 2)) * (1 - (2 * i)) * 0.9f));
                                     //abilityAttach.NewOffset(new Vector2(boxDim.x, 0));

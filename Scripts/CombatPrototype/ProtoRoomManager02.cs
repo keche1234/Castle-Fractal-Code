@@ -26,24 +26,44 @@ public class ProtoRoomManager02 : RoomManager
         }
 
         // Sword abilities
-        for (int j = 0; j < 6; j++)
-            abilities[0].Add((0 - (j * 6) + j) % 30);
+        abilities[0].Add(0);
+        abilities[0].Add(25);
+        abilities[0].Add(20);
+        abilities[0].Add(15);
+        abilities[0].Add(10);
+        abilities[0].Add(5);
 
         // Axe abilities
-        for (int j = 0; j < 6; j++)
-            abilities[0].Add((24 - (j * 6) + j) % 30);
+        abilities[1].Add(24);
+        abilities[1].Add(19);
+        abilities[1].Add(14);
+        abilities[1].Add(9);
+        abilities[1].Add(4);
+        abilities[1].Add(29);
 
         // Spear abilities
-        for (int j = 0; j < 6; j++)
-            abilities[0].Add((18 - (j * 6) + j) % 30);
+        abilities[2].Add(18);
+        abilities[2].Add(13);
+        abilities[2].Add(8);
+        abilities[2].Add(3);
+        abilities[2].Add(28);
+        abilities[2].Add(23);
 
         // Crossbow abilities
-        for (int j = 0; j < 6; j++)
-            abilities[0].Add((12 - (j * 6) + j) % 30);
+        abilities[3].Add(12);
+        abilities[3].Add(7);
+        abilities[3].Add(2);
+        abilities[3].Add(27);
+        abilities[3].Add(22);
+        abilities[3].Add(17);
 
         // Tome abilities
-        for (int j = 0; j < 6; j++)
-            abilities[0].Add((6 - (j * 6) + j) % 30);
+        abilities[4].Add(6);
+        abilities[4].Add(1);
+        abilities[4].Add(26);
+        abilities[4].Add(21);
+        abilities[4].Add(16);
+        abilities[4].Add(11);
     }
 
     // Update is called once per frame
@@ -89,11 +109,136 @@ public class ProtoRoomManager02 : RoomManager
             int j = Random.Range(0, possibilities.Count);
             myAbilities.Add(possibilities[j]);
 
-            GameObject dummy = Instantiate((GameObject)null);
-            dummy.AddComponent(System.Type.GetType(Ability.GetNames()[myAbilities[i]]));
-            myMods.Add(((Ability)dummy.GetComponent(System.Type.GetType(Ability.GetNames()[myAbilities[i]]))).GetRandomMod());
-            myAbilities.RemoveAt(j);
-            Destroy(dummy);
+            switch(myAbilities[i])
+            {
+                case 0:
+                    StrengthUp.SetMinMaxMods();
+                    myMods.Add((int)StrengthUp.GetMeanMod());
+                    break;
+                case 1:
+                    DefenseUp.SetMinMaxMods();
+                    myMods.Add((int)DefenseUp.GetMeanMod());
+                    break;
+                case 2:
+                    StrengthDebilitator.SetMinMaxMods();
+                    myMods.Add(StrengthDebilitator.GetMeanMod());
+                    break;
+                case 3:
+                    DefenseDebilitator.SetMinMaxMods();
+                    myMods.Add(DefenseDebilitator.GetMeanMod());
+                    break;
+                case 4:
+                    AttackRateUp.SetMinMaxMods();
+                    myMods.Add(AttackRateUp.GetMeanMod());
+                    break;
+                case 5:
+                    DodgeRecoveryUp.SetMinMaxMods();
+                    myMods.Add(DodgeRecoveryUp.GetMeanMod());
+                    break;
+                case 6:
+                    HealthyStrength.SetMinMaxMods();
+                    myMods.Add((int)HealthyStrength.GetMeanMod());
+                    break;
+                case 7:
+                    HealthyDefense.SetMinMaxMods();
+                    myMods.Add((int)HealthyDefense.GetMeanMod());
+                    break;
+                case 8:
+                    HealthySpeed.SetMinMaxMods();
+                    myMods.Add(HealthySpeed.GetMeanMod());
+                    break;
+                case 9:
+                    HealthySignatureGain.SetMinMaxMods();
+                    myMods.Add(HealthySignatureGain.GetMeanMod());
+                    break;
+                case 10:
+                    myMods.Add(BladeDull.GetMeanMod());
+                    break;
+                case 11:
+                    myMods.Add(ArmorPierce.GetMeanMod());
+                    break;
+                case 12:
+                    AttackRangeUp.SetMinMaxMods();
+                    myMods.Add(AttackRangeUp.GetMeanMod());
+                    break;
+                case 13:
+                    DodgeDistanceUp.SetMinMaxMods();
+                    myMods.Add(DodgeDistanceUp.GetMeanMod());
+                    break;
+                case 14:
+                    BurstStrength.SetMinMaxMods();
+                    myMods.Add((int)BurstStrength.GetMeanMod());
+                    break;
+                case 15:
+                    BurstDefense.SetMinMaxMods();
+                    myMods.Add((int)BurstDefense.GetMeanMod());
+                    break;
+                case 16:
+                    BurstSpeed.SetMinMaxMods();
+                    myMods.Add(BurstSpeed.GetMeanMod());
+                    break;
+                case 17:
+                    BurstSignatureGain.SetMinMaxMods();
+                    myMods.Add(BurstSignatureGain.GetMeanMod());
+                    break;
+                case 18:
+                    LuckyStrike.SetMinMaxMods();
+                    myMods.Add(LuckyStrike.GetMeanMod());
+                    break;
+                case 19:
+                    QuickDodge.SetMinMaxMods();
+                    myMods.Add(QuickDodge.GetMeanMod());
+                    break;
+                case 20:
+                    SignatureDamageUp.SetMinMaxMods();
+                    myMods.Add(SignatureDamageUp.GetMeanMod());
+                    break;
+                case 21:
+                    SignatureDurationUp.SetMinMaxMods();
+                    myMods.Add(SignatureDurationUp.GetMeanMod());
+                    break;
+                case 22:
+                    CrisisStrength.SetMinMaxMods();
+                    myMods.Add((int)CrisisStrength.GetMeanMod());
+                    break;
+                case 23:
+                    CrisisDefense.SetMinMaxMods();
+                    myMods.Add((int)CrisisDefense.GetMeanMod());
+                    break;
+                case 24:
+                    CrisisSpeed.SetMinMaxMods();
+                    myMods.Add(CrisisSpeed.GetMeanMod());
+                    break;
+                case 25:
+                    CrisisSignatureGain.SetMinMaxMods();
+                    myMods.Add(CrisisSignatureGain.GetMeanMod());
+                    break;
+                case 26:
+                    HealthDrain.SetMinMaxMods();
+                    myMods.Add(HealthDrain.GetMeanMod());
+                    break;
+                case 27:
+                    SignatureDrain.SetMinMaxMods();
+                    myMods.Add(SignatureDrain.GetMeanMod());
+                    break;
+                case 28:
+                    PityCounter.SetMinMaxMods();
+                    myMods.Add(PityCounter.GetMeanMod());
+                    break;
+                case 29:
+                    PitySignature.SetMinMaxMods();
+                    myMods.Add(PitySignature.GetMeanMod());
+                    break;
+                default:
+                    break;
+            }
+            possibilities.RemoveAt(j);
+
+            //GameObject dummy = Instantiate((GameObject)null);
+            //dummy.AddComponent(System.Type.GetType(Ability.GetNames()[myAbilities[i]]));
+            //myMods.Add(((Ability)dummy.GetComponent(System.Type.GetType(Ability.GetNames()[myAbilities[i]]))).GetRandomMod());
+            //myAbilities.RemoveAt(j);
+            //Destroy(dummy);
         }
 
         float pow;
@@ -137,8 +282,16 @@ public class ProtoRoomManager02 : RoomManager
         if (level < 12)
         {
             base.Step();
-            spawnManager.SetSpawned(false);
+            spawnManager.SetWaveInfo(0, 0);
+            spawnManager.DestroyAllEnemies();
             player.TakeDamage(((int)player.GetCurrentHealth()) - 30, Vector3.zero);
+
+            int wave = ((ProtoSpawnManager02)spawnManager).GetFirstWave(level);
+            if (wave > -1)
+            {
+                ((ProtoSpawnManager02)spawnManager).SetSuperWave(wave - 1);
+            }
+
             switch (level)
             {
                 // TODO Set Boss Wave to true when summon boss, false otherwise
@@ -234,78 +387,12 @@ public class ProtoRoomManager02 : RoomManager
                     break;
                 case 12:
                     spawnManager.SetWaveInfo(0, 1);
+                    finalFloor = true;
                     break;
                 default:
                     break;
             }
         }
-
-        //if (level < 6)
-        //{
-        //    base.Step();
-        //    player.TakeDamage(((int)player.GetCurrentHealth()) - 30);
-        //    switch (level)
-        //    {
-        //        case 1:
-        //            //Add appropriate powerup
-        //            PickupCW sword = Instantiate(pickupPrefab, new Vector3(-0.5f, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-        //            sword.Initialize(0, 9, 0, 0, null, null);
-        //            spawnManager.SetWaveInfo(0, 2);
-        //            break;
-        //        case 2:
-        //            //Remove weapon
-        //            player.RemoveCustomWeapon();
-
-        //            //Add appropriate powerup
-        //            PickupCW crossbow = Instantiate(pickupPrefab, new Vector3(-0.5f, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-        //            crossbow.Initialize(3, 3, 0, 0, null, null);
-        //            spawnManager.SetWaveInfo(0, 2);
-        //            break;
-        //        case 3:
-        //            //Break weapon
-        //            player.RemoveCustomWeapon();
-
-        //            //Add appropriate powerup
-        //            PickupCW spear = Instantiate(pickupPrefab, new Vector3(-0.5f, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-        //            spear.Initialize(2, 6, 0, 0, null, null);
-        //            spawnManager.SetWaveInfo(0, 2);
-        //            break;
-        //        case 4:
-        //            //Remove weapon
-        //            player.RemoveCustomWeapon();
-
-        //            //Add appropriate powerup
-        //            PickupCW axe = Instantiate(pickupPrefab, new Vector3(-0.5f, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-        //            axe.Initialize(1, 12, 0, 0, null, null);
-        //            spawnManager.SetWaveInfo(0, 2);
-        //            break;
-        //        case 5:
-        //            //Remove weapon
-        //            player.RemoveCustomWeapon();
-
-        //            //Add appropriate powerup
-        //            PickupCW tome = Instantiate(pickupPrefab, new Vector3(-0.5f, 0.75f, 0), Quaternion.Euler(0, 0, 0));
-        //            tome.Initialize(4, 15, 0, 0, null, null);
-        //            spawnManager.SetWaveInfo(0, 2);
-        //            break;
-        //        case 6:
-        //            finalFloor = true;
-        //            player.RemoveCustomWeapon();
-        //            PickupCW[] pickups = new PickupCW[5];
-        //            for (int i = 0; i < pickups.Length; i++)
-        //                pickups[i] = Instantiate(pickupPrefab, new Vector3(-4 + (2 * i), 0.75f, -2), Quaternion.Euler(0, 0, 0));
-
-        //            pickups[0].Initialize(0, 9, 20, 20, null, null);
-        //            pickups[1].Initialize(1, 12, 25, 25, null, null);
-        //            pickups[2].Initialize(2, 6, 15, 15, null, null);
-        //            pickups[3].Initialize(3, 3, 30, 30, null, null);
-        //            pickups[4].Initialize(4, 15, 10, 10, null, null);
-        //            spawnManager.SetWaveInfo(0, 5);
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
     }
 
     public bool IsFinalFloor()

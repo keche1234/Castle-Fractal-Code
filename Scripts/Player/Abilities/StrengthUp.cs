@@ -9,8 +9,6 @@ public class StrengthUp : Ability
     {
         triggered = false;
         attribute = 1;
-        minMod = 1;
-        minMod = 3;
 
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
@@ -52,5 +50,11 @@ public class StrengthUp : Ability
     public override float GetMightMult()
     {
         return modifier * 0.1f;
+    }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 3;
     }
 }

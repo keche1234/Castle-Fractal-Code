@@ -11,6 +11,7 @@ public class Sword : Weapon
     private float cooldownTime = 16f / 60f; //16 endlag frames
     private bool chain = true; //can chain up to three attacks
     private readonly float chainMax = 3;
+    private List<Character> chainHitList; // set to true on hit, reset to false at the end of attack
 
     private float sigStartup = 0.5f; //slow down time by 50% for this (realtime) duration
     private float sigActiveTime = 3;
@@ -19,6 +20,7 @@ public class Sword : Weapon
     protected override void Start()
     {
         base.Start();
+        chainHitList = new List<Character>();
 
         heavy = false;
         melee = true;
@@ -32,6 +34,7 @@ public class Sword : Weapon
 
     public override IEnumerator Attack()
     {
+        chainHitList = new List<Character>();
         state = ActionState.Startup;
         owner.SetAttackState(1);
 
@@ -124,6 +127,7 @@ public class Sword : Weapon
         InitializeTransform();
         yield return new WaitForSeconds(cooldownTime * 0.1f / rate);
 
+        chainHitList = new List<Character>();
         owner.SetAttackState(0);
         state = ActionState.Inactive;
     }
@@ -206,6 +210,16 @@ public class Sword : Weapon
             sigAttack[i].SetDamageMod(sigMods[i]);
 
         yield return null;
+    }
+
+    public List<Character> ChainHitList()
+    {
+        return new List<Character>(chainHitList);
+    }
+
+    public void ChainHit(Character c)
+    {
+        chainHitList.Add(c);
     }
 
     public new static float GetBasePower()

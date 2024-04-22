@@ -26,4 +26,10 @@ public class SignatureDurationUp : Ability
     {
         return modifier * 2;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.22f;
+        maxMod = 0.48f;
+    }
 }

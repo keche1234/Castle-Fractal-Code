@@ -10,9 +10,6 @@ public class DefenseUp : StrengthUp
         triggered = false;
         attribute = 2;
 
-        minMod = 1;
-        maxMod = 3;
-
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
     }
@@ -30,5 +27,11 @@ public class DefenseUp : StrengthUp
 
         buff = (Buff)ScriptableObject.CreateInstance("Buff");
         buff.SetBuff(modifier, -1);
+    }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 3;
     }
 }

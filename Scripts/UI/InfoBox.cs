@@ -23,6 +23,7 @@ public class InfoBox : MonoBehaviour
     [SerializeField] protected BarUI signatureBar;
     [SerializeField] protected List<Image> abilityIcons; //MY icons (only two)
     [SerializeField] protected List<Image> abilityFills; //MY fills (only two)
+    [SerializeField] protected List<Image> abilityBorders; //MY borders (only two)
     [SerializeField] protected List<Text> abilityNames; //MY abilities (only two)
     [SerializeField] protected List<Color> colors; //blue and red
 
@@ -73,8 +74,13 @@ public class InfoBox : MonoBehaviour
             signatureBar.SetValue(current.GetSignatureGauge());
 
             List<Image> buttonIcons = wb.GetAbilityIcons();
-            for (int i = 0; i < abilityIcons.Count; i++)
+            for (int i = 0; i < Mathf.Min(current.GetAbilities().Count, abilityIcons.Count); i++)
             {
+                abilityIcons[i].gameObject.SetActive(true);
+                abilityNames[i].gameObject.SetActive(true);
+                abilityFills[i].gameObject.SetActive(true);
+                abilityBorders[i].gameObject.SetActive(true);
+
                 abilityIcons[i].sprite = buttonIcons[i].sprite;
                 abilityNames[i].text = Ability.GetGenericNames()[current.GetAbilities()[i]];
 
@@ -261,6 +267,14 @@ public class InfoBox : MonoBehaviour
                         abilityNames[i].text += " +" + current.GetMods()[i];
                         break;
                 }
+            }
+
+            for (int i = Mathf.Min(current.GetAbilities().Count, abilityIcons.Count); i < 2 - Mathf.Min(current.GetAbilities().Count, abilityIcons.Count); i++)
+            {
+                abilityIcons[i].gameObject.SetActive(false);
+                abilityNames[i].gameObject.SetActive(false);
+                abilityFills[i].gameObject.SetActive(false);
+                abilityBorders[i].gameObject.SetActive(false);
             }
         }
     }

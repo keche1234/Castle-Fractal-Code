@@ -35,4 +35,10 @@ public class BurstDefense : BurstStrength
     {
         base.StartBuff();
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 2;
+    }
 }

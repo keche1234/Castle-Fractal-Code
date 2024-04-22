@@ -40,4 +40,10 @@ public class BurstSpeed : BurstStrength
     {
         return modifier * 1.2f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.1f;
+        maxMod = 0.2f;
+    }
 }

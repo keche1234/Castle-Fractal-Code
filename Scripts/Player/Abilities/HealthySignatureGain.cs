@@ -36,4 +36,10 @@ public class HealthySignatureGain : HealthyStrength
     {
         return modifier * 0.55f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.4f;
+        maxMod = 1f;
+    }
 }

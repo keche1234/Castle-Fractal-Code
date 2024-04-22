@@ -26,4 +26,10 @@ public class AttackRateUp : Ability
     {
         return modifier * 0.67f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.15f;
+        maxMod = 0.45f;
+    }
 }

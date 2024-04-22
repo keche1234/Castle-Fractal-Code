@@ -34,12 +34,28 @@ public abstract class Weapon : MonoBehaviour
     // Start is called before the first frame update
     protected virtual void Start()
     {
+
         state = ActionState.Inactive;
         owner = transform.parent.GetComponent<PlayerController>();
         sigSlowdown = 4;
         sigMods = new List<float>();
 
         for (int i = 0; i < sigAttack.Count; i++) sigMods.Add(sigAttack[i].GetDamageMod());
+
+        Camera[] possibleCams = FindObjectsOfType<Camera>();
+        foreach (Camera c in possibleCams)
+        {
+            if (c.name == "UI Camera")
+                cam = c;
+        }
+
+        RoomManager[] possibleRMs = FindObjectsOfType<RoomManager>();
+        foreach (RoomManager rm in possibleRMs)
+        {
+            if (rm.name == "RoomManager")
+                roomManager = rm;
+        }
+
     }
 
     // Update is called once per frame

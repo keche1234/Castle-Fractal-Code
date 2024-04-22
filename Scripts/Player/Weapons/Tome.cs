@@ -32,7 +32,7 @@ public class Tome : Weapon
         else
             crisisMod = 1;
 
-        float depth = Mathf.Min(new Vector3(cam.transform.position.x, cam.transform.position.y, cam.transform.position.z).magnitude, cam.transform.position.y - 2.5f);
+        float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
         reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
         reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
     }

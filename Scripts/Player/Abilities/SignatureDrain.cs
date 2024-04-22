@@ -21,4 +21,10 @@ public class SignatureDrain : HealthDrain
     {
         base.Update();
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 5;
+    }
 }

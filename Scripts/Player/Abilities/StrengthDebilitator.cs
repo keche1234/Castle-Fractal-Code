@@ -9,8 +9,6 @@ public class StrengthDebilitator : Ability
     {
         triggered = false;
         attribute = 1;
-        minMod = 0.4f;
-        minMod = 1f;
     }
 
     // Update is called once per frame
@@ -28,5 +26,11 @@ public class StrengthDebilitator : Ability
     public override float GetMightMult()
     {
         return modifier * 0.3f;
+    }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.4f;
+        maxMod = 1f;
     }
 }

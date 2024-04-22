@@ -49,4 +49,10 @@ public class BurstStrength : Ability
     {
         return modifier * 0.075f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 2;
+    }
 }

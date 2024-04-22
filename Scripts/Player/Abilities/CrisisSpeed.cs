@@ -36,4 +36,10 @@ public class CrisisSpeed : CrisisStrength
     {
         return modifier * 1.3f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.4f;
+        maxMod = 0.7f;
+    }
 }

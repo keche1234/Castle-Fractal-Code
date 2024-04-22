@@ -40,4 +40,10 @@ public class PityCounter : HealthDrain
             }
         }
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 1;
+        maxMod = 5;
+    }
 }

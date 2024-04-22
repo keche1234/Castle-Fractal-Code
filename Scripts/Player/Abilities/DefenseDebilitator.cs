@@ -9,9 +9,6 @@ public class DefenseDebilitator : StrengthDebilitator
     {
         triggered = false;
         attribute = 2;
-
-        minMod = 0.4f;
-        maxMod = 1;
     }
 
     // Update is called once per frame
@@ -24,5 +21,11 @@ public class DefenseDebilitator : StrengthDebilitator
     {
         triggered = false;
         attribute = 2;
+    }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 0.4f;
+        maxMod = 1f;
     }
 }

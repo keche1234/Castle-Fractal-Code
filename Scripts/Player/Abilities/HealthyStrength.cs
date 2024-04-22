@@ -54,4 +54,10 @@ public class HealthyStrength : Ability
     {
         return modifier * 0.0875f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 2;
+        maxMod = 5;
+    }
 }

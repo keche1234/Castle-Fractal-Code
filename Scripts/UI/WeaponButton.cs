@@ -61,8 +61,14 @@ public class WeaponButton : MonoBehaviour
             signature.gameObject.SetActive(true);
 
             //Show the correct abilities
-            for (int i = 0; i < myAbilityIcons.Count; i++)
+            for (int i = 0; i < Mathf.Min(weapon.GetAbilities().Count, myAbilityIcons.Count); i++)
+            {
+                myAbilityIcons[i].gameObject.SetActive(true);
                 myAbilityIcons[i].sprite = abilityIconSprites[weapon.GetAbilities()[i]];
+            }
+
+            for (int i = Mathf.Min(weapon.GetAbilities().Count, myAbilityIcons.Count); i < 2 - Mathf.Min(weapon.GetAbilities().Count, myAbilityIcons.Count); i++)
+                myAbilityIcons[i].gameObject.SetActive(false);
 
             //Show the correct weapon
             myWeaponIcon.sprite = weaponIconSprites[weapon.GetWeaponType()];

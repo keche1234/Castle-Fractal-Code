@@ -7,9 +7,10 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] protected List<Enemy> enemyPrefabs;
     [SerializeField] protected List<Boss> bossPrefabs;
     [SerializeField] protected List<Enemy> spawnList;
+    [SerializeField] protected List<GameObject> covers;
     [SerializeField] protected GameObject spawnCover;
     protected List<Vector3> spawnPos;
-    
+
     [Header("Spawn Time")]
     [SerializeField] protected float spawnDelay;
     [SerializeField] protected float waveDelay;
@@ -23,6 +24,7 @@ public class SpawnManager : MonoBehaviour
     [Header("Spawn Count")]
     [SerializeField] int lowRoll;
     [SerializeField] int highRoll;
+    protected Coroutine spawnCoroutine;
 
     [Header("Game Handling")]
     [SerializeField] protected int currentWave = 0;
@@ -46,7 +48,14 @@ public class SpawnManager : MonoBehaviour
     {
         if (!bossWave && !spawned && spawnList.Count == 0 && currentWave < totalWaves)
         {
-            StartCoroutine("SpawnWave");
+            if (spawnCoroutine != null)
+                StopCoroutine(spawnCoroutine);
+            for (int i = covers.Count - 1; i >= 0; i--)
+            {
+                Destroy(covers[i]);
+                covers.Remove(covers[i]);
+            }
+            spawnCoroutine = StartCoroutine("SpawnWave");
         }
 
         if (totalWaves == 0)
@@ -60,7 +69,7 @@ public class SpawnManager : MonoBehaviour
         allDefeated = false;
         int spawnCount = Random.Range(lowRoll, highRoll);
         spawnPos = new List<Vector3>();
-        List<GameObject> covers = new List<GameObject>();
+        covers = new List<GameObject>();
         List<int> spawnNum = new List<int>();
 
         float t = 0;
@@ -177,5 +186,13 @@ public class SpawnManager : MonoBehaviour
     public void SetSpawned(bool b)
     {
         spawned = b;
+    }
+
+    public void DestroyAllEnemies()
+    {
+        for (int i = spawnList.Count - 1; i >= 0; i--)
+        {
+            RemoveMe(spawnList[i]);
+        }
     }
 }
