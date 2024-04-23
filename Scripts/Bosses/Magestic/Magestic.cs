@@ -10,7 +10,7 @@ public class Magestic : Boss
     [Header("Pyrostorm")]
     [SerializeField] protected Projectile pyroPrefab;
     protected float pyroStart = 3f;
-    protected float pyroEnd = 3f;
+    protected float pyroEnd = 5f;
     protected float pyroStormCount = 2;
 
     [Header("Pyrospiral")]
@@ -29,9 +29,9 @@ public class Magestic : Boss
     [SerializeField] protected List<GameObject> focusWarning;
     protected float frostStart = 1.5f;
     protected float frostActive = 1f;
-    protected float frostEnd = 1f;
+    protected float frostEnd = 3f;
 
-    [Header("Chaser Lasers")]
+    [Header("Glacier Lasers")]
     [SerializeField] protected List<Hitbox> laserLateralBeams;
     [SerializeField] protected List<Hitbox> laserLongBeamsX; // Rotate on the x-axis
     [SerializeField] protected List<Hitbox> laserLongBeamsZ; // Rotate on the z-axis
@@ -41,7 +41,7 @@ public class Magestic : Boss
     protected float laserRotateSpeedLongMin = 60f; //degrees per second
     protected float laserRotateSpeedLongMax = 90f; //degrees per second
     protected float laserActive;
-    protected float laserLinger = 2f;
+    protected float laserLinger = 5f;
 
     [Header("Claim Summons")]
     protected float claimDuration = 1f;
@@ -130,7 +130,7 @@ public class Magestic : Boss
         {
             case 0: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(summonCount, 2, 4, 2f, 1.5f, 1.25f, 2));
+                StartCoroutine(Summon(summonCount, 2, 4, 2f, 1, 1.5f, 2));
                 break;
             case 1: //Pyrostorm
                 //startup
@@ -452,7 +452,7 @@ public class Magestic : Boss
                 }
 
                 t = 0;
-                while (t < frostStart)
+                while (t < frostStart * 2)
                 {
                     if (freezeTime <= 0)
                     {
@@ -461,7 +461,7 @@ public class Magestic : Boss
                             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-Vector3.forward), 120 * Time.deltaTime);
 
                         t += Time.deltaTime;
-                        float progress = t / frostStart;
+                        float progress = t / (frostStart * 2);
                         bangWarning.transform.localScale = new Vector3(progress, 1, progress);
                         foreach (GameObject w in laserWarning)
                             w.transform.localScale = new Vector3(w.transform.localScale.x, 1, progress);
@@ -836,5 +836,6 @@ public class Magestic : Boss
             Destroy(e.gameObject);
             summons.Remove(e);
         }
+        base.OnDestroy();
     }
 }

@@ -187,4 +187,9 @@ public abstract class Boss : Enemy
                             type.transform.position.y,
                             Random.Range(-(room.GetWidth() / 2f) + 0.5f, (room.GetWidth() / 2f) - 0.5f));
     }
+
+    public void OnDestroy()
+    {
+        GetSpawnManager().RemoveMe(this);
+    }
 }

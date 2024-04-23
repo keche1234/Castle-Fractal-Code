@@ -1054,6 +1054,11 @@ public class PlayerController : Character
         else playerLife = LifeState.Dead;
     }
 
+    public bool IsAlive()
+    {
+        return currentHealth >= 0;
+    }
+
     public void SetSigning(bool b)
     {
         signing = b;

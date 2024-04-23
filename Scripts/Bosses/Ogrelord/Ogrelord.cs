@@ -7,6 +7,7 @@ public class Ogrelord : Boss
     public GameObject ogre; //for pointing purposes
     public Vector3 clubPositionDefault;
     public Vector3 clubRotationDefault;
+    Vector3 lastPos;
 
     [Header("Club Combo")]
     [SerializeField] protected GameObject club;
@@ -72,7 +73,7 @@ public class Ogrelord : Boss
     {
         base.Start();
         numAttacks = 7;
-        currentAttack = 0;
+        currentAttack = Random.Range(0, 2);
         power = 20f;
         currentHealth = 1000;
         maxHealth = 1000;
@@ -99,6 +100,32 @@ public class Ogrelord : Boss
     public override void Update()
     {
         base.Update();
+
+        room = GetRoomManager().GetCurrent();
+        if (transform.position.x > (room.GetLength() / 2))
+        {
+            transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
+            //Debug.Log("Push left");
+        }
+        else if (transform.position.x < -(room.GetLength() / 2))
+        {
+            transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
+            //Debug.Log("Push right");
+        }
+
+        if (transform.position.z > room.GetWidth() / 2)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
+            //Debug.Log("Push down");
+        }
+        else if (transform.position.z < -(room.GetWidth() / 2))
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
+            //Debug.Log("Push up");
+        }
+
+        lastPos = transform.position;
+
         if (freezeTime <= 0) //&& rockCharge < rockDelay)
         {
             //rockCharge += Time.deltaTime;
@@ -160,7 +187,7 @@ public class Ogrelord : Boss
         {
             case 0: //Summon
                 if (summons.Count < 7)
-                    StartCoroutine(Summon(summonCount, 4, 2, 1.5f, 1, 2, 2));
+                    StartCoroutine(Summon(summonCount, 4, 2, 1, 1.5f, 2, 2));
                 break;
             case 1: //Club Combo
                 //startup
@@ -718,6 +745,8 @@ public class Ogrelord : Boss
                         charRb.velocity = transform.forward * (spoutSpeed - (spoutDecel * t));
                         t += Time.deltaTime;
                     }
+                    if (!player.GetComponent<PlayerController>().IsAlive())
+                        t = total;
                     yield return null;
                 }
                 charRb.velocity = Vector3.zero;

@@ -264,12 +264,13 @@ public class ProtoSpawnManager02 : SpawnManager
                 // TODO: This is getting skipped for somer eason
                 Boss boss = Instantiate(bossPrefabs[0], Vector3.zero, Quaternion.Euler(Vector3.zero));
                 boss.GetComponent<Boss>().enabled = false;
+                boss.gameObject.transform.localPosition = new Vector3(0, 1.25f, 0);
                 boss.gameObject.transform.localScale = Vector3.zero;
                 float myScale = 0;
 
                 yield return new WaitForSeconds(10);
 
-                while (myScale <= 1)
+                while (myScale < 1)
                 {
                     myScale += Time.deltaTime;
                     boss.gameObject.transform.localScale = Vector3.one * myScale;
@@ -297,12 +298,16 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 3));
+                    spawnList[i].ChangeDefense(Random.Range(0, 3));
                 }
 
                 spawnList.Add(Instantiate(enemyPrefabs[8], spawnPos[2], gameObject.transform.rotation));
                 spawnList[2].SetSpawnManager(this);
                 spawnList[2].SetRoomManager(roomManager);
                 spawnList[2].transform.parent = roomManager.GetCurrent().transform;
+                spawnList[2].ChangeStrength(Random.Range(0, 3));
+                spawnList[2].ChangeDefense(Random.Range(0, 3));
 
                 for (int i = 0; i < covers.Count; i++)
                     Destroy(covers[i]);
@@ -324,12 +329,16 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 3));
+                    spawnList[i].ChangeDefense(Random.Range(0, 3));
                 }
 
                 spawnList.Add(Instantiate(enemyPrefabs[9], spawnPos[2], gameObject.transform.rotation));
                 spawnList[2].SetSpawnManager(this);
                 spawnList[2].SetRoomManager(roomManager);
                 spawnList[2].transform.parent = roomManager.GetCurrent().transform;
+                spawnList[2].ChangeStrength(Random.Range(0, 3));
+                spawnList[2].ChangeDefense(Random.Range(0, 3));
 
                 for (int i = 0; i < covers.Count; i++)
                     Destroy(covers[i]);
@@ -354,12 +363,16 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 3));
+                    spawnList[i].ChangeDefense(Random.Range(0, 3));
                 }
 
                 spawnList.Add(Instantiate(enemyPrefabs[6], spawnPos[2], gameObject.transform.rotation));
                 spawnList[2].SetSpawnManager(this);
                 spawnList[2].SetRoomManager(roomManager);
                 spawnList[2].transform.parent = roomManager.GetCurrent().transform;
+                spawnList[2].ChangeStrength(Random.Range(0, 3));
+                spawnList[2].ChangeDefense(Random.Range(0, 3));
 
                 for (int i = 3; i < 5; i++)
                 {
@@ -367,6 +380,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 3));
+                    spawnList[i].ChangeDefense(Random.Range(0, 3));
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -393,12 +408,16 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 3));
+                    spawnList[i].ChangeDefense(Random.Range(0, 3));
                 }
 
                 spawnList.Add(Instantiate(enemyPrefabs[Random.Range(5, 10)], spawnPos[5], gameObject.transform.rotation));
                 spawnList[5].SetSpawnManager(this);
                 spawnList[5].SetRoomManager(roomManager);
                 spawnList[5].transform.parent = roomManager.GetCurrent().transform;
+                spawnList[5].ChangeStrength(Random.Range(0, 3));
+                spawnList[5].ChangeDefense(Random.Range(0, 3));
 
                 for (int i = 0; i < covers.Count; i++)
                     Destroy(covers[i]);
@@ -442,6 +461,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 4));
+                    spawnList[i].ChangeDefense(Random.Range(0, 4));
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -469,6 +490,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 4));
+                    spawnList[i].ChangeDefense(Random.Range(0, 4));
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -495,6 +518,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
+                    spawnList[i].ChangeStrength(Random.Range(0, 4));
+                    spawnList[i].ChangeDefense(Random.Range(0, 4));
                 }
 
                 for (int i = 0; i < covers.Count; i++)

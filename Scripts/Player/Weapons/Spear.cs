@@ -47,6 +47,7 @@ public class Spear : Weapon
         transform.localScale *= 2 * range;
 
         mainAttack[0].gameObject.SetActive(true);
+        mainAttack[0].ClearConnected();
         List<Character> con = mainAttack[0].GetConnected();
         foreach (Character c in con)
             mainAttack[1].AddConnected(c);

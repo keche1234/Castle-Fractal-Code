@@ -570,7 +570,7 @@ public class Twinotaurs : Boss
                 foreach (Cyclone c in cycloneList)
                     c.gameObject.SetActive(false);
 
-                StartCoroutine(Summon(summonCount, 3, 3, 1, 1, 1.5f, 1));
+                StartCoroutine(Summon(summonCount, 3, 3, 1.5f, 2, 1, 1));
                 while (state != ActionState.Waiting) yield return null;
                 break;
             case 3: //Perilous Partition

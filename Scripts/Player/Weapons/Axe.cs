@@ -57,6 +57,8 @@ public class Axe : Weapon
         state = ActionState.Active;
         transform.localScale *= 2 * range;
         mainAttack[0].gameObject.SetActive(true);
+        foreach (Hitbox h in mainAttack)
+            h.ClearConnected();
         owner.SetAttackState(2);
 
         actionTime = 0;
@@ -146,7 +148,10 @@ public class Axe : Weapon
 
         // Set new damage mod
         for (int i = 0; i < sigAttack.Count; i++)
+        {
             sigAttack[i].SetDamageMod(sigMods[i] * damage);
+            sigAttack[i].ClearConnected();
+        }
 
         owner.gameObject.GetComponent<Rigidbody>().velocity = (owner.gameObject.transform.rotation * Vector3.forward * owner.GetSpeed()) / sigActiveTime;
         yield return new WaitForSeconds(3 / 60f);

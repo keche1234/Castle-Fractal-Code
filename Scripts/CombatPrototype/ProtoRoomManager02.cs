@@ -311,16 +311,16 @@ public class ProtoRoomManager02 : RoomManager
                     break;
                 case 3: //Cerulean Satyr
                     player.RemoveCustomWeapon();
-                    PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
-                    tome.Initialize(4, Tome.GetBasePower(), 0, 0, 0, null, null);
-                    tome.transform.parent = GetCurrent().transform;
+                    PickupCW crossbow = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
+                    crossbow.Initialize(3, Crossbow.GetBasePower(), 0, 0, 0, null, null);
+                    crossbow.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 4: //Turquoise Templar
                     player.RemoveCustomWeapon();
-                    PickupCW crossbow = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
-                    crossbow.Initialize(3, Crossbow.GetBasePower(), 0, 0, 0, null, null);
-                    crossbow.transform.parent = GetCurrent().transform;
+                    PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
+                    tome.Initialize(4, Tome.GetBasePower(), 0, 0, 0, null, null);
+                    tome.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
                     break;
                 case 5: //Wisteria Wizard
@@ -351,8 +351,9 @@ public class ProtoRoomManager02 : RoomManager
                     pickups = new List<PickupCW>();
                     for (int i = 0; i < 10; i++)
                     {
-                        pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f + (4f * (i / 5)));
+                        pickups.Add(GenerateWeapon(i % 5));
+                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * (i % 5)), 1, -2f + (4f * (i / 5)));
+                        pickups[i].transform.parent = GetCurrent().transform;
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);

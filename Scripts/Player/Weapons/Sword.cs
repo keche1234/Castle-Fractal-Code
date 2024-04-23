@@ -62,6 +62,7 @@ public class Sword : Weapon
             state = ActionState.Active;
             owner.SetAttackState(2);
             mainAttack[chainNum - 1].gameObject.SetActive(true);
+            mainAttack[chainNum - 1].ClearConnected();
 
             actionTime = 0;
 

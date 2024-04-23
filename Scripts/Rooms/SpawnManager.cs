@@ -30,6 +30,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] protected int currentWave = 0;
     [SerializeField] protected int totalWaves;
     [SerializeField] protected bool bossWave = false;
+    protected Boss boss;
     [SerializeField] protected RoomManager roomManager;
 
     protected bool spawned = false;
@@ -141,12 +142,18 @@ public class SpawnManager : MonoBehaviour
 
     public virtual void RemoveMe(Enemy me)
     {
+        bool realEnemy = spawnList.Contains(me);
         spawnList.Remove(me);
         Destroy(me.gameObject);
-        if (spawnList.Count == 0)
+        if (!bossWave && spawnList.Count == 0 && realEnemy)
         {
             spawned = false;
             if (currentWave >= totalWaves) allDefeated = true;
+        }
+        else if (bossWave && boss == me)
+        {
+            spawned = false;
+            allDefeated = true;
         }
     }
 
@@ -186,6 +193,12 @@ public class SpawnManager : MonoBehaviour
     public void SetSpawned(bool b)
     {
         spawned = b;
+    }
+
+    public void SetBoss(Boss b)
+    {
+        boss = b;
+        bossWave = true;
     }
 
     public void DestroyAllEnemies()

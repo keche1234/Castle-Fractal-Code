@@ -25,9 +25,9 @@ public abstract class Character : MonoBehaviour
       3) Speed
       4) Signature Gauge Fill Rate (player only)
       5) Regen*/
-    public static readonly string[] buffTypes = { "Special", "Strength", "Defense", "Speed", "Signature Charge", "Regen" };
-    public static readonly string[] debuffTypes = { "Special", "Strength", "Defense", "Speed", "Signature Charge", "Stun" };
-    public static readonly string[] directMultTypes = { "Special", "Strength", "Defense", "Speed", "Signature Charge" };
+    public static readonly string[] buffTypes = { "Special", "Strength", "Defense", "Speed", "Signature Gain", "Regen" };
+    public static readonly string[] debuffTypes = { "Special", "Strength", "Defense", "Speed", "Signature Gain", "Stun" };
+    public static readonly string[] directMultTypes = { "Special", "Strength", "Defense", "Speed", "Signature Gain" };
     [SerializeField] protected List<List<Buff>> buffs;
     [SerializeField] protected List<List<Debuff>> debuffs;
     [SerializeField] protected List<float> directMults;
@@ -407,6 +407,8 @@ public abstract class Character : MonoBehaviour
 
     public void RemoveNull()
     {
+        if (buffs == null)
+            Debug.Log("what");
         for (int a = 0; a < buffs.Count; a++)
         {
             for (int b = 0; b < buffs[a].Count; b++)
