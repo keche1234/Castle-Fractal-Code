@@ -48,7 +48,7 @@ public class Spear : Weapon
 
         mainAttack[0].gameObject.SetActive(true);
         mainAttack[0].ClearConnected();
-        List<Character> con = mainAttack[0].GetConnected();
+        List<Character> con = mainAttack[1].GetConnected();
         foreach (Character c in con)
             mainAttack[1].AddConnected(c);
         mainAttack[1].gameObject.SetActive(true);

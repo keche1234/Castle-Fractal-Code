@@ -37,6 +37,7 @@ public abstract class Boss : Enemy
     // Update is called once per frame
     public override void Update()
     {
+        hitByList.Clear();
         if (freezeTime > 0)
         {
             freezeTime -= Time.deltaTime;

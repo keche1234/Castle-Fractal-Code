@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class WisteriaWizard : Enemy
 {
-    private float sizeTime = 0.45f;
-    private float stepTime = 0.1f;
+    private float sizeTime = 0.35f;
+    private float stepTime = 0.05f;
 
     private float healCharge = 2f;
     private float cooldownTime = 1f;
@@ -32,6 +32,7 @@ public class WisteriaWizard : Enemy
     // Update is called once per frame
     public override void Update()
     {
+        hitByList.Clear();
         if (freezeTime > 0)
         {
             freezeTime -= Time.deltaTime;

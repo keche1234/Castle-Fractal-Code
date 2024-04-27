@@ -64,26 +64,78 @@ public class Projectile : Hitbox
     public void OnTriggerEnter(Collider targetCollider)
     {
         Character c = targetCollider.gameObject.GetComponent<Character>();
-        if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c))
+        if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c.enabled)
         {
-            connected.Add(targetCollider.gameObject.GetComponent<Character>());
-            connectedTimer.Add(clearTime);
+            AddConnected(targetCollider.gameObject.GetComponent<Character>());
+            Vector3 d;
             if (direction.magnitude != 0)
-                source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow,
-                                    transform.TransformDirection(direction), triggerInvincibility, knockbackMod, preserved);
+            {
+                d = transform.TransformDirection(direction);
+                d = (new Vector3(d.x, 0, d.z)).normalized;
+            }
             else
             {
-                Vector3 d = (targetCollider.gameObject.transform.position - gameObject.transform.position);
+                d = (targetCollider.gameObject.transform.position - gameObject.transform.position);
+                if (d.magnitude < 0.01f) d = transform.forward;
                 d = (new Vector3(d.x, 0, d.z)).normalized;
-                if (targetCollider.gameObject.GetComponent<Character>() != null)
+            }
+
+            if (c != null)
+            {
+                if (!c.GetHitByList().Contains(source))
+                {
+                    c.AddToHitByList(source);
                     source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
-                else //Twinotaurs
-                    source.DealDamage(damageMod, targetCollider.gameObject.transform.parent.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
+                }
+                AddConnected(c);
+            }
+            else //Twinotaurs
+            {
+                Character p = targetCollider.gameObject.transform.parent.GetComponent<Character>();
+                if (p != null)
+                {
+                    if (!p.GetHitByList().Contains(source))
+                    {
+                        p.AddToHitByList(source);
+                        source.DealDamage(damageMod, targetCollider.gameObject.transform.parent.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
+                    }
+                    AddConnected(p);
+                }
             }
 
             if (!piercing && !multihit)
                 Destroy(gameObject);
         }
+
+        //Character c = targetCollider.gameObject.GetComponent<Character>();
+        //if (c != null && c.enabled)
+        //{
+        //    if (!c.GetHitByList().Contains(source))
+        //    {
+        //        if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c.enabled)
+        //        {
+        //            connected.Add(targetCollider.gameObject.GetComponent<Character>());
+        //            connectedTimer.Add(clearTime);
+        //            if (direction.magnitude != 0)
+        //                source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow,
+        //                                    transform.TransformDirection(direction), triggerInvincibility, knockbackMod, preserved);
+        //            else
+        //            {
+        //                Vector3 d = (targetCollider.gameObject.transform.position - gameObject.transform.position);
+        //                d = (new Vector3(d.x, 0, d.z)).normalized;
+        //                if (targetCollider.gameObject.GetComponent<Character>() != null)
+        //                    source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
+        //                else //Twinotaurs
+        //                    source.DealDamage(damageMod, targetCollider.gameObject.transform.parent.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
+        //            }
+
+        //            if (!piercing && !multihit)
+        //                Destroy(gameObject);
+        //        }
+        //    }
+        //    else
+        //        connected.Add(targetCollider.gameObject.GetComponent<Character>());
+        //}
 
         if (targetCollider.gameObject.CompareTag("Wall") && wallBehavior == 1)
             Destroy(gameObject);

@@ -73,7 +73,8 @@ public class Explosive : Projectile
     {
         if (!triggered)
         {
-            if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(targetCollider.gameObject.GetComponent<Character>()))
+            Character c = targetCollider.gameObject.GetComponent<Character>();
+            if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c.enabled)
             {
                 if (!piercing)
                     StartCoroutine("Explode");

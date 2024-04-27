@@ -46,6 +46,7 @@ public class GreenSnake : Enemy
     // Update is called once per frame
     void FixedUpdate()
     {
+        hitByList.Clear();
         if (freezeTime > 0)
         {
             freezeTime -= Time.deltaTime;

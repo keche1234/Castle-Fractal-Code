@@ -71,6 +71,7 @@ public class TurquoiseTemplar : Enemy
         //if (state == ActionState.Waiting || state == ActionState.Startup || state == ActionState.Cooldown)
         //    charRb.velocity *= 0;
 
+        hitByList.Clear();
         if (freezeTime > 0)
         {
             freezeTime -= Time.deltaTime;

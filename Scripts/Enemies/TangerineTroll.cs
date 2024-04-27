@@ -7,7 +7,7 @@ public class TangerineTroll : Enemy
     public GameObject troll; //for pointing purposes
 
     protected float stepTime = 0.35f;
-    protected int stepsRemaining = 4;
+    protected int stepsRemaining = 3;
 
     protected float jumpTime = 15f / 60;
     protected float jumpHeight = 3f;
@@ -28,7 +28,7 @@ public class TangerineTroll : Enemy
         miniHealthBar.gameObject.transform.parent.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -75));
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -125));
         state = ActionState.Waiting;
-        speed = 2.5f;
+        speed = 4f;
         rotateSpeed = 2f;
         power = 6f;
         currentHealth = 46;
@@ -47,6 +47,7 @@ public class TangerineTroll : Enemy
     {
         //if (state != ActionState.Moving && !inKB)
         //    charRb.velocity *= 0;
+        hitByList.Clear();
         if (freezeTime > 0)
         {
             freezeTime -= Time.deltaTime;
@@ -86,7 +87,7 @@ public class TangerineTroll : Enemy
                         if (IsFacingPlayer())
                         {
                             StartCoroutine(Attack());
-                            stepsRemaining = 4;
+                            stepsRemaining = 3;
                         }
                     }
                 }

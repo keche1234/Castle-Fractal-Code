@@ -814,6 +814,7 @@ public class Ogrelord : Boss
     public void OnTriggerEnter(Collider collider)
     {
         //Super Stomp
+        // TODO: Ogrelord has a chance of not continuing attack after landing
         if (currentAttack == 4 && collider.gameObject.CompareTag("Floor") && landing)
         {
             state = ActionState.Cooldown;

@@ -25,7 +25,7 @@ public class BlueOgre : Enemy
         miniHealthBar.gameObject.transform.parent.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -75));
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -125));
         state = ActionState.Waiting;
-        speed = 2.5f;
+        speed = 3f;
         rotateSpeed = 2f;
         power = 6f;
         currentHealth = 46;
@@ -55,6 +55,7 @@ public class BlueOgre : Enemy
     // Update is called once per frame
     public override void Update()
     {
+        hitByList.Clear();
         if (freezeTime > 0)
         {
             freezeTime -= Time.deltaTime;

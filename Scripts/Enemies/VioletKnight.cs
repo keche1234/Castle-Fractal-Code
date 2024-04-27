@@ -53,6 +53,7 @@ public class VioletKnight : Enemy
     // Update is called once per frame
     public override void Update()
     {
+        hitByList.Clear();
         //if (state == ActionState.Waiting || state == ActionState.Startup || state == ActionState.Cooldown)
         //    charRb.velocity *= 0;
 

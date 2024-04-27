@@ -188,6 +188,7 @@ public class PlayerController : Character
 
     public void FixedUpdate()
     {
+        hitByList.Clear();
         if (currentHealth <= 0 && maxHealth > 0)
         {
             playerLife = LifeState.Dead;
@@ -195,7 +196,11 @@ public class PlayerController : Character
             playerRb.velocity *= 0;
             weaponTypes[currentWeaponType].SetActivity(false);
             weaponTypes[currentWeaponType].gameObject.SetActive(false);
-            this.gameObject.transform.localScale *= .99f;
+            gameObject.transform.localScale *= .99f;
+        }
+        else
+        {
+            playerLife = LifeState.Alive;
         }
 
         if (playerLife != LifeState.Dead && !stunned) //Make sure the player is alive before they try anything
@@ -239,7 +244,10 @@ public class PlayerController : Character
                             signing = true;
                         }
                         else
-                            weaponTypes[currentWeaponType].StartCoroutine("Attack");
+                        {
+                            if (weaponTypes[currentWeaponType].gameObject.activeSelf)
+                                weaponTypes[currentWeaponType].StartCoroutine("Attack");
+                        }
                     }
                     else if (playerAttack == AttackState.NotAttacking)
                     {
@@ -393,7 +401,7 @@ public class PlayerController : Character
             if (current.GetAbilities().Contains(index))
             {
                 Ability a = weaponTypes[currentWeaponType].GetComponent<HealthDrain>();
-                int percent = (int)(damage * 100 / targetMax);
+                int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 40 : 1);
                 inventory[equippedCustomWeapon].AddSignature(((int)a.GetModifier() << 2) * (percent / 5));
                 signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
             }

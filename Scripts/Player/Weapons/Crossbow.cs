@@ -75,7 +75,7 @@ public class Crossbow : Weapon
                 arrows[i] = Instantiate(arrowPrefab, owner.gameObject.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrows[i].transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * (-width / 2)) + (Quaternion.AngleAxis(90, transform.up) * dir * i * 0.2f);
                 arrows[i].transform.Rotate(new Vector3(0, initAngle + (i * spread), 0));
-                arrows[i].Setup(12 * range, owner, true, owner.GetCustomWeapon().GetPower(), 0.5f, chainNum / 9f);
+                arrows[i].Setup(12 * range, owner, true, owner.GetCustomWeapon().GetPower(), 0.5f, (3 + chainNum) / 9f);
                 arrows[i].transform.parent = roomManager.GetCurrent().transform;
             }
 
@@ -174,7 +174,7 @@ public class Crossbow : Weapon
 
                 Projectile arrow = Instantiate(arrowPrefab, owner.gameObject.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrow.transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * -0.6f) + ((Quaternion.AngleAxis(90, transform.up) * dir) * 0.2f);
-                arrow.Setup(18, owner, true, owner.GetCustomWeapon().GetPower() * damage, -1, 1.25f, 1, true);
+                arrow.Setup(18, owner, true, owner.GetCustomWeapon().GetPower() * damage, -1, 1.11f, 1, true);
                 arrow.SetKB(0, 0, 1, 3, false);
                 arrow.transform.parent = roomManager.GetCurrent().transform;
                 delay = 0;

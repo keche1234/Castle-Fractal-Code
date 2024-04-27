@@ -827,13 +827,15 @@ public class Magestic : Boss
     {
         foreach (Projectile w in myWands)
         {
-            Destroy(w.gameObject);
+            if (w.gameObject)
+                Destroy(w.gameObject);
             myWands.Remove(w);
         }
 
         foreach (Enemy e in summons)
         {
-            Destroy(e.gameObject);
+            if (e.gameObject)
+                Destroy(e.gameObject);
             summons.Remove(e);
         }
         base.OnDestroy();

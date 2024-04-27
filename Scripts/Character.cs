@@ -62,6 +62,8 @@ public abstract class Character : MonoBehaviour
     protected float stunCooldown = 1.5f;
     protected float stunRotateSpeed = Mathf.PI * 80;
 
+    protected List<Character> hitByList;
+
     protected float xLimit;
     protected float zLimit;
 
@@ -79,6 +81,8 @@ public abstract class Character : MonoBehaviour
         directMults = new List<float>();
         for (int i = 0; i < directMultTypes.Length; i++)
             directMults.Add(1);
+
+        hitByList = new List<Character>();
 
         tFreezeTargets = new List<string>();
         tFreezeDurs = new List<float>();
@@ -216,6 +220,16 @@ public abstract class Character : MonoBehaviour
         yield return null;
     }
 
+    public List<Character> GetHitByList()
+    {
+        return new List<Character>(hitByList);
+    }
+
+    public void AddToHitByList(Character c)
+    {
+        hitByList.Add(c);
+    }
+
     //public void StopInvincibility()
     //{
     //    invincible = false;
@@ -320,7 +334,7 @@ public abstract class Character : MonoBehaviour
     public void RemoveDebuff(Debuff d, int attribute)
     {
         debuffs[attribute].Remove(d);
-        d.SetOwner(null);
+        //d.SetOwner(null);
     }
 
     /*******************************************************

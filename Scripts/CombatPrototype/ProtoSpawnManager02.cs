@@ -149,8 +149,9 @@ public class ProtoSpawnManager02 : SpawnManager
                 }
                 break;
             case 5: //Cerulean Satyr 1
-                spawnPos.Add(new Vector3(-6, 0.5f, 3));
-                spawnPos.Add(new Vector3(6, 0.5f, 3));
+                spawnPos.Add(new Vector3(-6, 0.5f, 1f));
+                spawnPos.Add(new Vector3(6, 0.5f, 1f));
+                spawnPos.Add(new Vector3(0, 0.5f, 3f));
                 for (int i = 0; i < spawnPos.Count; i++)
                 {
                     covers.Add(Instantiate(spawnCover, spawnPos[i], gameObject.transform.rotation));
@@ -168,9 +169,10 @@ public class ProtoSpawnManager02 : SpawnManager
                 }
                 break;
             case 6: //Cerulean Satyr 2
-                spawnPos.Add(new Vector3(-6, 0.5f, 1f));
-                spawnPos.Add(new Vector3(6, 0.5f, 1f));
-                spawnPos.Add(new Vector3(0, 0.5f, 3f));
+                spawnPos.Add(new Vector3(-4.5f, 0.5f, 1));
+                spawnPos.Add(new Vector3(4.5f, 0.5f, 1));
+                spawnPos.Add(new Vector3(-7.5f, 0.5f, 3));
+                spawnPos.Add(new Vector3(7.5f, 0.5f, 3));
                 for (int i = 0; i < spawnPos.Count; i++)
                 {
                     covers.Add(Instantiate(spawnCover, spawnPos[i], gameObject.transform.rotation));
@@ -229,6 +231,7 @@ public class ProtoSpawnManager02 : SpawnManager
             case 9: //Wisteria Wizard + Green Snake + Violet Knight
                 spawnPos.Add(new Vector3(-4.5f, 0.5f, 1));
                 spawnPos.Add(new Vector3(4.5f, 0.5f, 1));
+                spawnPos.Add(new Vector3(0, 0.5f, 2));
                 spawnPos.Add(new Vector3(-7.5f, 0.5f, 3));
                 spawnPos.Add(new Vector3(7.5f, 0.5f, 3));
                 for (int i = 0; i < spawnPos.Count; i++)
@@ -243,12 +246,17 @@ public class ProtoSpawnManager02 : SpawnManager
                 spawnList[0].SetRoomManager(roomManager);
                 spawnList[0].transform.parent = roomManager.GetCurrent().transform;
 
-                spawnList.Add(Instantiate(enemyPrefabs[4], spawnPos[1], gameObject.transform.rotation));
-                spawnList[0].SetSpawnManager(this);
-                spawnList[0].SetRoomManager(roomManager);
-                spawnList[0].transform.parent = roomManager.GetCurrent().transform;
+                spawnList.Add(Instantiate(enemyPrefabs[0], spawnPos[1], gameObject.transform.rotation));
+                spawnList[1].SetSpawnManager(this);
+                spawnList[1].SetRoomManager(roomManager);
+                spawnList[1].transform.parent = roomManager.GetCurrent().transform;
 
-                for (int i = 2; i < 4; i++)
+                spawnList.Add(Instantiate(enemyPrefabs[4], spawnPos[2], gameObject.transform.rotation));
+                spawnList[2].SetSpawnManager(this);
+                spawnList[2].SetRoomManager(roomManager);
+                spawnList[2].transform.parent = roomManager.GetCurrent().transform;
+
+                for (int i = 3; i < 5; i++)
                 {
                     spawnList.Add(Instantiate(enemyPrefabs[5], spawnPos[i], gameObject.transform.rotation));
                     spawnList[i].SetSpawnManager(this);
@@ -261,11 +269,11 @@ public class ProtoSpawnManager02 : SpawnManager
 
                 break;
             case 10: // Magestic
-                // TODO: This is getting skipped for somer eason
                 Boss boss = Instantiate(bossPrefabs[0], Vector3.zero, Quaternion.Euler(Vector3.zero));
                 boss.GetComponent<Boss>().enabled = false;
                 boss.gameObject.transform.localPosition = new Vector3(0, 1.25f, 0);
                 boss.gameObject.transform.localScale = Vector3.zero;
+                boss.transform.parent = roomManager.GetCurrent().transform;
                 float myScale = 0;
 
                 yield return new WaitForSeconds(10);
@@ -393,7 +401,7 @@ public class ProtoSpawnManager02 : SpawnManager
                 spawnPos.Add(new Vector3(-4, 0.5f, 2));
                 spawnPos.Add(new Vector3(2, 0.5f, 0));
                 spawnPos.Add(new Vector3(4, 0.5f, 2));
-                spawnPos.Add(new Vector3(0, 0.5f, 3));
+                spawnPos.Add(new Vector3(0, 0.5f, 0));
 
                 for (int i = 0; i < spawnPos.Count; i++)
                 {

@@ -345,7 +345,6 @@ public class ProtoRoomManager02 : RoomManager
                     break;
 
                 // PART II
-                // TODO: Make room weapon parent
                 case 7: //Weapon Room
                     player.RemoveAllCustomWeapons();
                     pickups = new List<PickupCW>();
@@ -360,14 +359,15 @@ public class ProtoRoomManager02 : RoomManager
                     break;
                 case 8: //All New Enemies
                     spawnManager.SetWaveInfo(0, 4);
+                    spawnManager.SetSpawned(false);
                     break;
                 case 9: //Ogrelord
-                    pickups = new List<PickupCW>();
-                    for (int i = 0; i < 5; i++)
-                    {
-                        pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f);
-                    }
+                    //pickups = new List<PickupCW>();
+                    //for (int i = 0; i < 5; i++)
+                    //{
+                    //    pickups.Add(GenerateWeapon(i));
+                    //    pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f);
+                    //}
                     spawnManager.SetWaveInfo(0, 1);
                     spawnManager.SetBossInfo(true);
                     break;
