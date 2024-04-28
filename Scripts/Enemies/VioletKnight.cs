@@ -57,11 +57,12 @@ public class VioletKnight : Enemy
         //if (state == ActionState.Waiting || state == ActionState.Startup || state == ActionState.Cooldown)
         //    charRb.velocity *= 0;
 
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //freezeTime -= Time.deltaTime;
             charRb.velocity *= 0;
             rotateSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -147,7 +148,7 @@ public class VioletKnight : Enemy
         float i = 0;
         while (i < startupTime)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -161,7 +162,7 @@ public class VioletKnight : Enemy
 
         while (actTime <= activeTime && state == ActionState.Attacking)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 transform.RotateAround(knight.transform.position, transform.up, spinSpeed * Time.deltaTime);
 
@@ -188,7 +189,7 @@ public class VioletKnight : Enemy
         i = 0;
         while (i < cooldownTime / 2)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -198,7 +199,7 @@ public class VioletKnight : Enemy
         i = 0;
         while (i < cooldownTime / 2)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 

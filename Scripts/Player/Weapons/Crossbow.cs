@@ -75,15 +75,13 @@ public class Crossbow : Weapon
                 arrows[i] = Instantiate(arrowPrefab, owner.gameObject.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrows[i].transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * (-width / 2)) + (Quaternion.AngleAxis(90, transform.up) * dir * i * 0.2f);
                 arrows[i].transform.Rotate(new Vector3(0, initAngle + (i * spread), 0));
-                arrows[i].Setup(12 * range, owner, true, owner.GetCustomWeapon().GetPower(), 0.5f, (3 + chainNum) / 9f);
+                arrows[i].Setup(12 * range, owner, true, owner.GetCustomWeapon().GetPower(), 0.5f, (4 + chainNum) / 9f);
                 arrows[i].transform.parent = roomManager.GetCurrent().transform;
             }
 
-            if (current.GetMaxDurability() > 0f && current.DecrementDurability(1) <= 0)
+            if (current.GetMaxDurability() > 0f && (chainNum == 1 || chainNum == 4) && current.DecrementDurability(1) <= 0)
             {
                 owner.BreakCustomWeapon(current);
-
-                //Restore the properties of the user
                 chain = true;
                 yield break;
             }

@@ -97,7 +97,6 @@ public class Hitbox : MonoBehaviour
         Character c = targetCollider.gameObject.GetComponent<Character>();
         if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c.enabled)
         {
-            Debug.Log("que?");
             AddConnected(c);
             Vector3 d;
             if (direction.magnitude != 0)

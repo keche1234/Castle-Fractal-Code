@@ -45,19 +45,19 @@ public class YellowMinotaur : Enemy
     public override void Update()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             charRb.velocity *= 0;
-
             rotateSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
             charRb.velocity = preVel;
-            frozen = false;
-
             rotateSpeed = 1.5f;
+            frozen = false;
+           
         }
         else
         {
@@ -153,7 +153,7 @@ public class YellowMinotaur : Enemy
 
         while (actionTime <= maxBumpTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.AddForce(decay * Time.deltaTime, ForceMode.VelocityChange);
                 actionTime += Time.deltaTime;

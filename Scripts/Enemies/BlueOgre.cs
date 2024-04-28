@@ -56,15 +56,16 @@ public class BlueOgre : Enemy
     public override void Update()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
-            charRb.velocity *= 0;
+            //freezeTime -= Time.deltaTime;
 
+            charRb.velocity *= 0;
             rotateSpeed = 0;
             liftSpeed = 0;
             attackSpeed = 0;
             returnSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -148,7 +149,7 @@ public class BlueOgre : Enemy
         float i = 0;
         while (i < (stepTime / speedChange))
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -159,7 +160,7 @@ public class BlueOgre : Enemy
         i = 0;
         while (i < (stepTime / speedChange))
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -184,7 +185,7 @@ public class BlueOgre : Enemy
             club.transform.RotateAround(ogre.transform.position, ogre.transform.forward, -liftSpeed * Time.deltaTime);
 
             degreesRotated += liftSpeed * Time.deltaTime;
-            if (freezeTime <= 0) actionTime += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) actionTime += Time.deltaTime;
 
             yield return null;
         }
@@ -205,7 +206,7 @@ public class BlueOgre : Enemy
             club.transform.RotateAround(ogre.transform.position, ogre.transform.right, attackSpeed * Time.deltaTime);
 
             degreesRotated += attackSpeed * Time.deltaTime;
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 actionTime += Time.deltaTime;
                 attack[0].gameObject.SetActive(true);
@@ -228,7 +229,7 @@ public class BlueOgre : Enemy
         float r = 0;
         while (r <= cooldownTime - 0.5f)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 r += Time.deltaTime;
                 for (int i = 0; i < 3; i++)
@@ -265,7 +266,7 @@ public class BlueOgre : Enemy
             club.transform.RotateAround(ogre.transform.position, ogre.transform.up, -returnSpeed * Time.deltaTime);
 
             degreesRotated += -returnSpeed * Time.deltaTime;
-            if (freezeTime <= 0) actionTime += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) actionTime += Time.deltaTime;
 
             yield return null;
         }
@@ -275,7 +276,7 @@ public class BlueOgre : Enemy
         r = 0;
         while (r <= 0.1f)
         {
-            if (freezeTime <= 0) r += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) r += Time.deltaTime;
             yield return null;
         }
         state = ActionState.Waiting;

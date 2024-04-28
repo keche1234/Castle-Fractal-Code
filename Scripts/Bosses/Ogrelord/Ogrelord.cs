@@ -73,7 +73,7 @@ public class Ogrelord : Boss
     {
         base.Start();
         numAttacks = 7;
-        currentAttack = Random.Range(0, 2);
+        currentAttack = 0;
         power = 20f;
         currentHealth = 1000;
         maxHealth = 1000;
@@ -126,7 +126,7 @@ public class Ogrelord : Boss
 
         lastPos = transform.position;
 
-        if (freezeTime <= 0) //&& rockCharge < rockDelay)
+        if (GetMyFreezeTime() <= 0) //&& rockCharge < rockDelay)
         {
             //rockCharge += Time.deltaTime;
             //if (rockCharge > rockDelay)
@@ -197,7 +197,7 @@ public class Ogrelord : Boss
                 //Chase
                 while ((transform.position - player.transform.position).magnitude > 3.5f)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         charRb.velocity = transform.forward * speed;
@@ -212,7 +212,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubStart)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         club.transform.Rotate(0, (195 / clubStart) * Time.deltaTime, 0);
 
@@ -229,7 +229,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         club.transform.Rotate(0, (-215 / clubActive) * Time.deltaTime, 0);
                         t += Time.deltaTime;
@@ -242,7 +242,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubDelay)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         t += Time.deltaTime;
@@ -256,7 +256,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         if (t < clubActive / 2)
                             club.transform.Rotate(0, (110 * 2 / clubActive) * Time.deltaTime, 0);
@@ -272,7 +272,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubDelay)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         t += Time.deltaTime;
@@ -286,7 +286,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         club.transform.Rotate(0, 0, (145 / clubActive) * Time.deltaTime);
                         t += Time.deltaTime;
@@ -300,7 +300,7 @@ public class Ogrelord : Boss
                 smack.gameObject.SetActive(false);
                 while (t < edgeActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -311,7 +311,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubDelay)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                     }
@@ -322,7 +322,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubEnd / 3)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         club.transform.Rotate(0, (-270 / clubEnd) * Time.deltaTime, (-90 / clubEnd) * Time.deltaTime);
                         t += Time.deltaTime;
@@ -334,7 +334,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubEnd * 2f / 3)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         t += Time.deltaTime;
@@ -352,7 +352,7 @@ public class Ogrelord : Boss
                 //Chase
                 while ((transform.position - player.transform.position).magnitude > 3.5f)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         charRb.velocity = transform.forward * speed;
@@ -373,7 +373,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < startup)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             if (t < startup / 2)
                                 club.transform.Rotate((-30 / (startup / 2)) * Time.deltaTime, 0, -(90 / (startup / 2)) * Time.deltaTime);
@@ -399,7 +399,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < clubActive)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             // Swing
                             club.transform.Rotate((75 / clubActive) * Time.deltaTime, 0, 0);
@@ -412,6 +412,7 @@ public class Ogrelord : Boss
 
                     Projectile flyingClub = Instantiate(flyingClubPrefab, transform.position + (transform.forward * 1.5f) + transform.up, transform.rotation, roomManager.GetCurrent().transform);
                     flyingClub.SetSource(this);
+                    flyingClub.GetComponent<SpawningProjectile>().SetRoom(roomManager.GetCurrent());
                     while (flyingClub != null)
                     {
                         LookTowardsPlayer();
@@ -426,7 +427,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < clubEnd / 2)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -440,7 +441,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < geyserStart)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         t += Time.deltaTime;
@@ -488,7 +489,7 @@ public class Ogrelord : Boss
 
                     landing = t > (airTime / 2);
                     GetComponent<Collider>().isTrigger = t < (airTime / 2);
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                     }
@@ -502,7 +503,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < geyserLand)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -535,7 +536,7 @@ public class Ogrelord : Boss
                         PushSummonsBackStomp();
 
                         landing = t > (airTime / 2);
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             t += Time.deltaTime;
                         }
@@ -548,7 +549,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < geyserLand)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
@@ -559,7 +560,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < geyserEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -587,7 +588,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < (stompStart - (i * 0.2f)))
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             if (t < stompJumpTime)
                             {
@@ -629,7 +630,7 @@ public class Ogrelord : Boss
                     {
                         landing = t > (airTime / 2);
                         GetComponent<Collider>().isTrigger = t < (airTime / 2);
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             charRb.velocity = Vector3.down * (stompJumpHeight / stompDescend);
                             PushSummonsBackStomp();
@@ -648,7 +649,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < (stompLand - (i * 0.4f)))
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
@@ -658,7 +659,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < stompEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                     }
@@ -677,7 +678,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < cryDuration / 2)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
@@ -693,7 +694,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < cryDuration / 2)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
@@ -710,7 +711,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < spoutStart)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -723,7 +724,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < spoutActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         charRb.velocity = transform.forward * spoutSpeed;
                         t += Time.deltaTime;
@@ -740,7 +741,7 @@ public class Ogrelord : Boss
                 float total = spoutSpeed / spoutDecel;
                 while (t < total)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         charRb.velocity = transform.forward * (spoutSpeed - (spoutDecel * t));
                         t += Time.deltaTime;
@@ -755,7 +756,7 @@ public class Ogrelord : Boss
                 t = 0;
                 while (t < spoutEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -767,7 +768,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < airTime / 2)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }

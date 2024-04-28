@@ -273,7 +273,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < AIR_TIME)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -288,7 +288,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < DASH_START)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         t += Time.deltaTime;
@@ -320,7 +320,7 @@ public class Twinotaurs : Boss
                         else
                             venomCharge.gameObject.SetActive(false);
 
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             if (poisonTimer > 0)
                                 poisonTimer -= Time.deltaTime;
@@ -371,7 +371,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < DASH_COOL)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                     }
@@ -456,7 +456,7 @@ public class Twinotaurs : Boss
                         boltIndicators[i].transform.localScale = new Vector3(boltIndicators[i].transform.localScale.x, boltIndicators[i].transform.localScale.y, aim.magnitude + 0.5f);
                     }
 
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         // Move each gas cloud to its target
                         for (int i = 0; i < pounceClouds.Count; i++)
@@ -492,7 +492,7 @@ public class Twinotaurs : Boss
                     t = 0;
                     while (t < POUNCE_STARTUP)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             if (t < POUNCE_STARTUP * 0.75f)
                                 lookVector = new Vector3(player.transform.position.x - venom.transform.position.x, 0, player.transform.position.z - venom.transform.position.z);
@@ -512,7 +512,7 @@ public class Twinotaurs : Boss
                     t = 0;
                     while (t < POUNCE_DURATION)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             venomRb.velocity = aim.normalized * pounceSpeed;
                             cage.Update();
@@ -528,7 +528,7 @@ public class Twinotaurs : Boss
                     // Chill
                     while (t < POUNCE_ENDLAG)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             venomRb.velocity = aim.normalized * (pounceSpeed * (1 - (t / POUNCE_ENDLAG)));
                             cage.Update();
@@ -545,7 +545,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < POUNCE_COOL)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         if (cage.IsBolting())
                             cage.Update();
@@ -585,7 +585,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < AIR_TIME)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -602,7 +602,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < PERILOUS_START)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -627,7 +627,7 @@ public class Twinotaurs : Boss
                 {
                     int wallMask = 1 << 7;
                     //int perilMask = 1 << 8;
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         sparkRb.velocity = sparkMov;
                         venomRb.velocity = venomMov;
@@ -703,7 +703,7 @@ public class Twinotaurs : Boss
                 t = 0;
                 while (t < DASH_START)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         Vector3 crashPoint = (spark.transform.position + venom.transform.position) / 2;
                         lookVector = new Vector3(venom.transform.position.x - spark.transform.position.x, 0, venom.transform.position.z - spark.transform.position.z);
@@ -935,6 +935,16 @@ public class Twinotaurs : Boss
     public override void Reset(bool zeroSpeed)
     {
 
+    }
+
+    public GameObject GetSpark()
+    {
+        return spark;
+    }
+
+    public GameObject GetVenom()
+    {
+        return venom;
     }
 
     public void OnDestroy()

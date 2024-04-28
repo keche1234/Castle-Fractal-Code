@@ -16,11 +16,11 @@ public class EventManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Character.GetFreezeTargets().Count > 0 && OnFreeze != null)
-        {
-            OnFreeze();
-            Character.GetFreezeTargets().RemoveAll(_ => true);
-            Character.GetFreezeDurs().RemoveAll(_ => true);
-        }
+        //if (Character.GetFreezeTargets().Count > 0 && OnFreeze != null)
+        //{
+        //    OnFreeze();
+        //    Character.GetFreezeTargets().RemoveAll(_ => true);
+        //    Character.GetFreezeDurs().RemoveAll(_ => true);
+        //}
     }
 }

@@ -48,19 +48,18 @@ public class TangerineTroll : Enemy
         //if (state != ActionState.Moving && !inKB)
         //    charRb.velocity *= 0;
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             charRb.velocity *= 0;
-
             rotateSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
             charRb.velocity = preVel;
-            frozen = false;
-
             rotateSpeed = 2f;
+            frozen = false;
         }
         else
         {
@@ -137,7 +136,7 @@ public class TangerineTroll : Enemy
         float i = 0;
         while (i < (stepTime / speedChange))
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -148,7 +147,7 @@ public class TangerineTroll : Enemy
         i = 0;
         while (i < (stepTime / speedChange))
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -170,7 +169,7 @@ public class TangerineTroll : Enemy
 
         while (actionTime < jumpTime || transform.position.y - 1 < jumpHeight)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 if (!knocked)
                 {
@@ -186,7 +185,7 @@ public class TangerineTroll : Enemy
         actionTime = 0;
         while (actionTime < attackDelay)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 actionTime += Time.deltaTime;
             }
@@ -201,7 +200,7 @@ public class TangerineTroll : Enemy
         actionTime = 0;
         while (state == ActionState.Attacking)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.velocity = new Vector3(0, -jumpHeight / attackTime, 0);
                 actionTime += Time.deltaTime;
@@ -213,7 +212,7 @@ public class TangerineTroll : Enemy
         actionTime = 0;
         while (actionTime < shockwaveTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.velocity *= 0;
                 actionTime += Time.deltaTime;
@@ -230,7 +229,7 @@ public class TangerineTroll : Enemy
         actionTime = 0;
         while (actionTime < cooldownTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.velocity *= 0;
                 actionTime += Time.deltaTime;

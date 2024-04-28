@@ -50,10 +50,12 @@ public abstract class Character : MonoBehaviour
     [SerializeField] protected Text defenseUI;
 
     //[Header("Time Freeze Handling")]
-    protected static List<string> tFreezeTargets;
-    protected static List<float> tFreezeDurs;
+    protected FreezeManager freezeManager;
+    //protected static List<string> tFreezeTargets;
+    //protected static List<float> tFreezeDurs;
+    //protected static List<(string, float)> freezeTags;
     protected bool frozen;
-    protected float freezeTime;
+    //protected float freezeTime;
     protected Vector3 preVel; //velocity before timeFreeze
 
     //[Header("Stun Handling")]
@@ -84,9 +86,12 @@ public abstract class Character : MonoBehaviour
 
         hitByList = new List<Character>();
 
-        tFreezeTargets = new List<string>();
-        tFreezeDurs = new List<float>();
-        EventManager.OnFreeze += FreezeSelf;
+        //tFreezeTargets = new List<string>();
+        //tFreezeDurs = new List<float>();
+        //EventManager.OnFreeze += FreezeSelf;
+
+        //if (freezeTags == null)
+        //    freezeTags = new List<(string, float)>();
 
         charRb = GetComponent<Rigidbody>();
         armored = false;
@@ -100,22 +105,23 @@ public abstract class Character : MonoBehaviour
         spawner = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         roomManager = GameObject.Find("RoomManager").GetComponent<RoomManager>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        freezeManager = FindObjectOfType<FreezeManager>();
     }
 
-    void OnEnable()
-    {
-        EventManager.OnFreeze += FreezeSelf;
-    }
+    //void OnEnable()
+    //{
+    //    EventManager.OnFreeze += FreezeSelf;
+    //}
 
-    void OnDisable()
-    {
-        EventManager.OnFreeze -= FreezeSelf;
-    }
+    //void OnDisable()
+    //{
+    //    EventManager.OnFreeze -= FreezeSelf;
+    //}
 
-    void OnDestroy()
-    {
-        EventManager.OnFreeze -= FreezeSelf;
-    }
+    //void OnDestroy()
+    //{
+    //    EventManager.OnFreeze -= FreezeSelf;
+    //}
 
     // Update is called once per frame
     public virtual void Update()
@@ -552,40 +558,48 @@ public abstract class Character : MonoBehaviour
     /***********************************************
      * Time Freeze Functions
      ***********************************************/
+    //public static List<string> GetFreezeTargets()
+    //{
+    //    return tFreezeTargets;
+    //}
 
-    public static List<string> GetFreezeTargets()
+    //public static List<float> GetFreezeDurs()
+    //{
+    //    return tFreezeDurs;
+    //}
+
+    public FreezeManager GetFreezeManager()
     {
-        return tFreezeTargets;
+        return freezeManager;
     }
 
-    public static List<float> GetFreezeDurs()
+    public float GetMyFreezeTime()
     {
-        return tFreezeDurs;
+        string myTag = gameObject.tag;
+        return freezeManager.GetFreezeTime(myTag);
     }
 
-    /*
-     * Adds a target tag and duration to the list of timeFrozen characters.
-     */
-    public void FreezeTime(string cTag, float time)
+    public void FreezeTargetAdd(string tag, float time)
     {
-        if (!tFreezeTargets.Contains(cTag))
-        {
-            tFreezeTargets.Add(cTag);
-            tFreezeDurs.Add(time);
-        }
+        freezeManager.FreezeTagAdd(tag, time);
     }
 
-    protected virtual void FreezeSelf()
+    public void FreezeTargetReplace(string tag, float time)
     {
-        if (tFreezeTargets.Contains(gameObject.tag))
-        {
-            int i = tFreezeTargets.IndexOf(gameObject.tag);
-            preVel = charRb.velocity;
-            charRb.velocity *= 0;
-            frozen = true;
-            freezeTime = tFreezeDurs[i];
-        }
+        freezeManager.FreezeTagReplace(tag, time);
     }
+
+    //protected virtual void FreezeSelf()
+    //{
+    //    if (tFreezeTargets.Contains(gameObject.tag))
+    //    {
+    //        int i = tFreezeTargets.IndexOf(gameObject.tag);
+    //        preVel = charRb.velocity;
+    //        charRb.velocity *= 0;
+    //        frozen = true;
+    //        freezeTime = tFreezeDurs[i];
+    //    }
+    //}
 
     public virtual void StunMe(float t)
     {

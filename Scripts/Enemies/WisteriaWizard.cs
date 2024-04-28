@@ -33,10 +33,11 @@ public class WisteriaWizard : Enemy
     public override void Update()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             charRb.velocity *= 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -100,7 +101,7 @@ public class WisteriaWizard : Enemy
         float delayTime = 0;
         while (delayTime <= 0.2f) //delay before teleporting
         {
-            if (freezeTime <= 0) delayTime += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) delayTime += Time.deltaTime;
             yield return null;
         }
 
@@ -119,8 +120,9 @@ public class WisteriaWizard : Enemy
         float actionTime = 0;
         while (transform.localScale != target)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
+                gameObject.tag = "";
                 newX = Mathf.SmoothDamp(transform.localScale.x, target.x, ref xVelocity, sizeTime - actionTime);
                 newY = Mathf.SmoothDamp(transform.localScale.y, target.y, ref yVelocity, sizeTime - actionTime);
                 newZ = Mathf.SmoothDamp(transform.localScale.z, target.z, ref zVelocity, sizeTime - actionTime);
@@ -137,7 +139,7 @@ public class WisteriaWizard : Enemy
         float t = 0;
         while (t <= stepTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.velocity = aim * speed;
                 t += Time.deltaTime;
@@ -160,7 +162,7 @@ public class WisteriaWizard : Enemy
         actionTime = 0;
         while (transform.localScale != target)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 newX = Mathf.SmoothDamp(transform.localScale.x, target.x, ref xVelocity, sizeTime - actionTime);
                 newY = Mathf.SmoothDamp(transform.localScale.y, target.y, ref yVelocity, sizeTime - actionTime);
@@ -178,9 +180,10 @@ public class WisteriaWizard : Enemy
         float i = 0;
         while (i < cooldownTime)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
+        gameObject.tag = "Enemy";
         state = ActionState.Waiting;
     }
 
@@ -193,7 +196,7 @@ public class WisteriaWizard : Enemy
         float t = 0;
         while (t < healCharge)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 t += Time.deltaTime;
             }
@@ -223,7 +226,7 @@ public class WisteriaWizard : Enemy
         t = 0;
         while (t < 0.1f)
         {
-            if (freezeTime <= 0) t += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) t += Time.deltaTime;
             yield return null;
         }
 
@@ -232,7 +235,7 @@ public class WisteriaWizard : Enemy
         t = 0;
         while (t < cooldownTime)
         {
-            if (freezeTime <= 0) t += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) t += Time.deltaTime;
             yield return null;
         }
         state = ActionState.Waiting;

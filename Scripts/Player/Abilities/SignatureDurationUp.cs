@@ -24,7 +24,7 @@ public class SignatureDurationUp : Ability
 
     public override float GetMightMult()
     {
-        return modifier * 2;
+        return modifier * 1.5f;
     }
 
     public static void SetMinMaxMods()

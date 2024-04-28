@@ -451,10 +451,13 @@ public class PlayerController : Character
                     place = System.Array.IndexOf(Ability.GetNames(), "PityCounter");
                     if (current.GetAbilities().Contains(place))
                     {
-                        Ability a = weaponTypes[currentWeaponType].GetComponent<HealthDrain>();
+                        Ability a = weaponTypes[currentWeaponType].GetComponent<PityCounter>();
                         Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>();
+                        Debug.Log(a.GetModifier());
                         foreach (Enemy e in allEnemies)
-                            e.TakeDamage((int)Mathf.Floor((0.4f * a.GetModifier() * damage) - Random.Range(0.001f, 1.000f) + 1.0f), Vector3.zero);
+                        {
+                            e.TakeDamage(Mathf.Max(1, (int)Mathf.Floor((0.4f * a.GetModifier() * damage) - Random.Range(0.001f, 1.000f) + 1.0f)), Vector3.zero);
+                        }
                     }
 
                     place = System.Array.IndexOf(Ability.GetNames(), "PitySignature");
@@ -525,7 +528,7 @@ public class PlayerController : Character
         float t = 0;
         while (t < stunTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 if (stunTime - t > stunCooldown / 2)
                     transform.Rotate(new Vector3(0, stunRotateSpeed * Time.deltaTime, 0));
@@ -648,6 +651,7 @@ public class PlayerController : Character
     {
         PickupCW drop = Instantiate(pickupPrefab, gameObject.transform.position + (transform.forward * 1.5f), Quaternion.Euler(0, 0, 0));
         drop.Initialize(cw.GetWeaponType(), cw.GetPower(), cw.DecrementDurability(0), cw.GetMaxDurability(), cw.GetSignatureGauge(), cw.GetAbilities(), cw.GetMods());
+        drop.gameObject.transform.parent = roomManager.GetCurrent().gameObject.transform;
 
         RemoveCustomWeapon(cw);
         yield return null;

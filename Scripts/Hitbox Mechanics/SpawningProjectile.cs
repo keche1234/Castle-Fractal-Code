@@ -8,6 +8,7 @@ public class SpawningProjectile : MonoBehaviour
     [SerializeField] protected List<Projectile> spawnPrefabs;
     [SerializeField] protected List<Vector3> spawnOffsets;
     [SerializeField] protected List<Vector3> spawnRotations;
+    protected Room room;
     protected float spawnTimer = 0;
     protected Projectile projectile;
 
@@ -49,9 +50,15 @@ public class SpawningProjectile : MonoBehaviour
             spawn.transform.position += transform.forward * spawnOffsets[i].z;
 
             spawn.transform.Rotate(spawnRotations[i]);
+            spawn.transform.parent = room.transform;
 
             spawn.SetSource(projectile.GetSource());
         }
+    }
+
+    public void SetRoom(Room r)
+    {
+        room = r;
     }
 
     public void OnDestroy()

@@ -37,12 +37,13 @@ public class PinkPython : Enemy
     void FixedUpdate()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             rotateSpeed = 0;
             charRb.velocity *= 0;
             poisonGas.gameObject.GetComponent<Hitbox>().enabled = false;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -115,7 +116,7 @@ public class PinkPython : Enemy
         charRb.AddForce((-pushVector).normalized * speed, ForceMode.VelocityChange);
         yield return null;
 
-        while (freezeTime > 0)
+        while (GetMyFreezeTime() > 0)
         {
             yield return null;
         }
@@ -123,7 +124,7 @@ public class PinkPython : Enemy
         Vector3 friction = pushVector.normalized * speed;
         while (charRb.velocity.normalized == -pushVector.normalized && moveTime <= maxMoveTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 moveTime += Time.deltaTime;
                 charRb.AddForce(friction * Time.deltaTime, ForceMode.VelocityChange);
@@ -147,7 +148,7 @@ public class PinkPython : Enemy
         float delay = Random.Range(1.5f, 2);
         while (i < delay)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
                 i += Time.deltaTime;
             yield return null;
         }
@@ -165,7 +166,7 @@ public class PinkPython : Enemy
             else
                 if (!frozen) poisonGas.gameObject.SetActive(true);
 
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
                 i += Time.deltaTime;
             yield return null;
         }
@@ -176,7 +177,7 @@ public class PinkPython : Enemy
         delay = 3;
         while (i < delay)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
         state = ActionState.Waiting;

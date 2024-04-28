@@ -120,7 +120,7 @@ public class Tome : Weapon
         Time.timeScale = tempTime;
         state = ActionState.Active;
         owner.SetAttackState(2);
-        owner.FreezeTime("Enemy", (sigActiveTime * duration * damage) + 2);
+        owner.FreezeTargetAdd("Enemy", (sigActiveTime * duration * damage) + 2);
         yield return new WaitForSeconds(2);
 
         //And... go

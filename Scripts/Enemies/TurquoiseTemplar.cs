@@ -72,11 +72,12 @@ public class TurquoiseTemplar : Enemy
         //    charRb.velocity *= 0;
 
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //freezeTime -= Time.deltaTime;
             charRb.velocity *= 0;
             rotateSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -157,7 +158,7 @@ public class TurquoiseTemplar : Enemy
         float i = 0;
         while (!counterHit)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 LookTowardsPlayer();
                 i += Time.deltaTime;
@@ -173,7 +174,7 @@ public class TurquoiseTemplar : Enemy
 
         while (counterMod <= 1.0f && actTime < swingDelay)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 actTime += Time.deltaTime;
             }
@@ -183,7 +184,7 @@ public class TurquoiseTemplar : Enemy
         actTime = 0;
         while (actTime < startupTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 shield.transform.RotateAround(templar.transform.position, Vector3.up, (-90 / startupTime) * Time.deltaTime);
                 lance.transform.RotateAround(templar.transform.position, Vector3.up, (-105 / startupTime) * Time.deltaTime);
@@ -198,7 +199,7 @@ public class TurquoiseTemplar : Enemy
         state = ActionState.Attacking;
         while (actTime < swingTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 shield.transform.RotateAround(templar.transform.position, Vector3.up, (-15 / startupTime) * Time.deltaTime);
                 lance.transform.RotateAround(templar.transform.position, Vector3.up, (120 / startupTime) * Time.deltaTime);
@@ -233,7 +234,7 @@ public class TurquoiseTemplar : Enemy
         Vector3 friction = targetAim.normalized * speed * 4;
         while (Vector3.Angle(charRb.velocity, -targetAim) < 15f && moveTime < maxMoveTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.AddForce(friction * Time.deltaTime, ForceMode.VelocityChange);
                 moveTime += Time.deltaTime;
@@ -247,7 +248,7 @@ public class TurquoiseTemplar : Enemy
         i = 0;
         while (i < cooldownTime - maxMoveTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
                 i += Time.deltaTime;
             yield return null;
         }

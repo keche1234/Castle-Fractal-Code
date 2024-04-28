@@ -52,10 +52,11 @@ public class RedMage : Enemy
     public override void Update()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             charRb.velocity *= 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -121,7 +122,7 @@ public class RedMage : Enemy
         float delayTime = 0;
         while (delayTime <= 0.2f) //delay before teleporting
         {
-            if (freezeTime <= 0) delayTime += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) delayTime += Time.deltaTime;
             yield return null;
         }
 
@@ -140,8 +141,9 @@ public class RedMage : Enemy
         float actionTime = 0;
         while (transform.localScale != target)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
+                gameObject.tag = ""; //immune to freezing
                 newX = Mathf.SmoothDamp(transform.localScale.x, target.x, ref xVelocity, sizeTime - actionTime);
                 newY = Mathf.SmoothDamp(transform.localScale.y, target.y, ref yVelocity, sizeTime - actionTime);
                 newZ = Mathf.SmoothDamp(transform.localScale.z, target.z, ref zVelocity, sizeTime - actionTime);
@@ -153,12 +155,10 @@ public class RedMage : Enemy
         }
 
         //move for 0.1 second
-        actionTime = 0;
-
         float t = 0;
-        while (t <= stepTime)
+        while (t < stepTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.velocity = aim * speed;
                 t += Time.deltaTime;
@@ -181,7 +181,7 @@ public class RedMage : Enemy
         actionTime = 0;
         while (transform.localScale != target)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 newX = Mathf.SmoothDamp(transform.localScale.x, target.x, ref xVelocity, sizeTime - actionTime);
                 newY = Mathf.SmoothDamp(transform.localScale.y, target.y, ref yVelocity, sizeTime - actionTime);
@@ -199,9 +199,10 @@ public class RedMage : Enemy
         float i = 0;
         while (i < cooldownTime)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
+        gameObject.tag = "Enemy";
         state = ActionState.Waiting;
     }
 
@@ -219,7 +220,7 @@ public class RedMage : Enemy
         float t = 0;
         while (t < attackCharge)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 blastAoe.transform.localScale = new Vector3 ((t / attackCharge) * maxAoe.transform.localScale.x, maxAoe.transform.localScale.y, (t / attackCharge) * maxAoe.transform.localScale.z);
                 t += Time.deltaTime;
@@ -236,7 +237,7 @@ public class RedMage : Enemy
         t = 0;
         while (t < 0.1f)
         {
-            if (freezeTime <= 0) t += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) t += Time.deltaTime;
             yield return null;
         }
 
@@ -247,7 +248,7 @@ public class RedMage : Enemy
         t = 0;
         while (t < cooldownTime)
         {
-            if (freezeTime <= 0) t += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) t += Time.deltaTime;
             yield return null;
         }
         state = ActionState.Waiting;

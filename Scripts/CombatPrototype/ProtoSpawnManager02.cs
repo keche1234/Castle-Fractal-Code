@@ -276,7 +276,7 @@ public class ProtoSpawnManager02 : SpawnManager
                 boss.transform.parent = roomManager.GetCurrent().transform;
                 float myScale = 0;
 
-                yield return new WaitForSeconds(10);
+                yield return new WaitForSeconds(6);
 
                 while (myScale < 1)
                 {
@@ -401,7 +401,7 @@ public class ProtoSpawnManager02 : SpawnManager
                 spawnPos.Add(new Vector3(-4, 0.5f, 2));
                 spawnPos.Add(new Vector3(2, 0.5f, 0));
                 spawnPos.Add(new Vector3(4, 0.5f, 2));
-                spawnPos.Add(new Vector3(0, 0.5f, 0));
+                spawnPos.Add(new Vector3(0, 0.5f, -1));
 
                 for (int i = 0; i < spawnPos.Count; i++)
                 {
@@ -435,11 +435,12 @@ public class ProtoSpawnManager02 : SpawnManager
                 boss = Instantiate(bossPrefabs[1], Vector3.zero, Quaternion.Euler(Vector3.zero));
                 boss.GetComponent<Boss>().enabled = false;
                 boss.gameObject.transform.localScale = Vector3.zero;
+                boss.transform.parent = roomManager.GetCurrent().transform;
                 myScale = 0;
 
-                yield return new WaitForSeconds(10);
+                yield return new WaitForSeconds(6);
 
-                while (myScale <= 1)
+                while (myScale < 1)
                 {
                     myScale += Time.deltaTime;
                     boss.gameObject.transform.localScale = Vector3.one * myScale;
@@ -469,8 +470,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
-                    spawnList[i].ChangeStrength(Random.Range(0, 4));
-                    spawnList[i].ChangeDefense(Random.Range(0, 4));
+                    spawnList[i].ChangeStrength(Random.Range(1, 4));
+                    spawnList[i].ChangeDefense(Random.Range(1, 4));
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -498,8 +499,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
-                    spawnList[i].ChangeStrength(Random.Range(0, 4));
-                    spawnList[i].ChangeDefense(Random.Range(0, 4));
+                    spawnList[i].ChangeStrength(Random.Range(1, 4));
+                    spawnList[i].ChangeDefense(Random.Range(1, 4));
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -526,8 +527,8 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].SetSpawnManager(this);
                     spawnList[i].SetRoomManager(roomManager);
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
-                    spawnList[i].ChangeStrength(Random.Range(0, 4));
-                    spawnList[i].ChangeDefense(Random.Range(0, 4));
+                    spawnList[i].ChangeStrength(Random.Range(1, 4));
+                    spawnList[i].ChangeDefense(Random.Range(1, 4));
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -535,21 +536,25 @@ public class ProtoSpawnManager02 : SpawnManager
                 break;
 
             case 20: // Twinotaurs
-                boss = Instantiate(bossPrefabs[1], Vector3.zero, Quaternion.Euler(Vector3.zero));
+                boss = Instantiate(bossPrefabs[2], Vector3.zero, Quaternion.Euler(Vector3.zero));
                 boss.GetComponent<Boss>().enabled = false;
-                boss.gameObject.transform.localScale = Vector3.zero;
+                ((Twinotaurs)boss).GetSpark().transform.localScale = Vector3.zero;
+                ((Twinotaurs)boss).GetVenom().transform.localScale = Vector3.zero;
                 myScale = 0;
 
-                yield return new WaitForSeconds(10);
+                yield return new WaitForSeconds(6);
 
-                while (myScale <= 1)
+                while (myScale < 1)
                 {
                     myScale += Time.deltaTime;
-                    boss.gameObject.transform.localScale = Vector3.one * myScale;
+                    ((Twinotaurs)boss).GetSpark().transform.localScale = Vector3.one * myScale;
+                    ((Twinotaurs)boss).GetVenom().transform.localScale = Vector3.one * myScale;
                     yield return null;
                 }
-                boss.gameObject.transform.localScale = Vector3.one;
+                ((Twinotaurs)boss).GetSpark().transform.localScale = Vector3.one;
+                ((Twinotaurs)boss).GetVenom().transform.localScale = Vector3.one;
                 boss.GetComponent<Boss>().enabled = true;
+                boss.transform.parent = roomManager.GetCurrent().transform;
                 break;
 
             default:

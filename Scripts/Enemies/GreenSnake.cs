@@ -47,15 +47,16 @@ public class GreenSnake : Enemy
     void FixedUpdate()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             rotateSpeed = 0;
             charRb.velocity *= 0;
             foreach (Projectile p in projectiles)
             {
                 if (p != null) p.gameObject.GetComponent<Projectile>().enabled = false;
             }
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -121,7 +122,7 @@ public class GreenSnake : Enemy
 
         charRb.AddForce((-pushVector).normalized * speed, ForceMode.VelocityChange);
 
-        while (freezeTime > 0)
+        while (GetMyFreezeTime() > 0)
         {
             yield return null;
         }
@@ -130,7 +131,7 @@ public class GreenSnake : Enemy
         Vector3 friction = pushVector.normalized * speed;
         while (charRb.velocity.normalized == -pushVector.normalized && moveTime < maxMoveTime)
         {
-            if (freezeTime <= 0 && stunTime <= 0)
+            if (GetMyFreezeTime() <= 0 && stunTime <= 0)
             {
                 charRb.AddForce(friction * Time.deltaTime, ForceMode.VelocityChange);
                 moveTime += Time.deltaTime;
@@ -154,7 +155,7 @@ public class GreenSnake : Enemy
         float delay = Random.Range(1.5f, 2);
         while (i < delay)
         {
-            if (freezeTime <= 0) i += Time.deltaTime;
+            if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
 
@@ -181,7 +182,7 @@ public class GreenSnake : Enemy
         delay = 3;
         while (i < delay)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
                 i += Time.deltaTime;
             yield return null;
         }

@@ -140,7 +140,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < (pyroStart / (pyroStormCount - i)))
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             if (t / pyroStart < 0.75f)
                                 LookTowardsPlayer();
@@ -167,7 +167,7 @@ public class Magestic : Boss
                     {
                         while (GameObject.Find("Pyroball(Clone)") != null || GameObject.Find("Pyroball(Clone)(Clone)") != null || GameObject.Find("Pyroball(Clone)(Clone)(Clone)") != null)
                         {
-                            if (freezeTime <= 0)
+                            if (GetMyFreezeTime() <= 0)
                                 LookTowardsPlayer();
                             yield return null;
                         }
@@ -177,7 +177,7 @@ public class Magestic : Boss
                         t = 0;
                         while (t < (pyroEnd / (pyroStormCount - 1 - i)))
                         {
-                            if (freezeTime <= 0)
+                            if (GetMyFreezeTime() <= 0)
                             {
                                 LookTowardsPlayer();
                                 t += Time.deltaTime;
@@ -194,7 +194,7 @@ public class Magestic : Boss
 
                 while (!IsFacingPlayer())
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         LookTowardsPlayer();
                     yield return null;
                 }
@@ -203,7 +203,7 @@ public class Magestic : Boss
                 t = 0;
                 while (Mathf.Abs(rotSpeed) < Mathf.Abs(pyroRotateSpeed))
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         if (t > pyroStart / 2) rotSpeed += pyroRotateSpeed * Time.deltaTime / (pyroStart / 2);
                         transform.Rotate(new Vector3(0, rotSpeed * Time.deltaTime, 0));
@@ -217,7 +217,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < pyroActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         while (degreesRotated >= pyroDegreesToShoot)
                         {
@@ -247,7 +247,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < pyroEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         if (t < pyroEnd / 2) rotSpeed -= pyroRotateSpeed * Time.deltaTime / (pyroEnd / 2);
                         else rotSpeed = 0;
@@ -275,7 +275,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostStart)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
 
@@ -300,7 +300,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -314,7 +314,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -337,7 +337,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < frostStart)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             t += Time.deltaTime;
                             float progress = t / frostStart;
@@ -361,7 +361,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < frostActive)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
@@ -375,7 +375,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < frostEnd)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                             t += Time.deltaTime;
                         yield return null;
                     }
@@ -393,7 +393,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostStart)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                         float progress = t / frostStart;
@@ -417,7 +417,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -431,7 +431,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -454,7 +454,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostStart * 2)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         // Rotate towards facing straight down.
                         if (Vector3.Angle(transform.forward, -Vector3.forward) != 0)
@@ -513,7 +513,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < laserLinger)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         // Rotate the hitboxes
                         for (int i = 0; i < laserLateralBeams.Count; i++)
@@ -538,7 +538,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < laserActive)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         // Rotate the hitboxes
                         for (int i = 0; i < laserLateralBeams.Count; i++)
@@ -556,7 +556,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < laserLinger)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         if (t < laserLinger / 2)
                         {
@@ -591,7 +591,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < frostEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -623,7 +623,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < claimDuration)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                         LookTowardsPlayer();
@@ -672,7 +672,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < wandSpawn)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         LookTowardsPlayer();
                         t += Time.deltaTime;
@@ -688,7 +688,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < wandStart)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             LookTowardsPlayer();
                             t += Time.deltaTime;
@@ -717,7 +717,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < wandEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                         t += Time.deltaTime;
                     yield return null;
                 }
@@ -747,7 +747,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < vineStart)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             if (t < vineStart / 2)
                             {
@@ -773,7 +773,7 @@ public class Magestic : Boss
                     t = 0;
                     while (t < vineActive)
                     {
-                        if (freezeTime <= 0)
+                        if (GetMyFreezeTime() <= 0)
                         {
                             vines[i].transform.localScale = new Vector3(1, 1, 75 * t);
                             t += Time.deltaTime;
@@ -789,7 +789,7 @@ public class Magestic : Boss
                 t = 0;
                 while (t < vineEnd)
                 {
-                    if (freezeTime <= 0)
+                    if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
                     }

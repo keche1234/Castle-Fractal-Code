@@ -33,12 +33,12 @@ public class CeruleanSatyr : Enemy
     public override void Update()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             charRb.velocity *= 0;
-
             rotateSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -122,7 +122,7 @@ public class CeruleanSatyr : Enemy
                     charRb.velocity = mov; //if being knocked back, don't try to apply current velocity
                     foreach (Hitbox a in attack)
                         a.gameObject.SetActive(true);
-                    mov += transform.forward * runAcceleration;
+                    mov += transform.forward * runAcceleration * Time.timeScale;
                 }
                 else
                     foreach (Hitbox a in attack)
@@ -154,7 +154,7 @@ public class CeruleanSatyr : Enemy
 
         while (actionTime <= maxBumpTime)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
             {
                 charRb.AddForce(decay * Time.deltaTime, ForceMode.VelocityChange);
                 actionTime += Time.deltaTime;

@@ -94,7 +94,7 @@ public class ProtoRoomManager02 : RoomManager
     /*
      * Generates a weapon of type `wType`, with two abilities from `abilities`
      */
-    public PickupCW GenerateWeapon(int wType)
+    public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1)
     {
         if (wType < 0 || wType > 4)
             return null;
@@ -109,7 +109,7 @@ public class ProtoRoomManager02 : RoomManager
             int j = Random.Range(0, possibilities.Count);
             myAbilities.Add(possibilities[j]);
 
-            switch(myAbilities[i])
+            switch (myAbilities[i])
             {
                 case 0:
                     StrengthUp.SetMinMaxMods();
@@ -272,6 +272,14 @@ public class ProtoRoomManager02 : RoomManager
                 break;
         }
 
+        if (powMultFloor <= 0 || durMultFloor <= 0 || powMultFloor > powMultCeil || durMultFloor > durMultCeil)
+            Debug.LogError("Invalid Power " + "([" + powMultFloor + ", " + powMultCeil + "]) or Durability " + "([" + durMultFloor + ", " + durMultCeil + "]) Range!");
+        else
+        {
+            pow = Mathf.Round(pow * Random.Range(powMultFloor, powMultCeil) * 10.0f) * 0.1f;
+            dur = (int)(Mathf.Round(dur * Random.Range(durMultFloor, durMultCeil) * 10.0f) * 0.1f);
+        }
+
         weapon.Initialize(wType, pow, dur, dur, 0, myAbilities, myMods);
 
         return weapon;
@@ -362,23 +370,26 @@ public class ProtoRoomManager02 : RoomManager
                     spawnManager.SetSpawned(false);
                     break;
                 case 9: //Ogrelord
-                    //pickups = new List<PickupCW>();
-                    //for (int i = 0; i < 5; i++)
-                    //{
-                    //    pickups.Add(GenerateWeapon(i));
-                    //    pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f);
-                    //}
+                    pickups = new List<PickupCW>();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        pickups.Add(GenerateWeapon(Random.Range(0, 5)));
+                        pickups[i].gameObject.transform.position = new Vector3(-2.5f + (2.5f * i), 1, -2f);
+                        pickups[i].transform.parent = GetCurrent().transform;
+                    }
                     spawnManager.SetWaveInfo(0, 1);
                     spawnManager.SetBossInfo(true);
                     break;
 
                 // PART III
                 case 10: //Weapon Room
+                    player.RemoveAllCustomWeapons();
                     pickups = new List<PickupCW>();
                     for (int i = 0; i < 10; i++)
                     {
-                        pickups.Add(GenerateWeapon(i));
-                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * i), 1, -2f + (4f * (i / 5)));
+                        pickups.Add(GenerateWeapon(i % 5, 4f / 5, 5f / 4, 2f / 3, 3f / 2));
+                        pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * (i % 5)), 1, -2f + (4f * (i / 5)));
+                        pickups[i].transform.parent = GetCurrent().transform;
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);
@@ -387,6 +398,13 @@ public class ProtoRoomManager02 : RoomManager
                     spawnManager.SetWaveInfo(0, 4);
                     break;
                 case 12:
+                    pickups = new List<PickupCW>();
+                    for (int i = 0; i < 3; i++)
+                    {
+                        pickups.Add(GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2));
+                        pickups[i].gameObject.transform.position = new Vector3(-2.5f + (2.5f * i), 1, -2f);
+                        pickups[i].transform.parent = GetCurrent().transform;
+                    }
                     spawnManager.SetWaveInfo(0, 1);
                     finalFloor = true;
                     break;

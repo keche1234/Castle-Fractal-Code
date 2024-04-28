@@ -9,7 +9,7 @@ public class BurstStrength : Ability
     public override void Start()
     {
         attribute = 1;
-        duration = 5;
+        duration = 10;
 
         minMod = 1;
         maxMod = 2;

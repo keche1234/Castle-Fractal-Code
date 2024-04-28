@@ -38,11 +38,12 @@ public abstract class Boss : Enemy
     public override void Update()
     {
         hitByList.Clear();
-        if (freezeTime > 0)
+        if (GetMyFreezeTime() > 0)
         {
-            freezeTime -= Time.deltaTime;
+            //GetMyFreezeTime() -= Time.deltaTime;
             charRb.velocity *= 0;
             rotateSpeed = 0;
+            frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
@@ -107,17 +108,18 @@ public abstract class Boss : Enemy
         float t = 0;
         while (t < summonStartup)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
                 t += Time.deltaTime;
             yield return null;
         }
 
+        List<Enemy> newSummons = new List<Enemy>();
         //Remove the covers and create the enemies
         for (int i = 0; i < count; i++)
         {
-            summons.Add((Enemy)Instantiate(summonPrefabs[Random.Range(0, summonPrefabs.Count)], covers[0].transform.position, Quaternion.Euler(0, 0, 0)));
-            summons[i].transform.parent = roomManager.GetCurrent().transform;
-            summonLastPositions.Add(summons[i].transform.position);
+            newSummons.Add((Enemy)Instantiate(summonPrefabs[Random.Range(0, summonPrefabs.Count)], covers[0].transform.position, Quaternion.Euler(0, 0, 0)));
+            newSummons[i].transform.parent = roomManager.GetCurrent().transform;
+            summonLastPositions.Add(newSummons[i].transform.position);
             Destroy(covers[0]);
             covers.RemoveAt(0);
         }
@@ -125,18 +127,21 @@ public abstract class Boss : Enemy
 
         for (int i = 0; i < count; i++)
         {
-            summons[i].SetMaxHealth(summons[i].GetMaxHealth() * healthMult);
-            summons[i].SetPower(summons[i].GetPower() * powMult);
-            summons[i].SetSpeed(summons[i].GetSpeed() * speedMult);
-            summons[i].ChangeStrength(Random.Range(1, strength+1));
-            summons[i].ChangeDefense(Random.Range(1, defense+1));
+            newSummons[i].SetMaxHealth(newSummons[i].GetMaxHealth() * healthMult);
+            newSummons[i].SetPower(newSummons[i].GetPower() * powMult);
+            newSummons[i].SetSpeed(newSummons[i].GetSpeed() * speedMult);
+            newSummons[i].ChangeStrength(Random.Range(1, strength+1));
+            newSummons[i].ChangeDefense(Random.Range(1, defense+1));
         }
+
+        for (int i = 0; i < newSummons.Count; i++)
+            summons.Add(newSummons[i]);
 
         t = 0;
         state = ActionState.Cooldown;
         while (t < summonStartup)
         {
-            if (freezeTime <= 0)
+            if (GetMyFreezeTime() <= 0)
                 t += Time.deltaTime;
             yield return null;
         }
