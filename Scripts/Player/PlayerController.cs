@@ -33,6 +33,8 @@ public class PlayerController : Character
     [SerializeField] protected int rollBtn = 1;
     [SerializeField] protected KeyCode sigAtkBtn = KeyCode.LeftShift;
     [SerializeField] protected KeyCode dropWpBtn = KeyCode.E;
+    [SerializeField] protected KeyCode invScrollUp = KeyCode.Comma; // For players without
+    [SerializeField] protected KeyCode invScrollDown = KeyCode.Period; // a computer mouse
     [Range(0.1f, 2f)]
     [SerializeField] protected float invScrollSen = 0.5f; //inventory scroll sensitivity, 0.1x-2x
     protected float invScrollPos; //inventory scroll position, ranges from 0-(inventory.Count + .99), cut off decimal for current weapon
@@ -184,6 +186,86 @@ public class PlayerController : Character
                     selectedPotions[i] = false;
             }
         }
+
+        if (weaponTypes[currentWeaponType].IsInactive() && playerDodge != DodgeState.Dodging) //IsInactive refers to attack activity
+        {
+            if (Input.GetMouseButton(stdAtkBtn))
+            {
+                if (inventory.Count > 0 && equippedCustomWeapon >= 0)
+                {
+                    if (Input.GetKey(sigAtkBtn) && inventory[equippedCustomWeapon].SignaturePercentage() >= 1)
+                    {
+                        playerRb.velocity *= 0;
+                        weaponTypes[currentWeaponType].StartCoroutine("Signature");
+                        inventory[equippedCustomWeapon].ResetSignature();
+                        signatureBar.SetValue(0);
+                        signing = true;
+                    }
+                    //else
+                    //{
+                    //    if (weaponTypes[currentWeaponType].gameObject.activeSelf)
+                    //        weaponTypes[currentWeaponType].StartCoroutine("Attack");
+                    //}
+                }
+                else if (playerAttack == AttackState.NotAttacking)
+                {
+                    if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
+                    StartCoroutine("Attack");
+                }
+            }
+            else
+            {
+                // Scroll Wheel Change Weapon
+                invScrollPos -= Input.mouseScrollDelta.y * invScrollSen;
+                if (inventory.Count > 0 && Input.mouseScrollDelta.y != 0)
+                {
+                    if (invScrollPos < 0)
+                    {
+                        invScrollPos = 0;
+                        if (equippedCustomWeapon != 0) SetCustomWeapon(0);
+                    }
+                    else if (invScrollPos >= inventory.Count)
+                    {
+                        invScrollPos = inventory.Count - invScrollSen;
+                        if (equippedCustomWeapon != inventory.Count - 1) SetCustomWeapon(inventory.Count - 1);
+                    }
+                    else if (equippedCustomWeapon != (int)invScrollPos) SetCustomWeapon((int)invScrollPos);
+                }
+                else if (inventory.Count == 0) invScrollPos = 0;
+
+                // Keys Change Weapon
+                if (inventory.Count > 0)
+                {
+                    if (Input.GetKeyDown(invScrollUp) && equippedCustomWeapon > 0)
+                    {
+                        Debug.Log(invScrollPos + "->" + (invScrollPos - 1));
+                        invScrollPos -= 1;
+                        SetCustomWeapon((int)invScrollPos);
+                    }
+                    else if (Input.GetKeyDown(invScrollDown) && equippedCustomWeapon < inventory.Count - 1)
+                    {
+                        Debug.Log(invScrollPos + "->" + (invScrollPos + 1));
+                        invScrollPos += 1;
+                        SetCustomWeapon((int)invScrollPos);
+                    }
+                }
+
+                if ((Input.GetKeyDown(dropWpBtn)) //|| Input.GetMouseButtonDown(dropWpBtnAlt)
+                    && inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), transform.forward, 1.5f))
+                    StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
+            }
+        }
+
+        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && Input.GetMouseButtonDown(rollBtn))
+        {
+            StartCoroutine(Dodge());
+        }
+
+        if (!spawner.AllDefeated())
+            ProgressBuffTime();
+        UpdateAttributeUI();
+        if (transform.position.y != 0.5f)
+            transform.Translate(0, 0.5f - transform.position.y, 0);
     }
 
     public void FixedUpdate()
@@ -228,67 +310,7 @@ public class PlayerController : Character
             {
                 playerRb.velocity *= 0;
             }
-
-            if (weaponTypes[currentWeaponType].IsInactive() && playerDodge != DodgeState.Dodging) //IsInactive refers to attack activity
-            {
-                if (Input.GetMouseButton(stdAtkBtn))
-                {
-                    if (inventory.Count > 0 && equippedCustomWeapon >= 0)
-                    {
-                        if (Input.GetKey(sigAtkBtn) && inventory[equippedCustomWeapon].SignaturePercentage() >= 1)
-                        {
-                            playerRb.velocity *= 0;
-                            weaponTypes[currentWeaponType].StartCoroutine("Signature");
-                            inventory[equippedCustomWeapon].ResetSignature();
-                            signatureBar.SetValue(0);
-                            signing = true;
-                        }
-                        else
-                        {
-                            if (weaponTypes[currentWeaponType].gameObject.activeSelf)
-                                weaponTypes[currentWeaponType].StartCoroutine("Attack");
-                        }
-                    }
-                    else if (playerAttack == AttackState.NotAttacking)
-                    {
-                        if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
-                        StartCoroutine("Attack");
-                    }
-                }
-                else
-                {
-                    invScrollPos -= Input.mouseScrollDelta.y * invScrollSen;
-                    if (inventory.Count > 0 && Input.mouseScrollDelta.y != 0)
-                    {
-                        if (invScrollPos < 0)
-                        {
-                            invScrollPos = 0;
-                            if (equippedCustomWeapon != 0) SetCustomWeapon(0);
-                        }
-                        else if (invScrollPos >= inventory.Count)
-                        {
-                            invScrollPos = inventory.Count - invScrollSen;
-                            if (equippedCustomWeapon != inventory.Count - 1) SetCustomWeapon(inventory.Count - 1);
-                        }
-                        else if (equippedCustomWeapon != (int)invScrollPos) SetCustomWeapon((int)invScrollPos);
-                    }
-                    else if (inventory.Count == 0) invScrollPos = 0;
-                    if ((Input.GetKeyDown(dropWpBtn)) //|| Input.GetMouseButtonDown(dropWpBtnAlt)
-                        && inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), transform.forward, 1.5f))
-                        StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
-                }
-            }
-
-            if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && Input.GetMouseButtonDown(rollBtn))
-            {
-                StartCoroutine(Dodge());
-            }
         }
-
-        if (!spawner.AllDefeated()) ProgressBuffTime();
-        UpdateAttributeUI();
-        if (transform.position.y != 0.5f)
-            transform.Translate(0, 0.5f - transform.position.y, 0);
 
         if (IsOOB())
             ReturnToInBounds();
@@ -703,7 +725,8 @@ public class PlayerController : Character
             if (current.GetAbilities().Contains(place))
                 sigLoss += 0.5f;
 
-            current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
+            if (equippedCustomWeapon != num)
+                current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
         }
         if (inventory.Count == 0) //no weapons? *megamind face*
         {

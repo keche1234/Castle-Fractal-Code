@@ -1,12 +1,15 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
+//using TMPro;
 
 public class ProtoRoomManager02 : RoomManager
 {
-    [SerializeField] protected TextMeshProUGUI timeText;
-    [SerializeField] protected string timeTextColor;
+    //[SerializeField] protected TextMeshProUGUI timeText;
+    //[SerializeField] protected string timeTextColor;
+    [SerializeField] protected Text tipText;
+    protected MessageRotate tipRotation;
     protected bool finalFloor = false;
     protected float roomTime = 0;
 
@@ -24,6 +27,10 @@ public class ProtoRoomManager02 : RoomManager
             abilities.Add(new List<int>());
             mods.Add(new List<float>());
         }
+
+        tipRotation = tipText.GetComponent<MessageRotate>();
+        if (tipRotation == null)
+            Debug.LogError("Missing text rotation!");
 
         // Sword abilities
         abilities[0].Add(0);
@@ -302,41 +309,62 @@ public class ProtoRoomManager02 : RoomManager
 
             switch (level)
             {
-                // TODO Set Boss Wave to true when summon boss, false otherwise
+                // Set Boss Wave to true when summon boss, false otherwise
                 //Part I
-                case 1: //Tangerine Troll
+                case 1: //Sword vs. Tangerine Troll
                     PickupCW sword = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     sword.Initialize(0, Sword.GetBasePower(), 0, 0, 0, null, null);
                     sword.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
+
+                    tipText.gameObject.SetActive(true);
+                    List<string> messages = new List<string>();
+                    messages.Add("Tip: Mash or hold Left Click to perform up to three Sword swipes!");
+                    tipRotation.SetMessageList(messages);
                     break;
-                case 2: //Pink Python
+                case 2: //Axe vs. Pink Python
                     player.RemoveCustomWeapon();
                     PickupCW axe = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     axe.Initialize(1, Axe.GetBasePower(), 0, 0, 0, null, null);
                     axe.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: Right click to roll forward! Use this to reposition your Axe swing.");
+                    tipRotation.SetMessageList(messages);
                     break;
-                case 3: //Cerulean Satyr
+                case 3: //Crossbow vs. Cerulean Satyr
                     player.RemoveCustomWeapon();
                     PickupCW crossbow = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     crossbow.Initialize(3, Crossbow.GetBasePower(), 0, 0, 0, null, null);
                     crossbow.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: Mash or hold Left Click to perform up to five shots with the Crossbow!");
+                    tipRotation.SetMessageList(messages);
                     break;
-                case 4: //Turquoise Templar
+                case 4: //Tome vs. Turquoise Templar
                     player.RemoveCustomWeapon();
                     PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     tome.Initialize(4, Tome.GetBasePower(), 0, 0, 0, null, null);
                     tome.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: When you’re in Crisis (≤25% Health), the Tome deals slightly more damage!");
+                    tipRotation.SetMessageList(new List<string>(messages));
                     break;
-                case 5: //Wisteria Wizard
+                case 5: //Spear vs. Wisteria Wizard
                     player.RemoveCustomWeapon();
                     PickupCW spear = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     spear.Initialize(2, Spear.GetBasePower(), 0, 0, 0, null, null);
                     spear.transform.parent = GetCurrent().transform;
                     spawnManager.SetWaveInfo(0, 2);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: The Spear deals the most damage at the tip!");
+                    tipRotation.SetMessageList(messages);
                     break;
                 case 6: //Magestic
                     player.RemoveCustomWeapon();
@@ -350,6 +378,11 @@ public class ProtoRoomManager02 : RoomManager
 
                     spawnManager.SetWaveInfo(0, 1);
                     spawnManager.SetBossInfo(true);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: Use the Scroll Wheel or (Comma and Period) to choose different weapons!");
+                    messages.Add("Tip: To defeat Magestic, stay calm and find openings in its attacks!");
+                    tipRotation.SetMessageList(messages);
                     break;
 
                 // PART II
@@ -364,10 +397,20 @@ public class ProtoRoomManager02 : RoomManager
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);
+                    
+                    messages = new List<string>();
+                    messages.Add("Tip: Press Q to see your inventory, and E to drop your equipped weapon!");
+                    messages.Add("Tip: The best way to learn how a Weapon Ability works is by using it!");
+                    tipRotation.SetMessageList(messages);
                     break;
                 case 8: //All New Enemies
                     spawnManager.SetWaveInfo(0, 4);
                     spawnManager.SetSpawned(false);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: If you roll away from an attack just before getting hit, you’ll fill up your weapon’s Signature Gauge!");
+                    messages.Add("Tip: Hold Shift and Left Click when the Gauge is full to perform a Signature Attack!");
+                    tipRotation.SetMessageList(messages);
                     break;
                 case 9: //Ogrelord
                     pickups = new List<PickupCW>();
@@ -379,6 +422,10 @@ public class ProtoRoomManager02 : RoomManager
                     }
                     spawnManager.SetWaveInfo(0, 1);
                     spawnManager.SetBossInfo(true);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: Focus on gaining and using Signature Moves (Shift + L-Click) to make quick work of the Ogrelord!");
+                    tipRotation.SetMessageList(messages);
                     break;
 
                 // PART III
@@ -393,9 +440,17 @@ public class ProtoRoomManager02 : RoomManager
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: You’ve got one more Boss to fight!");
+                    tipRotation.SetMessageList(messages);
                     break;
                 case 11: //All Enemies
                     spawnManager.SetWaveInfo(0, 4);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: Enemies can drop weapons or potions! Access potions in your inventory (Q)!");
+                    tipRotation.SetMessageList(messages);
                     break;
                 case 12:
                     pickups = new List<PickupCW>();
@@ -407,6 +462,10 @@ public class ProtoRoomManager02 : RoomManager
                     }
                     spawnManager.SetWaveInfo(0, 1);
                     finalFloor = true;
+
+                    messages = new List<string>();
+                    messages.Add("Tip: The Twinotaurs move and attack fast, but don’t hit too hard!");
+                    tipRotation.SetMessageList(messages);
                     break;
                 default:
                     break;
