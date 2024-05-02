@@ -9,7 +9,11 @@ public abstract class Enemy : Character
     protected bool knocked;
 
     public GameObject player;
-    public int appearanceRate;
+    [SerializeField] protected int appearanceRate;
+    [SerializeField] protected int weaponDropType;
+    [SerializeField] protected Potion potionDropPrefab;
+    protected bool hasItem = false; // will only attempt an item drop if hasItem is true
+
     //[SerializeField] protected int order;
     // Start is called before the first frame update
     public override void Start()
@@ -166,6 +170,87 @@ public abstract class Enemy : Character
     }
 
     public abstract void Reset(bool zeroSpeed);
+
+    public void OnDestroy()
+    {
+        if (hasItem && currentHealth <= 0)
+            DropItem();
+    }
+
+    public void SetHasItem(bool b)
+    {
+        hasItem = b;
+    }
+
+    protected void DropItem()
+    {
+        // Drop a Weapon with probability
+        //  w = (2 - playerInventory%)/appearanceRate
+        // Drop a Potion only if weapon fails, with separate probability
+        //  p = (2 - (w*spawnRate))(% of player Health Lost)/((1/5)(1+Number of Potions))
+        PlayerController playerInfo = player.GetComponent<PlayerController>();
+        if (playerInfo != null)
+        {
+            float weaponChance = (2 - playerInfo.InventoryPercent()) / appearanceRate;
+            float potionChance = (2 - (weaponChance * appearanceRate)) * (1 - playerInfo.GetHealthPercentage()) / ((1f / 5) * (1 + playerInfo.GetPotions().Count));
+
+            // Roll for drop
+            float roll = Random.Range(0, 0.9999f);
+            //Debug.Log("Weapon Drop? " + roll + " against " + weaponChance);
+            //Debug.Log("Potion Drop? " + roll + " against " + potionChance);
+            if (roll < weaponChance)
+            {
+                // TODO: CHANGE CP02 CODE
+                ProtoRoomManager02 protoRM;
+                if ((protoRM = roomManager.gameObject.GetComponent<ProtoRoomManager02>()) != null)
+                {
+                    PickupCW weaponDrop = protoRM.GenerateWeapon(weaponDropType, 4f / 5, 5f / 4, 2f / 3, 3f / 2);
+                    weaponDrop.gameObject.transform.position = transform.position;
+                    weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
+                }
+            }
+            else if (roll < potionChance)
+            {
+                List<int> potionTypeChance = new List<int>();
+                
+                // Strike, Shield, Swift, Skill
+                for (int i = 0; i < 4; i++)
+                    potionTypeChance.Add(20);
+
+                // Stun: 15 + 3 for every 10% of Health lost below 60%
+                int stunChance = 15 + Mathf.Max(0, (int)(0.6f - playerInfo.GetHealthPercentage()));
+                potionTypeChance.Add(stunChance);
+
+                // Saving: 5, +10 (when not Healthy), +25 in Crisis
+                int savingChance = 5;
+                if (!playerInfo.IsHealthy())
+                    savingChance += 10;
+                if (!playerInfo.IsInCrisis())
+                    savingChance += 25;
+
+                potionTypeChance.Add(savingChance);
+
+                int potionScore = 0;
+                foreach (int score in potionTypeChance)
+                    potionScore += score;
+
+                roll = Random.Range(0, potionScore);
+                int ceil = potionTypeChance[0];
+                for (int i = 0; i < potionTypeChance.Count; i++)
+                {
+                    if (roll < ceil)
+                    {
+                        Potion potionDrop = Instantiate(potionDropPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+                        potionDrop.SetPotionAttribute(i+1);
+                        potionDrop.gameObject.transform.parent = roomManager.transform;
+                        i = potionTypeChance.Count;
+                    }
+                    else
+                        ceil += (i + 1 < potionTypeChance.Count) ? potionTypeChance[i + 1] : 0;
+                }
+            }
+        }
+    }
 
     //public void AssignOrder(int i)
     //{

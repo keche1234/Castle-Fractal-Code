@@ -185,6 +185,6 @@ public class Axe : Weapon
 
     public new static float GetBaseDurability()
     {
-        return 50;
+        return 30;
     }
 }

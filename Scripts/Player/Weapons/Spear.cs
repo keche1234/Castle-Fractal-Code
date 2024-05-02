@@ -167,6 +167,6 @@ public class Spear : Weapon
 
     public new static float GetBaseDurability()
     {
-        return 30;
+        return 18;
     }
 }

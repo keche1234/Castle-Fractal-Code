@@ -37,19 +37,19 @@ public class CustomWeapon : ScriptableObject
         switch (weapon)
         {
             case 0: //Sword
-                signatureCap = 225;
+                signatureCap = 200;
                 break;
             case 1: //Axe
-                signatureCap = 375;
+                signatureCap = 400;
                 break;
             case 2: //Spear
-                signatureCap = 175;
+                signatureCap = 100;
                 break;
             case 3: //Crossbow
                 signatureCap = 300;
                 break;
             case 4: //Tome
-                signatureCap = 425;
+                signatureCap = 500;
                 break;
             default:
                 break;

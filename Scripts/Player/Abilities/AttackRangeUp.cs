@@ -24,7 +24,7 @@ public class AttackRangeUp : Ability
 
     public override float GetMightMult()
     {
-        return modifier * 0.8f;
+        return modifier * 0.6f;
     }
 
     public static void SetMinMaxMods()

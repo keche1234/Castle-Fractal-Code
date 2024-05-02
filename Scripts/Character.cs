@@ -302,8 +302,14 @@ public abstract class Character : MonoBehaviour
         speed = s;
     }
 
-    public bool InCrisis()
+    public bool IsHealthy()
     {
+        // TODO: Change to 0.75f after CP02
+        return currentHealth / maxHealth >= 0.7f;
+    }
+    public bool IsInCrisis()
+    {
+        // TODO: Change to 0.25f after CP02
         return currentHealth / maxHealth <= 0.3f;
     }
 
@@ -575,8 +581,12 @@ public abstract class Character : MonoBehaviour
 
     public float GetMyFreezeTime()
     {
-        string myTag = gameObject.tag;
-        return freezeManager.GetFreezeTime(myTag);
+        if (freezeManager != null)
+        {
+            string myTag = gameObject.tag;
+            return freezeManager.GetFreezeTime(myTag);
+        }
+        return 0;
     }
 
     public void FreezeTargetAdd(string tag, float time)

@@ -230,6 +230,6 @@ public class Sword : Weapon
 
     public new static float GetBaseDurability()
     {
-        return 40;
+        return 24;
     }
 }

@@ -95,24 +95,28 @@ public class Hitbox : MonoBehaviour
     public virtual void OnTriggerStay(Collider targetCollider)
     {
         Character c = targetCollider.gameObject.GetComponent<Character>();
-        if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c.enabled)
-        {
-            AddConnected(c);
-            Vector3 d;
-            if (direction.magnitude != 0)
-            {
-                d = transform.TransformDirection(direction);
-                d = (new Vector3(d.x, 0, d.z)).normalized;
-            }
-            else
-            {
-                d = (targetCollider.gameObject.transform.position - gameObject.transform.position);
-                if (d.magnitude < 0.01f) d = transform.forward;
-                d = (new Vector3(d.x, 0, d.z)).normalized;
-            }
+        Character p = null;
+        if (targetCollider.gameObject.transform.parent != null)
+            p = targetCollider.gameObject.transform.parent.GetComponent<Character>();
 
+        Vector3 d;
+        if (direction.magnitude != 0)
+        {
+            d = transform.TransformDirection(direction);
+            d = (new Vector3(d.x, 0, d.z)).normalized;
+        }
+        else
+        {
+            d = (targetCollider.gameObject.transform.position - gameObject.transform.position);
+            if (d.magnitude < 0.01f) d = transform.forward;
+            d = (new Vector3(d.x, 0, d.z)).normalized;
+        }
+
+        if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c != null && c.enabled)
+        {
             if (c != null)
             {
+                AddConnected(c);
                 if (!c.GetHitByList().Contains(source))
                 {
                     c.AddToHitByList(source);
@@ -120,9 +124,11 @@ public class Hitbox : MonoBehaviour
                 }
                 AddConnected(c);
             }
-            else //Twinotaurs
+        }
+        else if (targetCollider.gameObject.transform.parent != null)
+        {
+            if (targetCollider.gameObject.transform.parent.CompareTag(targetTag) && !AlreadyConnected(p) && p != null && p.enabled)//Twinotaurs
             {
-                Character p = targetCollider.gameObject.transform.parent.GetComponent<Character>();
                 if (p != null)
                 {
                     if (!p.GetHitByList().Contains(source))

@@ -18,7 +18,7 @@ public class FreezeManager : MonoBehaviour
         for (int i = freezeTags.Count - 1; i >= 0; i--)
         {
             freezeTags[freezeTags.ElementAt(i).Key] -= Time.deltaTime;
-            Debug.Log(freezeTags[freezeTags.ElementAt(i).Key]);
+            //Debug.Log(freezeTags[freezeTags.ElementAt(i).Key]);
             if (freezeTags[freezeTags.ElementAt(i).Key] <= 0)
                 freezeTags.Remove(freezeTags.ElementAt(i).Key);
         }

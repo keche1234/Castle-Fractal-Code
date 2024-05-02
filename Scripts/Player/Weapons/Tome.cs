@@ -11,7 +11,7 @@ public class Tome : Weapon
     private float crisisMod = 1; //increases to 1.1 in Crisis (health is 25% or less)
 
     private float sigStartup = 1f; //slow down time by 50% for this (realtime) duration
-    private float sigActiveTime = 7f;
+    private float sigActiveTime = 16f;
 
     [SerializeField] protected Canvas reticle;
 
@@ -27,7 +27,7 @@ public class Tome : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        if (owner.InCrisis())
+        if (owner.IsInCrisis())
             crisisMod = 1.1f;
         else
             crisisMod = 1;
@@ -102,7 +102,7 @@ public class Tome : Weapon
 
         owner.SetMobile(false);
         //owner.StopInvincibility();
-        StartCoroutine(owner.GrantInvincibility((sigStartup * sigSlowdown * duration * damage)+ sigActiveTime + 1));
+        StartCoroutine(owner.GrantInvincibility((sigStartup * sigSlowdown * duration * damage) + sigActiveTime + 1));
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
 
@@ -150,6 +150,6 @@ public class Tome : Weapon
 
     public new static float GetBaseDurability()
     {
-        return 20;
+        return 12;
     }
 }

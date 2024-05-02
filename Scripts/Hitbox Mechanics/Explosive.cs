@@ -74,10 +74,20 @@ public class Explosive : Projectile
         if (!triggered)
         {
             Character c = targetCollider.gameObject.GetComponent<Character>();
-            if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c.enabled)
+            Character p = null;
+            if (targetCollider.gameObject.transform.parent != null)
+                p = targetCollider.gameObject.transform.parent.GetComponent<Character>();
+
+            if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c != null && c.enabled)
             {
                 if (!piercing)
                     StartCoroutine("Explode");
+            }
+            else if (targetCollider.gameObject.transform.parent != null)
+            {
+                if (targetCollider.gameObject.transform.parent.CompareTag(targetTag) && !AlreadyConnected(p) && p != null && p.enabled)//Twinotaurs
+                    if (!piercing)
+                        StartCoroutine("Explode");
             }
 
             if (wallBehavior == 1 && targetCollider.gameObject.CompareTag("Wall"))

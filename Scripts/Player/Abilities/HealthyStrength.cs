@@ -20,7 +20,7 @@ public class HealthyStrength : Ability
     // Update is called once per frame
     public override void Update()
     {
-        triggerCondition = user.GetCurrentHealth() / user.GetMaxHealth() >= .7f;
+        triggerCondition = user.IsHealthy();
         if (!triggered) //only try to add buff if its not already active
         {
             if (triggerCondition)

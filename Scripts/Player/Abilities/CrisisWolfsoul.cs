@@ -16,7 +16,7 @@ public class CrisisWolfsoul : CrisisLionheart
     // Update is called once per frame
     public override void Update()
     {
-        triggerCondition = user.GetCurrentHealth() / user.GetMaxHealth() <= .3f;
+        triggerCondition = user.IsInCrisis();
         if (!triggered) //only try to add buffs if its not already active
         {
             if (triggerCondition)

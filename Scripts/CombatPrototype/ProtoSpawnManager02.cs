@@ -438,7 +438,7 @@ public class ProtoSpawnManager02 : SpawnManager
                 boss.transform.parent = roomManager.GetCurrent().transform;
                 myScale = 0;
 
-                yield return new WaitForSeconds(6);
+                yield return new WaitForSeconds(2);
 
                 while (myScale < 1)
                 {
@@ -472,6 +472,7 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
                     spawnList[i].ChangeStrength(Random.Range(1, 4));
                     spawnList[i].ChangeDefense(Random.Range(1, 4));
+                    spawnList[i].SetHasItem(true);
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -501,6 +502,7 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
                     spawnList[i].ChangeStrength(Random.Range(1, 4));
                     spawnList[i].ChangeDefense(Random.Range(1, 4));
+                    spawnList[i].SetHasItem(true);
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -529,6 +531,7 @@ public class ProtoSpawnManager02 : SpawnManager
                     spawnList[i].transform.parent = roomManager.GetCurrent().transform;
                     spawnList[i].ChangeStrength(Random.Range(1, 4));
                     spawnList[i].ChangeDefense(Random.Range(1, 4));
+                    spawnList[i].SetHasItem(true);
                 }
 
                 for (int i = 0; i < covers.Count; i++)
@@ -538,11 +541,16 @@ public class ProtoSpawnManager02 : SpawnManager
             case 20: // Twinotaurs
                 boss = Instantiate(bossPrefabs[2], Vector3.zero, Quaternion.Euler(Vector3.zero));
                 boss.GetComponent<Boss>().enabled = false;
-                ((Twinotaurs)boss).GetSpark().transform.localScale = Vector3.zero;
-                ((Twinotaurs)boss).GetVenom().transform.localScale = Vector3.zero;
+                GameObject spark = ((Twinotaurs)boss).GetSpark();
+                GameObject venom = ((Twinotaurs)boss).GetVenom();
+
+                spark.transform.localScale = Vector3.zero;
+                spark.GetComponent<Singletaur>().enabled = false;
+                venom.transform.localScale = Vector3.zero;
+                venom.GetComponent<Singletaur>().enabled = true;
                 myScale = 0;
 
-                yield return new WaitForSeconds(6);
+                yield return new WaitForSeconds(2);
 
                 while (myScale < 1)
                 {
@@ -551,9 +559,12 @@ public class ProtoSpawnManager02 : SpawnManager
                     ((Twinotaurs)boss).GetVenom().transform.localScale = Vector3.one * myScale;
                     yield return null;
                 }
-                ((Twinotaurs)boss).GetSpark().transform.localScale = Vector3.one;
-                ((Twinotaurs)boss).GetVenom().transform.localScale = Vector3.one;
+                spark.transform.localScale = Vector3.one;
+                venom.transform.localScale = Vector3.one;
                 boss.GetComponent<Boss>().enabled = true;
+                spark.GetComponent<Singletaur>().enabled = true;
+                venom.GetComponent<Singletaur>().enabled = true;
+
                 boss.transform.parent = roomManager.GetCurrent().transform;
                 break;
 

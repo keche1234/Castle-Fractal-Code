@@ -414,12 +414,12 @@ public class ProtoRoomManager02 : RoomManager
                     break;
                 case 9: //Ogrelord
                     pickups = new List<PickupCW>();
-                    for (int i = 0; i < 3; i++)
-                    {
-                        pickups.Add(GenerateWeapon(Random.Range(0, 5)));
-                        pickups[i].gameObject.transform.position = new Vector3(-2.5f + (2.5f * i), 1, -2f);
-                        pickups[i].transform.parent = GetCurrent().transform;
-                    }
+                    //for (int i = 0; i < 3; i++)
+                    //{
+                    //    pickups.Add(GenerateWeapon(Random.Range(0, 5)));
+                    //    pickups[i].gameObject.transform.position = new Vector3(-2.5f + (2.5f * i), 1, -2f);
+                    //    pickups[i].transform.parent = GetCurrent().transform;
+                    //}
                     spawnManager.SetWaveInfo(0, 1);
                     spawnManager.SetBossInfo(true);
 
@@ -453,18 +453,18 @@ public class ProtoRoomManager02 : RoomManager
                     tipRotation.SetMessageList(messages);
                     break;
                 case 12:
-                    pickups = new List<PickupCW>();
-                    for (int i = 0; i < 3; i++)
-                    {
-                        pickups.Add(GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2));
-                        pickups[i].gameObject.transform.position = new Vector3(-2.5f + (2.5f * i), 1, -2f);
-                        pickups[i].transform.parent = GetCurrent().transform;
-                    }
+                    //pickups = new List<PickupCW>();
+                    //for (int i = 0; i < 3; i++)
+                    //{
+                    //    pickups.Add(GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2));
+                    //    pickups[i].gameObject.transform.position = new Vector3(-2.5f + (2.5f * i), 1, -2f);
+                    //    pickups[i].transform.parent = GetCurrent().transform;
+                    //}
                     spawnManager.SetWaveInfo(0, 1);
                     finalFloor = true;
 
                     messages = new List<string>();
-                    messages.Add("Tip: The Twinotaurs move and attack fast, but don’t hit too hard!");
+                    messages.Add("Tip: The Twinotaurs don’t hit too hard, but move and attack fast! Stay calm and agile!");
                     tipRotation.SetMessageList(messages);
                     break;
                 default:

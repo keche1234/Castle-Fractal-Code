@@ -15,27 +15,30 @@ public class Singletaur : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Room room = twins.GetRoomManager().GetCurrent();
-        if (transform.position.x > (room.GetLength() / 2))
+        if (twins.GetRoomManager() != null)
         {
-            transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
-            //Debug.Log("Push left");
-        }
-        else if (transform.position.x < -(room.GetLength() / 2))
-        {
-            transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
-            //Debug.Log("Push right");
-        }
+            Room room = twins.GetRoomManager().GetCurrent();
+            if (transform.position.x > (room.GetLength() / 2))
+            {
+                transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
+                //Debug.Log("Push left");
+            }
+            else if (transform.position.x < -(room.GetLength() / 2))
+            {
+                transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
+                //Debug.Log("Push right");
+            }
 
-        if (transform.position.z > room.GetWidth() / 2)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
-            //Debug.Log("Push down");
-        }
-        else if (transform.position.z < -(room.GetWidth() / 2))
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
-            //Debug.Log("Push up");
+            if (transform.position.z > room.GetWidth() / 2)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
+                //Debug.Log("Push down");
+            }
+            else if (transform.position.z < -(room.GetWidth() / 2))
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
+                //Debug.Log("Push up");
+            }
         }
 
         lastPos = transform.position;

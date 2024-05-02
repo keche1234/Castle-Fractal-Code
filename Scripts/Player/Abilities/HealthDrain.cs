@@ -44,7 +44,7 @@ public class HealthDrain : Ability
 
     public override float GetMightMult()
     {
-        return modifier * 0.16f;
+        return modifier * 0.175f;
     }
 
     public override void Deactivate()

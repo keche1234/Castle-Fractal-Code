@@ -11,7 +11,7 @@ public class MessageRotate : MonoBehaviour
     protected Color32 messageTextColor = Color.white;
 
     protected float fade = 0; // bounces between minFade and maxFade transparency (draws the clamped value)
-    protected float minFade = -0.5f;
+    protected float minFade = -0.25f;
     protected float maxFade = 4.5f;
     protected float fadeSpeed = 1f; //Multiply by -1 to switch direction
 
@@ -49,7 +49,7 @@ public class MessageRotate : MonoBehaviour
     {
         messageList = new List<string>(messages);
         fadeSpeed = -1f;
-        fade = 4.5f;
+        fade = maxFade;
 
         if (messageList.Count > 0)
         {

@@ -213,6 +213,6 @@ public class Crossbow : Weapon
 
     public new static float GetBaseDurability()
     {
-        return 60;
+        return 36;
     }
 }

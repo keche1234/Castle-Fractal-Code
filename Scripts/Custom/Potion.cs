@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Potion : MonoBehaviour
 {
-    [SerializeField] protected int attribute; //0-4
+    [SerializeField] protected int attribute; //0-6
     [SerializeField] protected List<Material> colors;
 
     // Start is called before the first frame update
@@ -25,5 +25,15 @@ public class Potion : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public bool SetPotionAttribute(int a)
+    {
+        if (a >= 0 && a <= 6)
+        {
+            attribute = a;
+            return true;
+        }
+        return false;
     }
 }

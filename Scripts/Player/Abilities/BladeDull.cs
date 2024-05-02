@@ -20,6 +20,6 @@ public class BladeDull : Ability
 
     public override float GetMightMult()
     {
-        return 0.4f;
+        return 0.3f;
     }
 }

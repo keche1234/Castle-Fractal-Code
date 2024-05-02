@@ -24,7 +24,7 @@ public class LuckyStrike : Ability
 
     public override float GetMightMult()
     {
-        return modifier * 1.5f;
+        return modifier * 1.15f;
     }
 
     public static void SetMinMaxMods()
