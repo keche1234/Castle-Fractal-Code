@@ -66,7 +66,10 @@ public class InfoBox : MonoBehaviour
 
             weaponName.text = current.GetWeaponName();
             mightPoints.text = "(" + current.GetMightPoints() + " MP)";
-            power.text = "Power: " + current.GetPower();
+            if (Mathf.Abs(current.GetPower() - Mathf.Floor(current.GetPower())) >= 0.1f)
+                power.text = "Power: " + current.GetPower().ToString("0.0");
+            else
+                power.text = "Power: " + current.GetPower().ToString("0");
             durabilityVal.text = "(" + current.DecrementDurability(0) + "/" + current.GetMaxDurability() + ")";
             durabilityBar.SetMax(current.GetMaxDurability());
             durabilityBar.SetValue(current.DecrementDurability(0));
@@ -88,27 +91,27 @@ public class InfoBox : MonoBehaviour
                 {
                     case 2: //Strength Debilitator Chance
                         abilityFills[i].color = colors[1];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 3: //Defense Debilitator Chance
                         abilityFills[i].color = colors[1];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 4: //Attack Rate
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 5: //Dodge Recovery
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 8: //Healthy Speed
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 9: //Healthy Signature Gain
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 10: //Blade Dull
                         abilityFills[i].color = colors[1];
@@ -118,43 +121,43 @@ public class InfoBox : MonoBehaviour
                         break;
                     case 12: //Attack Range Up
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 13: //Dodge Distance Up
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 16: //Burst Speed
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 17: //Burst Signature Gain
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 18: //Lucky Strike
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 19: //Quick Dodge
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 20: //Signature Damage
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 21: //Signature Duration
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 24: //Crisis Speed
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 25: //Crisis Signature
                         abilityFills[i].color = colors[0];
-                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f) + "%";
+                        abilityNames[i].text += " +" + (current.GetMods()[i] * 100f).ToString("0") + "%";
                         break;
                     case 26: //Health Drain
                         abilityFills[i].color = colors[0];

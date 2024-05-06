@@ -137,6 +137,9 @@ public class Twinotaurs : Boss
         strengthUIVenom = attributesUIVenom.transform.Find("Group").Find("S-Text").gameObject.GetComponent<Text>();
         defenseUIVenom = attributesUIVenom.transform.Find("Group").Find("D-Text").gameObject.GetComponent<Text>();
 
+        miniHealthBarVenom.gameObject.transform.parent.transform.parent = transform;
+        attributesUI.gameObject.transform.parent = transform;
+
         miniHealthBarVenom.gameObject.transform.parent.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         miniHealthBarVenom.gameObject.transform.parent.GetComponent<UIAttach>().Setup(venom, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -100));
 
@@ -589,11 +592,11 @@ public class Twinotaurs : Boss
                         t += Time.deltaTime;
                     yield return null;
                 }
-                spark.GetComponent<Collider>().isTrigger = false;
+                //spark.GetComponent<Collider>().isTrigger = false;
                 sparkRb.useGravity = false;
                 sparkRb.constraints = ~RigidbodyConstraints.FreezePositionZ;
                 sparkRb.velocity *= 0;
-                venom.GetComponent<Collider>().isTrigger = false;
+                //venom.GetComponent<Collider>().isTrigger = false;
                 venomRb.useGravity = false;
                 venomRb.constraints = ~RigidbodyConstraints.FreezePositionZ;
                 venomRb.velocity *= 0;
@@ -682,6 +685,8 @@ public class Twinotaurs : Boss
                     yield return null;
                 }
 
+                spark.GetComponent<Collider>().isTrigger = false;
+                venom.GetComponent<Collider>().isTrigger = false;
                 sparkRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 venomRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 yield return null;
@@ -949,16 +954,18 @@ public class Twinotaurs : Boss
 
     public void OnDestroy()
     {
-        foreach (Enemy e in summons)
-        {
-            Destroy(e.gameObject);
-            summons.Remove(e);
-        }
+        //for (int i = 0; i < summons.Count; i++)
+        //{
+        //    Destroy(summons[i].gameObject);
+        //    summons.Remove(summons[i]);
+        //}
 
-        foreach (GameObject c in pounceClouds)
+        for (int i = 0; i < pounceClouds.Count; i++)
         {
-            Destroy(c);
-            pounceClouds.Remove(c);
+            Destroy(pounceClouds[i].gameObject);
+            pounceClouds.Remove(pounceClouds[i]);
         }
+        base.OnDestroy();
+
     }
 }

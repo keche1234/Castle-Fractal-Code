@@ -52,6 +52,8 @@ public class PlayerController : Character
     [SerializeField] protected int currentMP;
     [SerializeField] protected int maxMP;
     [SerializeField] protected PickupCW pickupPrefab; //for dropping a weapon
+    [SerializeField] protected WeaponButton leftWeaponButtonUI;
+    [SerializeField] protected WeaponButton rightWeaponButtonUI;
 
     //[Header("All Or Nothing Timers")]
     protected float aonDurabilityTimer = 0;
@@ -201,7 +203,7 @@ public class PlayerController : Character
             playerLife = LifeState.Alive;
         }
 
-        if (playerLife != LifeState.Dead && !stunned) //Make sure the player is alive before they try anything
+        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
         {
             //if (mobile && playerDodge != DodgeState.Dodging) //Make sure the player is not attacking while they have a "heavy" weapon (Axe or Spear)
             //{
@@ -233,13 +235,18 @@ public class PlayerController : Character
                 {
                     if (inventory.Count > 0 && equippedCustomWeapon >= 0)
                     {
-                        if (Input.GetKey(sigAtkBtn) && inventory[equippedCustomWeapon].SignaturePercentage() >= 1)
+                        if (Input.GetKey(sigAtkBtn))
                         {
-                            playerRb.velocity *= 0;
-                            weaponTypes[currentWeaponType].StartCoroutine("Signature");
-                            inventory[equippedCustomWeapon].ResetSignature();
-                            signatureBar.SetValue(0);
-                            signing = true;
+                            if (inventory[equippedCustomWeapon].SignaturePercentage() >= 1 && !signing)
+                            {
+                                playerRb.velocity *= 0;
+                                weaponTypes[currentWeaponType].StartCoroutine("Signature");
+                                inventory[equippedCustomWeapon].ResetSignature();
+                                signatureBar.SetValue(0);
+                                signing = true;
+                                if (roomManager.gameObject.GetComponent<ProtoRoomManager02>() != null)
+                                    ((ProtoRoomManager02)roomManager).IncrementSignatureMovesUsed();
+                            }
                         }
                         else
                         {
@@ -249,7 +256,7 @@ public class PlayerController : Character
                     }
                     else if (playerAttack == AttackState.NotAttacking)
                     {
-                        if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
+                        //if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
                         StartCoroutine("Attack");
                     }
                 }
@@ -312,7 +319,7 @@ public class PlayerController : Character
     public void FixedUpdate()
     {
         hitByList.Clear();
-        
+
 
         if (playerLife != LifeState.Dead && !stunned) //Make sure the player is alive before they try anything
         {
@@ -494,7 +501,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<StrengthDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (a.GetModifier() * damage / targetMax))
+                    if (Random.Range(0, 0.9999f) < (4 * a.GetModifier() * damage / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -506,7 +513,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<DefenseDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (a.GetModifier() * damage * bossMod / targetMax))
+                    if (Random.Range(0, 0.9999f) < (4 * a.GetModifier() * damage * bossMod / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -529,7 +536,7 @@ public class PlayerController : Character
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<SignatureDrain>();
                     int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 40 : 1);
-                    Debug.Log(percent);
+                    //Debug.Log(percent);
                     inventory[equippedCustomWeapon].AddSignature(Mathf.Max(0, (int)(a.GetModifier() * 4 * (percent / 5) * -Random.Range(0.001f, 1.000f) + 1.0f)));
                     signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
                 }
@@ -582,7 +589,6 @@ public class PlayerController : Character
                     {
                         Ability a = weaponTypes[currentWeaponType].GetComponent<PityCounter>();
                         Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>();
-                        //Debug.Log(a.GetModifier());
                         foreach (Enemy e in allEnemies)
                         {
                             e.TakeDamage(Mathf.Max(1, (int)Mathf.Floor((0.4f * a.GetModifier() * damage) - Random.Range(0.001f, 1.000f) + 1.0f)), Vector3.zero);
@@ -778,7 +784,7 @@ public class PlayerController : Character
 
     public IEnumerator DropCustomWeapon(CustomWeapon cw)
     {
-        PickupCW drop = Instantiate(pickupPrefab, gameObject.transform.position + (transform.forward * 1.5f), Quaternion.Euler(0, 0, 0));
+        PickupCW drop = Instantiate(pickupPrefab, gameObject.transform.position + (transform.up * 0.5f) + (transform.forward * 1.5f), Quaternion.Euler(0, 0, 0));
         drop.Initialize(cw.GetWeaponType(), cw.GetPower(), cw.DecrementDurability(0), cw.GetMaxDurability(), cw.GetSignatureGauge(), cw.GetAbilities(), cw.GetMods());
         drop.gameObject.transform.parent = roomManager.GetCurrent().gameObject.transform;
 
@@ -874,6 +880,17 @@ public class PlayerController : Character
         }
         aonDurabilityTimer = 0;
         aonSignatureTimer = 0;
+
+        if (equippedCustomWeapon % 2 == 0)
+        {
+            leftWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon);
+            rightWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon + 1);
+        }
+        else
+        {
+            leftWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon - 1);
+            rightWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon);
+        }
     }
 
     private void SwitchWeaponType(int t)
@@ -887,7 +904,7 @@ public class PlayerController : Character
         currentWeaponType = t;
     }
 
-    public int InvCount()
+    public int InventoryCount()
     {
         return inventory.Count;
     }
@@ -947,7 +964,15 @@ public class PlayerController : Character
         for (int i = 0; i < potions.Count; i++)
             if (selectedPotions[i + potionsUsed])
             {
-                if (UsePotion(i)) i--;
+                if (UsePotion(i))
+                {
+                    i--;
+                    //TODO: Change CP02 Code
+                    if (roomManager.gameObject.GetComponent<ProtoRoomManager02>() != null)
+                    {
+                        ((ProtoRoomManager02)roomManager).IncrementPotionsUsed();
+                    }
+                }
                 potionsUsed++;
             }
     }
@@ -991,17 +1016,17 @@ public class PlayerController : Character
                     Enemy[] enemyArray = FindObjectsOfType<Enemy>();
                     List<Enemy> enemies = new List<Enemy>();
                     for (int i = 0; i < enemyArray.Length; i++)
-                        if (enemyArray[i].GetComponent<Boss>() == null)
+                        if (enemyArray[i].GetComponent<Boss>() == null) //Cannot stun bosses
                             enemies.Add(enemyArray[i]);
 
-                    if (enemies.Count == 0) return false;
-                    else
-                    {
-                        float stunTime = 40f / (4 * Mathf.Sqrt(enemies.Count));
-                        for (int i = 0; i < enemies.Count; i++)
-                            enemies[i].StunMe(stunTime);
-                    }
-                    break;
+                    if (enemies.Count == 0)
+                        return false;
+
+                    float stunTime = 40f / (4 * Mathf.Sqrt(enemies.Count));
+                    for (int i = 0; i < enemies.Count; i++)
+                        enemies[i].StunMe(stunTime);
+                    potions.RemoveAt(p);
+                    return true;
                 case 6: // Saving
                     buff = (HealthRegen)ScriptableObject.CreateInstance("HealthRegen");
                     ((HealthRegen)buff).SetBuff(potionBuffRegen, potionDuration, potionRegenTick);
@@ -1135,6 +1160,8 @@ public class PlayerController : Character
 
                 current.AddSignature(pts / pity);
                 signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
+                if (roomManager.gameObject.GetComponent<ProtoRoomManager02>() != null)
+                    ((ProtoRoomManager02)roomManager).AddSignaturePointsGained(pts / pity);
             }
             return 4 * CalculateDodgeCool();
         }

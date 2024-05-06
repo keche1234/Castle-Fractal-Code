@@ -24,6 +24,7 @@ public class ProtoPlayerRevive : MonoBehaviour
 
     protected IEnumerator Revive()
     {
+        protoRoomManager2.IncrementFalls();
         reviving = true;
         yield return new WaitForSeconds(delay);
         player.TakeDamage(((int)player.GetCurrentHealth()) - 30, Vector3.zero);
@@ -33,7 +34,7 @@ public class ProtoPlayerRevive : MonoBehaviour
         player.transform.Rotate(0, 90, 0);
         player.gameObject.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
 
-        while (player.gameObject.transform.localScale.x <= 1 && player.gameObject.transform.localScale.y <= 1 && player.gameObject.transform.localScale.z <= 1)
+        while (player.gameObject.transform.localScale.x < 1 && player.gameObject.transform.localScale.y < 1 && player.gameObject.transform.localScale.z < 1)
         {
             player.gameObject.transform.localScale += new Vector3(2 * Time.deltaTime / delay, 2 * Time.deltaTime / delay, 2 * Time.deltaTime / delay);
             yield return null;

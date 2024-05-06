@@ -134,7 +134,7 @@ public class PickupCW : MonoBehaviour
                 //Give
                 PlayerController pc = targetCollider.gameObject.GetComponent<PlayerController>();
                 pc.GiveCustomWeapon(w);
-                if (pc.InvCount() == 1) pc.SetCustomWeapon(0);
+                if (pc.InventoryCount() == 1) pc.SetCustomWeapon(0);
 
                 //Destroy
                 Destroy(gameObject);

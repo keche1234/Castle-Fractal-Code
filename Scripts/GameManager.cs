@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] protected Image blackFade;
     [SerializeField] protected List<Canvas> pauseMenus; //0 is continue/quit, 1 is inventory
     [SerializeField] protected int lastMenu = 0;
+    [SerializeField] protected bool gameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -35,7 +36,7 @@ public class GameManager : MonoBehaviour
     }
 
     /*
-     * Opens a specific menu
+     * Opens a specific menu, or closes the current menu
      */
     public void Pause(int m)
     {
@@ -85,5 +86,13 @@ public class GameManager : MonoBehaviour
     public bool IsPaused()
     {
         return paused;
+    }
+
+    /*
+     * Determines if the game is over
+     */
+    public bool GameIsOver()
+    {
+        return gameOver;
     }
 }

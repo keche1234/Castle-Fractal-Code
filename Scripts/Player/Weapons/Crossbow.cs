@@ -75,7 +75,7 @@ public class Crossbow : Weapon
                 arrows[i] = Instantiate(arrowPrefab, owner.gameObject.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrows[i].transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * (-width / 2)) + (Quaternion.AngleAxis(90, transform.up) * dir * i * 0.2f);
                 arrows[i].transform.Rotate(new Vector3(0, initAngle + (i * spread), 0));
-                arrows[i].Setup(12 * range, owner, true, owner.GetCustomWeapon().GetPower(), 0.5f, (4 + chainNum) / 9f);
+                arrows[i].Setup(12 * range, owner, true, owner.GetCustomWeapon().GetPower(), 0.5f, (2 + chainNum) / 9f);
                 arrows[i].transform.parent = roomManager.GetCurrent().transform;
             }
 

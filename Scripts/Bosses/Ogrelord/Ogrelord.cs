@@ -860,10 +860,11 @@ public class Ogrelord : Boss
     }
     public void OnDestroy()
     {
-        foreach (Enemy e in summons)
-        {
-            Destroy(e.gameObject);
-            summons.Remove(e);
-        }
+        //for (int i = 0; i < summons.Count; i++)
+        //{
+        //    Destroy(summons[i].gameObject);
+        //    summons.Remove(summons[i]);
+        //}
+        base.OnDestroy();
     }
 }

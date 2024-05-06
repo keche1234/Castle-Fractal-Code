@@ -17,7 +17,7 @@ public class UIAttach : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (cam != null)
+        if (cam != null && obj != null)
         {
             if (anchorIsUI && GetComponent<RectTransform>() != null)
             {
@@ -26,7 +26,6 @@ public class UIAttach : MonoBehaviour
             }
             else
             {
-
                 Vector3 screenPos = cam.WorldToScreenPoint(obj.transform.position);
                 //Vector3 toCamera = (cam.transform.position - obj.transform.position).normalized * 2;
                 float depth = Mathf.Min(new Vector3(cam.transform.position.x, cam.transform.position.y, cam.transform.position.z).magnitude, cam.transform.position.y - 1f);

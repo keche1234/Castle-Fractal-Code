@@ -70,7 +70,10 @@ public class PickupInfoUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        power.text = "P: " + pickup.GetPower();
+        if (Mathf.Abs(pickup.GetPower() - Mathf.Floor(pickup.GetPower())) >= 0.1f)
+            power.text = "P: " + pickup.GetPower().ToString("0.0");
+        else
+            power.text = "P: " + pickup.GetPower().ToString("0");
         durability.text = "D: " + pickup.GetDurability();
         mightPoints.text = "M: " + pickup.CalculateMightPoints();
 

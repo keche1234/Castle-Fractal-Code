@@ -102,6 +102,7 @@ public abstract class Boss : Enemy
         for (int i = 0; i < count; i++)
         {
             covers.Add(Instantiate(spawnCover, GenerateSpawnPos(summonPrefabs[0]), Quaternion.Euler(0, 0, 0)));
+            covers[i].transform.parent = roomManager.GetCurrent().transform;
         }
 
         //Hold the covers for the duration of the spawn

@@ -825,19 +825,19 @@ public class Magestic : Boss
 
     public void OnDestroy()
     {
-        foreach (Projectile w in myWands)
+        //Debug.Log(myWands.Count + " wand(s)");
+        for (int i = 0; i < myWands.Count; i++)
         {
-            if (w.gameObject)
-                Destroy(w.gameObject);
-            myWands.Remove(w);
+            Destroy(myWands[i].gameObject);
+            myWands.Remove(myWands[i]);
         }
 
-        foreach (Enemy e in summons)
-        {
-            if (e.gameObject)
-                Destroy(e.gameObject);
-            summons.Remove(e);
-        }
+        //Debug.Log(summons.Count + " summon(s)");
+        //for (int i = 0; i < summons.Count; i++)
+        //{
+        //    Destroy(summons[i].gameObject);
+        //    summons.Remove(summons[i]);
+        //}
         base.OnDestroy();
     }
 }

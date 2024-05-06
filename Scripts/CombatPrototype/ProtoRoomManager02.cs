@@ -11,7 +11,16 @@ public class ProtoRoomManager02 : RoomManager
     [SerializeField] protected Text tipText;
     protected MessageRotate tipRotation;
     protected bool finalFloor = false;
-    protected float roomTime = 0;
+    protected const float MERCY_WEAPON_TIME = 10f;
+    protected float spawnWeaponTimer = 0;
+
+    [Header("Room Stats")]
+    [SerializeField] protected List<float> roomTimes;
+    [SerializeField] protected List<int> enemiesDefeated;
+    [SerializeField] protected List<int> falls;
+    [SerializeField] protected List<int> potionsUsed;
+    [SerializeField] protected List<int> signaturePtsGained;
+    [SerializeField] protected List<int> signatureMovesUsed;
 
     protected List<List<int>> abilities;
     protected List<List<float>> mods;
@@ -31,6 +40,30 @@ public class ProtoRoomManager02 : RoomManager
         tipRotation = tipText.GetComponent<MessageRotate>();
         if (tipRotation == null)
             Debug.LogError("Missing text rotation!");
+
+        roomTimes = new List<float>();
+        for (int i = 0; i < 13; i++)
+            roomTimes.Add(0);
+
+        enemiesDefeated = new List<int>();
+        for (int i = 0; i < 13; i++)
+            enemiesDefeated.Add(0);
+
+        falls = new List<int>();
+        for (int i = 0; i < 13; i++)
+            falls.Add(0);
+
+        potionsUsed = new List<int>();
+        for (int i = 0; i < 13; i++)
+            potionsUsed.Add(0);
+
+        signaturePtsGained = new List<int>();
+        for (int i = 0; i < 13; i++)
+            signaturePtsGained.Add(0);
+
+        signatureMovesUsed = new List<int>();
+        for (int i = 0; i < 13; i++)
+            signatureMovesUsed.Add(0);
 
         // Sword abilities
         abilities[0].Add(0);
@@ -77,13 +110,52 @@ public class ProtoRoomManager02 : RoomManager
     new void Update()
     {
         if (!current.RoomCleared())
+            roomTimes[level] += Time.deltaTime;
+
+        // TODO: Bring this mercy weapon code from CP02 to main pipeline
+        if (level > 0 && player.InventoryCount() == 0 && FindObjectsOfType(System.Type.GetType("PickupCW")).Length == 0)
         {
-            //roomTime += Time.deltaTime;
-            //int minutes = (int)(roomTime / 60);
-            //int seconds = (int)(roomTime % 60);
-            //timeText.text = "<mark=#" + timeTextColor + ">Time\n" + minutes + ":" + $"{seconds:D2}";
+            if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
+            {
+                Room r = GetCurrent();
+                Vector3 weaponPos = new Vector3(Random.Range((-r.GetLength() + 2) / 2, (r.GetLength() - 2)/ 2), 1, Random.Range((-r.GetWidth() + 2) / 2, (r.GetWidth() - 2)/ 2));
+                PickupCW mercy;
+                if (level < 7) // in part 1
+                {
+                    int wType = Random.Range(0, 5);
+                    mercy = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0)).GetComponent<PickupCW>();
+                    switch (wType)
+                    {
+                        case 0:
+                            mercy.Initialize(0, Sword.GetBasePower(), 0, 0, 0, null, null);
+                            break;
+                        case 1:
+                            mercy.Initialize(0, Axe.GetBasePower(), 0, 0, 0, null, null);
+                            break;
+                        case 2:
+                            mercy.Initialize(0, Spear.GetBasePower(), 0, 0, 0, null, null);
+                            break;
+                        case 3:
+                            mercy.Initialize(0, Crossbow.GetBasePower(), 0, 0, 0, null, null);
+                            break;
+                        case 4:
+                            mercy.Initialize(0, Tome.GetBasePower(), 0, 0, 0, null, null);
+                            break;
+                    }
+                }
+                else if (level < 10) // in part 2
+                    mercy = GenerateWeapon(Random.Range(0, 5));
+                else
+                    mercy = GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+
+                mercy.gameObject.transform.position = weaponPos;
+                mercy.gameObject.transform.parent = r.gameObject.transform;
+                spawnWeaponTimer = 0;
+            }
+            spawnWeaponTimer += Time.deltaTime;
         }
 
+        //TODO: Erase Debug Code!
         if (Input.GetKeyDown(KeyCode.Alpha1))
             Step();
         else if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -101,7 +173,7 @@ public class ProtoRoomManager02 : RoomManager
     /*
      * Generates a weapon of type `wType`, with two abilities from `abilities`
      */
-    public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1)
+    public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false)
     {
         if (wType < 0 || wType > 4)
             return null;
@@ -120,43 +192,74 @@ public class ProtoRoomManager02 : RoomManager
             {
                 case 0:
                     StrengthUp.SetMinMaxMods();
-                    myMods.Add((int)StrengthUp.GetMeanMod());
+
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(StrengthUp.GetRandomMod()));
+                    else
+                        myMods.Add((int)StrengthUp.GetMeanMod());
                     break;
                 case 1:
                     DefenseUp.SetMinMaxMods();
-                    myMods.Add((int)DefenseUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(DefenseUp.GetRandomMod()));
+                    else
+                        myMods.Add((int)DefenseUp.GetMeanMod());
                     break;
                 case 2:
                     StrengthDebilitator.SetMinMaxMods();
-                    myMods.Add(StrengthDebilitator.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(StrengthDebilitator.GetRandomMod());
+                    else
+                        myMods.Add(StrengthDebilitator.GetMeanMod());
                     break;
                 case 3:
                     DefenseDebilitator.SetMinMaxMods();
-                    myMods.Add(DefenseDebilitator.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(DefenseDebilitator.GetRandomMod());
+                    else
+                        myMods.Add(DefenseDebilitator.GetMeanMod());
                     break;
                 case 4:
                     AttackRateUp.SetMinMaxMods();
-                    myMods.Add(AttackRateUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(AttackRateUp.GetRandomMod());
+                    else
+                        myMods.Add(AttackRateUp.GetMeanMod());
                     break;
                 case 5:
                     DodgeRecoveryUp.SetMinMaxMods();
-                    myMods.Add(DodgeRecoveryUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(DodgeRecoveryUp.GetRandomMod());
+                    else
+                        myMods.Add(DodgeRecoveryUp.GetMeanMod());
                     break;
                 case 6:
                     HealthyStrength.SetMinMaxMods();
-                    myMods.Add((int)HealthyStrength.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(HealthyStrength.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthyStrength.GetMeanMod());
                     break;
                 case 7:
                     HealthyDefense.SetMinMaxMods();
-                    myMods.Add((int)HealthyDefense.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(HealthyDefense.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthyDefense.GetMeanMod());
                     break;
                 case 8:
                     HealthySpeed.SetMinMaxMods();
-                    myMods.Add(HealthySpeed.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(HealthySpeed.GetRandomMod());
+                    else
+                        myMods.Add(HealthySpeed.GetMeanMod());
                     break;
                 case 9:
                     HealthySignatureGain.SetMinMaxMods();
-                    myMods.Add(HealthySignatureGain.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(HealthySignatureGain.GetRandomMod());
+                    else
+                        myMods.Add(HealthySignatureGain.GetMeanMod());
                     break;
                 case 10:
                     myMods.Add(BladeDull.GetMeanMod());
@@ -166,75 +269,129 @@ public class ProtoRoomManager02 : RoomManager
                     break;
                 case 12:
                     AttackRangeUp.SetMinMaxMods();
-                    myMods.Add(AttackRangeUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(AttackRangeUp.GetRandomMod());
+                    else
+                        myMods.Add(AttackRangeUp.GetMeanMod());
                     break;
                 case 13:
                     DodgeDistanceUp.SetMinMaxMods();
-                    myMods.Add(DodgeDistanceUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(DodgeDistanceUp.GetRandomMod());
+                    else
+                        myMods.Add(DodgeDistanceUp.GetMeanMod());
                     break;
                 case 14:
                     BurstStrength.SetMinMaxMods();
-                    myMods.Add((int)BurstStrength.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(BurstStrength.GetRandomMod()));
+                    else
+                        myMods.Add((int)BurstStrength.GetMeanMod());
                     break;
                 case 15:
                     BurstDefense.SetMinMaxMods();
-                    myMods.Add((int)BurstDefense.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(BurstDefense.GetRandomMod()));
+                    else
+                        myMods.Add((int)BurstDefense.GetMeanMod());
                     break;
                 case 16:
                     BurstSpeed.SetMinMaxMods();
-                    myMods.Add(BurstSpeed.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(BurstSpeed.GetRandomMod());
+                    else
+                        myMods.Add(BurstSpeed.GetMeanMod());
                     break;
                 case 17:
                     BurstSignatureGain.SetMinMaxMods();
-                    myMods.Add(BurstSignatureGain.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(BurstSignatureGain.GetRandomMod());
+                    else
+                        myMods.Add(BurstSignatureGain.GetMeanMod());
                     break;
                 case 18:
                     LuckyStrike.SetMinMaxMods();
-                    myMods.Add(LuckyStrike.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(LuckyStrike.GetRandomMod());
+                    else
+                        myMods.Add(LuckyStrike.GetMeanMod());
                     break;
                 case 19:
                     QuickDodge.SetMinMaxMods();
-                    myMods.Add(QuickDodge.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(QuickDodge.GetRandomMod());
+                    else
+                        myMods.Add(QuickDodge.GetMeanMod());
                     break;
                 case 20:
                     SignatureDamageUp.SetMinMaxMods();
-                    myMods.Add(SignatureDamageUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(SignatureDamageUp.GetRandomMod());
+                    else
+                        myMods.Add(SignatureDamageUp.GetMeanMod());
                     break;
                 case 21:
                     SignatureDurationUp.SetMinMaxMods();
-                    myMods.Add(SignatureDurationUp.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(SignatureDurationUp.GetRandomMod());
+                    else
+                        myMods.Add(SignatureDurationUp.GetMeanMod());
                     break;
                 case 22:
                     CrisisStrength.SetMinMaxMods();
-                    myMods.Add((int)CrisisStrength.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(CrisisStrength.GetRandomMod()));
+                    else
+                        myMods.Add((int)CrisisStrength.GetMeanMod());
                     break;
                 case 23:
                     CrisisDefense.SetMinMaxMods();
-                    myMods.Add((int)CrisisDefense.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(CrisisDefense.GetRandomMod()));
+                    else
+                        myMods.Add((int)CrisisDefense.GetMeanMod());
                     break;
                 case 24:
                     CrisisSpeed.SetMinMaxMods();
-                    myMods.Add(CrisisSpeed.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(CrisisSpeed.GetRandomMod());
+                    else
+                        myMods.Add(CrisisSpeed.GetMeanMod());
                     break;
                 case 25:
                     CrisisSignatureGain.SetMinMaxMods();
-                    myMods.Add(CrisisSignatureGain.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(CrisisSignatureGain.GetRandomMod());
+                    else
+                        myMods.Add(CrisisSignatureGain.GetMeanMod());
                     break;
                 case 26:
                     HealthDrain.SetMinMaxMods();
-                    myMods.Add(HealthDrain.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(HealthDrain.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthDrain.GetMeanMod());
                     break;
                 case 27:
                     SignatureDrain.SetMinMaxMods();
-                    myMods.Add(SignatureDrain.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(SignatureDrain.GetRandomMod()));
+                    else
+                        myMods.Add((int)SignatureDrain.GetMeanMod());
                     break;
                 case 28:
                     PityCounter.SetMinMaxMods();
-                    myMods.Add(PityCounter.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(PityCounter.GetRandomMod()));
+                    else
+                        myMods.Add((int)PityCounter.GetMeanMod());
                     break;
                 case 29:
                     PitySignature.SetMinMaxMods();
-                    myMods.Add(PitySignature.GetMeanMod());
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(PitySignature.GetRandomMod()));
+                    else
+                        myMods.Add((int)PitySignature.GetMeanMod());
                     break;
                 default:
                     break;
@@ -344,18 +501,7 @@ public class ProtoRoomManager02 : RoomManager
                     messages.Add("Tip: Mash or hold Left Click to perform up to five shots with the Crossbow!");
                     tipRotation.SetMessageList(messages);
                     break;
-                case 4: //Tome vs. Turquoise Templar
-                    player.RemoveCustomWeapon();
-                    PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
-                    tome.Initialize(4, Tome.GetBasePower(), 0, 0, 0, null, null);
-                    tome.transform.parent = GetCurrent().transform;
-                    spawnManager.SetWaveInfo(0, 2);
-
-                    messages = new List<string>();
-                    messages.Add("Tip: When you’re in Crisis (≤25% Health), the Tome deals slightly more damage!");
-                    tipRotation.SetMessageList(new List<string>(messages));
-                    break;
-                case 5: //Spear vs. Wisteria Wizard
+                case 4: //Spear vs. Turquoise Templar
                     player.RemoveCustomWeapon();
                     PickupCW spear = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
                     spear.Initialize(2, Spear.GetBasePower(), 0, 0, 0, null, null);
@@ -364,6 +510,17 @@ public class ProtoRoomManager02 : RoomManager
 
                     messages = new List<string>();
                     messages.Add("Tip: The Spear deals the most damage at the tip!");
+                    tipRotation.SetMessageList(messages);
+                    break;
+                case 5: //Tome vs. Wisteria Wizard
+                    player.RemoveCustomWeapon();
+                    PickupCW tome = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0));
+                    tome.Initialize(4, Tome.GetBasePower(), 0, 0, 0, null, null);
+                    tome.transform.parent = GetCurrent().transform;
+                    spawnManager.SetWaveInfo(0, 1);
+
+                    messages = new List<string>();
+                    messages.Add("Tip: When you’re in Crisis (≤25% Health), the Tome deals slightly more damage!");
                     tipRotation.SetMessageList(messages);
                     break;
                 case 6: //Magestic
@@ -397,7 +554,7 @@ public class ProtoRoomManager02 : RoomManager
                     }
                     spawnManager.SetWaveInfo(0, 0);
                     spawnManager.SetBossInfo(false);
-                    
+
                     messages = new List<string>();
                     messages.Add("Tip: Press Q to see your inventory, and E to drop your equipped weapon!");
                     messages.Add("Tip: The best way to learn how a Weapon Ability works is by using it!");
@@ -434,7 +591,7 @@ public class ProtoRoomManager02 : RoomManager
                     pickups = new List<PickupCW>();
                     for (int i = 0; i < 10; i++)
                     {
-                        pickups.Add(GenerateWeapon(i % 5, 4f / 5, 5f / 4, 2f / 3, 3f / 2));
+                        pickups.Add(GenerateWeapon(i % 5, 4f / 5, 5f / 4, 2f / 3, 3f / 2, true));
                         pickups[i].gameObject.transform.position = new Vector3(-5f + (2.5f * (i % 5)), 1, -2f + (4f * (i / 5)));
                         pickups[i].transform.parent = GetCurrent().transform;
                     }
@@ -447,6 +604,7 @@ public class ProtoRoomManager02 : RoomManager
                     break;
                 case 11: //All Enemies
                     spawnManager.SetWaveInfo(0, 4);
+                    spawnManager.SetSpawned(false);
 
                     messages = new List<string>();
                     messages.Add("Tip: Enemies can drop weapons or potions! Access potions in your inventory (Q)!");
@@ -476,5 +634,75 @@ public class ProtoRoomManager02 : RoomManager
     public bool IsFinalFloor()
     {
         return finalFloor;
+    }
+
+    /*************************
+     * Room Stats
+     *************************/
+    public float GetRoomTime(int lev)
+    {
+        if (lev < 0 || lev > 12)
+            return -1;
+        return roomTimes[lev];
+    }
+
+    //Enemies Defeated
+    public void IncrementEnemiesDefeated()
+    {
+        enemiesDefeated[level]++;
+    }
+    public int GetEnemiesDefeated(int lev)
+    {
+        if (lev < 0 || lev > 12)
+            return -1;
+        return enemiesDefeated[lev];
+    }
+
+    // Falls
+    public void IncrementFalls()
+    {
+        falls[level]++;
+    }
+    public int GetFalls(int lev)
+    {
+        if (lev < 0 || lev > 12)
+            return -1;
+        return falls[lev];
+    }
+
+    // Potions Used
+    public void IncrementPotionsUsed()
+    {
+        potionsUsed[level]++;
+    }
+    public int GetPotionsUsed(int lev)
+    {
+        if (lev < 0 || lev > 12)
+            return -1;
+        return potionsUsed[lev];
+    }
+
+    // Signature Pts Gained
+    public void AddSignaturePointsGained(int pts)
+    {
+        signaturePtsGained[level] += pts;
+    }
+    public int GetSignaturePointsGained(int lev)
+    {
+        if (lev < 0 || lev > 12)
+            return -1;
+        return signaturePtsGained[lev];
+    }
+
+    // Signature Moves Used
+    public void IncrementSignatureMovesUsed()
+    {
+        signatureMovesUsed[level]++;
+    }
+    public int GetSignatureMovesUsed(int lev)
+    {
+        if (lev < 0 || lev > 12)
+            return -1;
+        return signatureMovesUsed[lev];
     }
 }

@@ -57,7 +57,14 @@ public abstract class Enemy : Character
             currentHealth -= damage;
         }
         if (currentHealth <= 0)
+        {
             currentHealth = 0;
+            //TODO: Remove CP02 Code
+            if (roomManager.gameObject.GetComponent<ProtoRoomManager02>() != null)
+            {
+                ((ProtoRoomManager02)roomManager).IncrementEnemiesDefeated();
+            }
+        }
         else if (currentHealth > maxHealth)
             currentHealth = maxHealth;
         else if (!armored && kbMod != 0)
@@ -191,21 +198,19 @@ public abstract class Enemy : Character
         PlayerController playerInfo = player.GetComponent<PlayerController>();
         if (playerInfo != null)
         {
-            float weaponChance = (2 - playerInfo.InventoryPercent()) / appearanceRate;
-            float potionChance = (2 - (weaponChance * appearanceRate)) * (1 - playerInfo.GetHealthPercentage()) / ((1f / 5) * (1 + playerInfo.GetPotions().Count));
+            float weaponChance = (1 - playerInfo.InventoryPercent()) / appearanceRate;
+            float potionChance = (1 - (weaponChance * appearanceRate)) / (1 + playerInfo.GetPotions().Count);
 
             // Roll for drop
             float roll = Random.Range(0, 0.9999f);
-            //Debug.Log("Weapon Drop? " + roll + " against " + weaponChance);
-            //Debug.Log("Potion Drop? " + roll + " against " + potionChance);
             if (roll < weaponChance)
             {
                 // TODO: CHANGE CP02 CODE
                 ProtoRoomManager02 protoRM;
                 if ((protoRM = roomManager.gameObject.GetComponent<ProtoRoomManager02>()) != null)
                 {
-                    PickupCW weaponDrop = protoRM.GenerateWeapon(weaponDropType, 4f / 5, 5f / 4, 2f / 3, 3f / 2);
-                    weaponDrop.gameObject.transform.position = transform.position;
+                    PickupCW weaponDrop = protoRM.GenerateWeapon(weaponDropType, 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+                    weaponDrop.gameObject.transform.position = new Vector3(transform.position.x, 1, transform.position.z);
                     weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
                 }
             }
@@ -217,16 +222,16 @@ public abstract class Enemy : Character
                 for (int i = 0; i < 4; i++)
                     potionTypeChance.Add(20);
 
-                // Stun: 15 + 3 for every 10% of Health lost below 60%
+                // Stun: 15 + 1 for every 10% of Health lost below 60%
                 int stunChance = 15 + Mathf.Max(0, (int)(0.6f - playerInfo.GetHealthPercentage()));
                 potionTypeChance.Add(stunChance);
 
-                // Saving: 5, +10 (when not Healthy), +25 in Crisis
+                // Saving: 5, +5 (when not Healthy), +15 in Crisis
                 int savingChance = 5;
                 if (!playerInfo.IsHealthy())
-                    savingChance += 10;
+                    savingChance += 5;
                 if (!playerInfo.IsInCrisis())
-                    savingChance += 25;
+                    savingChance += 15;
 
                 potionTypeChance.Add(savingChance);
 

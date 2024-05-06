@@ -7,6 +7,7 @@ public class WeaponButton : MonoBehaviour
 {
     [SerializeField] protected int weaponNumber;
     [SerializeField] protected PlayerController player;
+    [SerializeField] protected int defaultWeaponNumber;
 
     [Header("Ability Icons")]
     [SerializeField] protected List<Sprite> abilityIconSprites;
@@ -129,7 +130,7 @@ public class WeaponButton : MonoBehaviour
                     upArrow.GetComponent<Image>().color = Color.white;
                 }
 
-                if (weaponNumber == player.InvCount() - 1 - ((player.InvCount() + 1) % 2)) //last (odd inventory) or second-to-last (even inventory)
+                if (weaponNumber == player.InventoryCount() - 1 - ((player.InventoryCount() + 1) % 2)) //last (odd inventory) or second-to-last (even inventory)
                 {
                     downArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
                     downArrow.GetComponent<Image>().color = emptyColor;
@@ -145,7 +146,7 @@ public class WeaponButton : MonoBehaviour
 
             if (pages != null) //update page counter
             {
-                pages.text = string.Format("{0:D2}", (weaponNumber / 2) + 1) + "/" + string.Format("{0:D2}", ((player.InvCount() + 1)/ 2));
+                pages.text = string.Format("{0:D2}", (weaponNumber / 2) + 1) + "/" + string.Format("{0:D2}", (player.InventoryCount() + 1)/ 2);
             }
 
         }
@@ -195,7 +196,7 @@ public class WeaponButton : MonoBehaviour
 
     public void IncrementWeaponNumber(int i)
     {
-        if (weaponNumber + i >= 0 && weaponNumber + i < player.InvCount() + (player.InvCount() % 2))
+        if (weaponNumber + i >= 0 && weaponNumber + i < player.InventoryCount() + (player.InventoryCount() % 2))
             weaponNumber += i;
     }
 
