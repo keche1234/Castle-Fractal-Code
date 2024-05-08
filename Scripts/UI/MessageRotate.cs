@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MessageRotate : MonoBehaviour
 {
     [SerializeField] protected Text messageText;
-    protected List<string> messageList;
+    [SerializeField] protected List<string> messageList;
     protected int messageIndex = 0;
     protected Color32 messageTextColor = Color.white;
 

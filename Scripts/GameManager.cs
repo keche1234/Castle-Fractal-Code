@@ -62,6 +62,9 @@ public class GameManager : MonoBehaviour
             foreach (Canvas menu in pauseMenus)
                 menu.gameObject.SetActive(false);
         }
+
+        if (paused && m == 2)
+            gameOver = true;
     }
 
     /*

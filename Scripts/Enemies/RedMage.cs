@@ -217,12 +217,16 @@ public class RedMage : Enemy
         maxAoe.SetActive(true);
         maxAoe.transform.position = new Vector3(player.transform.position.x, 0, player.transform.position.z);
 
+        float attackChargeVar = Random.Range(0.8f, 1.25f);
+
         float t = 0;
-        while (t < attackCharge)
+        while (t < attackCharge * attackChargeVar)
         {
             if (GetMyFreezeTime() <= 0)
             {
-                blastAoe.transform.localScale = new Vector3 ((t / attackCharge) * maxAoe.transform.localScale.x, maxAoe.transform.localScale.y, (t / attackCharge) * maxAoe.transform.localScale.z);
+                blastAoe.transform.localScale = new Vector3 ((t / (attackCharge * attackChargeVar)) * maxAoe.transform.localScale.x,
+                                                                maxAoe.transform.localScale.y,
+                                                                (t / (attackCharge * attackChargeVar)) * maxAoe.transform.localScale.z);
                 t += Time.deltaTime;
             }
             yield return null;

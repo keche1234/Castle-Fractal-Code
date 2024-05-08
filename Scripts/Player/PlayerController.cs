@@ -176,16 +176,19 @@ public class PlayerController : Character
         }
 
         /* Pausing */
-        if (Input.GetKeyDown(pauseBtn))
-            gameManager.Pause(0);
-        else if (Input.GetKeyDown(invMenuBtn) || Input.GetMouseButtonDown(invMenuBtnAlt))
+        if (!gameManager.GameIsOver())
         {
-            gameManager.Pause(1);
-            if (!gameManager.IsPaused())
+            if (Input.GetKeyDown(pauseBtn))
+                gameManager.Pause(0);
+            else if (Input.GetKeyDown(invMenuBtn) || Input.GetMouseButtonDown(invMenuBtnAlt))
             {
-                UseAllPotions();
-                for (int i = 0; i < selectedPotions.Count; i++)
-                    selectedPotions[i] = false;
+                gameManager.Pause(1);
+                if (!gameManager.IsPaused())
+                {
+                    UseAllPotions();
+                    for (int i = 0; i < selectedPotions.Count; i++)
+                        selectedPotions[i] = false;
+                }
             }
         }
 
@@ -196,7 +199,7 @@ public class PlayerController : Character
             playerRb.velocity *= 0;
             weaponTypes[currentWeaponType].SetActivity(false);
             weaponTypes[currentWeaponType].gameObject.SetActive(false);
-            gameObject.transform.localScale *= .99f;
+            gameObject.transform.localScale *= .99f * Time.timeScale;
         }
         else
         {
@@ -501,7 +504,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<StrengthDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (4 * a.GetModifier() * damage / targetMax))
+                    if (Random.Range(0, 0.9999f) < (2 * a.GetModifier() * damage / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -513,7 +516,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<DefenseDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (4 * a.GetModifier() * damage * bossMod / targetMax))
+                    if (Random.Range(0, 0.9999f) < (2 * a.GetModifier() * damage * bossMod / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -626,6 +629,9 @@ public class PlayerController : Character
                 dodgeTrail.time = 0;
                 dodgeTrail.emitting = false;
                 currentHealth -= damage;
+                //TODO: Remove CP02 code
+                if (roomManager.GetComponent<ProtoRoomManager02>() != null)
+                    ((ProtoRoomManager02)roomManager).AddDamageTaken(damage);
 
                 if (triggerInvinc)
                     StartCoroutine(GrantInvincibility(10 * (damage / maxHealth)));

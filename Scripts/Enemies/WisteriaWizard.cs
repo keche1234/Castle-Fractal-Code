@@ -10,6 +10,9 @@ public class WisteriaWizard : Enemy
     private float healCharge = 2f;
     private float cooldownTime = 1f;
 
+    public GameObject blastAoe;
+    public GameObject maxAoe;
+
     // Start is called before the first frame update
     public override void Start()
     {
@@ -27,6 +30,9 @@ public class WisteriaWizard : Enemy
         appearanceRate = 4;
 
         charRb = GetComponent<Rigidbody>();
+
+        blastAoe.transform.parent = roomManager.GetCurrent().transform;
+        maxAoe.transform.parent = roomManager.GetCurrent().transform;
     }
 
     // Update is called once per frame
@@ -193,11 +199,37 @@ public class WisteriaWizard : Enemy
         //Startup
         state = ActionState.Startup;
 
+        blastAoe.SetActive(true);
+        blastAoe.transform.localScale *= 0;
+        maxAoe.SetActive(true);
+
+        float healChargeVar = Random.Range(0.8f, 1.25f);
+
+        int lowest = 0;
+        Enemy[] enemies;
+
         float t = 0;
-        while (t < healCharge)
+        while (t < healCharge * healChargeVar)
         {
             if (GetMyFreezeTime() <= 0)
             {
+                //Determine who has the lowest percentage of Health
+                //Find enemies in scene
+                enemies = FindObjectsOfType<Enemy>();
+
+                //Determine who has the lowest percentage of Health
+                lowest = 0;
+                for (int i = 1; i < enemies.Length; i++)
+                {
+                    if (enemies[i].GetHealthPercentage() < enemies[lowest].GetHealthPercentage() && enemies[i].GetComponent<WisteriaWizard>() == null && enemies[i].GetComponent<Boss>() == null)
+                        lowest = i;
+                }
+
+                blastAoe.transform.position = new Vector3(enemies[lowest].transform.position.x, 0.05f, enemies[lowest].transform.position.z);
+                blastAoe.transform.localScale = new Vector3((t / (healCharge * healChargeVar)) * maxAoe.transform.localScale.x,
+                                                                maxAoe.transform.localScale.y,
+                                                                (t / (healCharge * healChargeVar)) * maxAoe.transform.localScale.z);
+                maxAoe.transform.position = new Vector3(enemies[lowest].transform.position.x, 0, enemies[lowest].transform.position.z);
                 t += Time.deltaTime;
             }
             yield return null;
@@ -205,12 +237,14 @@ public class WisteriaWizard : Enemy
 
         //Heal
         state = ActionState.Attacking;
+        blastAoe.SetActive(false);
+        maxAoe.SetActive(false);
 
         //Find enemies in scene
-        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        enemies = FindObjectsOfType<Enemy>();
 
         //Determine who has the lowest percentage of Health
-        int lowest = 0;
+        lowest = 0;
         for (int i = 1; i < enemies.Length; i++)
         {
             if (enemies[i].GetHealthPercentage() < enemies[lowest].GetHealthPercentage() && enemies[i].GetComponent<WisteriaWizard>() == null && enemies[i].GetComponent<Boss>() == null)
@@ -263,5 +297,11 @@ public class WisteriaWizard : Enemy
         state = ActionState.Waiting;
 
         if (zeroSpeed) charRb.velocity *= 0;
+    }
+
+    public void OnDestroy()
+    {
+        Destroy(blastAoe.gameObject);
+        Destroy(maxAoe.gameObject);
     }
 }

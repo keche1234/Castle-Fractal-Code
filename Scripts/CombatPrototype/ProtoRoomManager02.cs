@@ -14,13 +14,16 @@ public class ProtoRoomManager02 : RoomManager
     protected const float MERCY_WEAPON_TIME = 10f;
     protected float spawnWeaponTimer = 0;
 
+    [SerializeField] protected GameManager gameManager; //to pause the game and display full stats
+
     [Header("Room Stats")]
     [SerializeField] protected List<float> roomTimes;
-    [SerializeField] protected List<int> enemiesDefeated;
+    [SerializeField] protected List<int> damageTaken;
     [SerializeField] protected List<int> falls;
     [SerializeField] protected List<int> potionsUsed;
     [SerializeField] protected List<int> signaturePtsGained;
     [SerializeField] protected List<int> signatureMovesUsed;
+    
 
     protected List<List<int>> abilities;
     protected List<List<float>> mods;
@@ -45,9 +48,9 @@ public class ProtoRoomManager02 : RoomManager
         for (int i = 0; i < 13; i++)
             roomTimes.Add(0);
 
-        enemiesDefeated = new List<int>();
+        damageTaken = new List<int>();
         for (int i = 0; i < 13; i++)
-            enemiesDefeated.Add(0);
+            damageTaken.Add(0);
 
         falls = new List<int>();
         for (int i = 0; i < 13; i++)
@@ -155,19 +158,19 @@ public class ProtoRoomManager02 : RoomManager
             spawnWeaponTimer += Time.deltaTime;
         }
 
-        //TODO: Erase Debug Code!
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            Step();
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            while (level < 7)
-                Step();
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            while (level < 10)
-                Step();
-        }
+        ////TODO: Erase Debug Code!
+        //if (Input.GetKeyDown(KeyCode.Alpha1))
+        //    Step();
+        //else if (Input.GetKeyDown(KeyCode.Alpha2))
+        //{
+        //    while (level < 7)
+        //        Step();
+        //}
+        //else if (Input.GetKeyDown(KeyCode.Alpha3))
+        //{
+        //    while (level < 10)
+        //        Step();
+        //}
     }
 
     /*
@@ -451,7 +454,7 @@ public class ProtoRoomManager02 : RoomManager
 
     public override void Step()
     {
-        if (level < 12)
+        if (level < 13)
         {
             base.Step();
             spawnManager.SetWaveInfo(0, 0);
@@ -476,7 +479,7 @@ public class ProtoRoomManager02 : RoomManager
 
                     tipText.gameObject.SetActive(true);
                     List<string> messages = new List<string>();
-                    messages.Add("Tip: Mash or hold Left Click to perform up to three Sword swipes!");
+                    messages.Add("Tip: Mash or hold Left Click to perform up to three Sword slices!");
                     tipRotation.SetMessageList(messages);
                     break;
                 case 2: //Axe vs. Pink Python
@@ -537,7 +540,7 @@ public class ProtoRoomManager02 : RoomManager
                     spawnManager.SetBossInfo(true);
 
                     messages = new List<string>();
-                    messages.Add("Tip: Use the Scroll Wheel or (Comma and Period) to choose different weapons!");
+                    messages.Add("Tip: Use the Scroll Wheel or (',' and '.') to choose different weapons!");
                     messages.Add("Tip: To defeat Magestic, stay calm and find openings in its attacks!");
                     tipRotation.SetMessageList(messages);
                     break;
@@ -556,7 +559,7 @@ public class ProtoRoomManager02 : RoomManager
                     spawnManager.SetBossInfo(false);
 
                     messages = new List<string>();
-                    messages.Add("Tip: Press Q to see your inventory, and E to drop your equipped weapon!");
+                    messages.Add("Tip: Press Q or Middle Click to see your full inventory, and E to drop your equipped weapon!");
                     messages.Add("Tip: The best way to learn how a Weapon Ability works is by using it!");
                     tipRotation.SetMessageList(messages);
                     break;
@@ -607,7 +610,7 @@ public class ProtoRoomManager02 : RoomManager
                     spawnManager.SetSpawned(false);
 
                     messages = new List<string>();
-                    messages.Add("Tip: Enemies can drop weapons or potions! Access potions in your inventory (Q)!");
+                    messages.Add("Tip: Enemies can drop weapons or potions! Access potions in your inventory (Q/Middle Click).");
                     tipRotation.SetMessageList(messages);
                     break;
                 case 12:
@@ -624,6 +627,11 @@ public class ProtoRoomManager02 : RoomManager
                     messages = new List<string>();
                     messages.Add("Tip: The Twinotaurs don’t hit too hard, but move and attack fast! Stay calm and agile!");
                     tipRotation.SetMessageList(messages);
+                    break;
+                case 13:
+                    spawnManager.SetWaveInfo(0, 0);
+                    tipRotation.gameObject.SetActive(false);
+                    gameManager.Pause(2);
                     break;
                 default:
                     break;
@@ -646,16 +654,16 @@ public class ProtoRoomManager02 : RoomManager
         return roomTimes[lev];
     }
 
-    //Enemies Defeated
-    public void IncrementEnemiesDefeated()
+    //Damage Taken Defeated
+    public void AddDamageTaken(int pts)
     {
-        enemiesDefeated[level]++;
+        damageTaken[level] += pts;
     }
-    public int GetEnemiesDefeated(int lev)
+    public int GetDamageTaken(int lev)
     {
         if (lev < 0 || lev > 12)
             return -1;
-        return enemiesDefeated[lev];
+        return damageTaken[lev];
     }
 
     // Falls

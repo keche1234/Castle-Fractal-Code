@@ -59,11 +59,6 @@ public abstract class Enemy : Character
         if (currentHealth <= 0)
         {
             currentHealth = 0;
-            //TODO: Remove CP02 Code
-            if (roomManager.gameObject.GetComponent<ProtoRoomManager02>() != null)
-            {
-                ((ProtoRoomManager02)roomManager).IncrementEnemiesDefeated();
-            }
         }
         else if (currentHealth > maxHealth)
             currentHealth = maxHealth;

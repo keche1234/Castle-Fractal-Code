@@ -41,7 +41,8 @@ public abstract class Boss : Enemy
         if (GetMyFreezeTime() > 0)
         {
             //GetMyFreezeTime() -= Time.deltaTime;
-            charRb.velocity *= 0;
+            if (charRb != null)
+                charRb.velocity *= 0;
             rotateSpeed = 0;
             frozen = true;
         }

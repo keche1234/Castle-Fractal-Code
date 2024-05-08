@@ -20,7 +20,7 @@ public class ProtoSpawnManager02 : SpawnManager
 
     [SerializeField] protected int superWave = 0;
     [SerializeField] protected List<Text> messages;
-    protected int[] firstWaves = { 0, 1, 3, 5, 7, 9, 10, -1, 11, 15, -1, 16, 20 }; //-1 is an item room
+    protected int[] firstWaves = { 0, 1, 3, 5, 7, 9, 10, -1, 11, 15, -1, 16, 20, -1}; //-1 is an item room
     // Start is called before the first frame update
     void Start()
     {
