@@ -540,6 +540,7 @@ public class ProtoSpawnManager02 : SpawnManager
 
             case 20: // Twinotaurs
                 boss = Instantiate(bossPrefabs[2], Vector3.zero, Quaternion.Euler(Vector3.zero));
+                boss.transform.parent = roomManager.GetCurrent().transform;
                 boss.GetComponent<Boss>().enabled = false;
                 GameObject spark = ((Twinotaurs)boss).GetSpark();
                 GameObject venom = ((Twinotaurs)boss).GetVenom();
@@ -564,8 +565,6 @@ public class ProtoSpawnManager02 : SpawnManager
                 boss.GetComponent<Boss>().enabled = true;
                 spark.GetComponent<Singletaur>().enabled = true;
                 venom.GetComponent<Singletaur>().enabled = true;
-
-                boss.transform.parent = roomManager.GetCurrent().transform;
                 break;
 
             default:

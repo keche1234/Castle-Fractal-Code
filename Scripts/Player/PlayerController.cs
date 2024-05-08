@@ -1107,7 +1107,7 @@ public class PlayerController : Character
         CustomWeapon current = GetCustomWeapon();
         if (current != null)
         {
-            int place = System.Array.IndexOf(Ability.GetNames(), "DodgeRecoveryUp");
+            int place = System.Array.IndexOf(Ability.GetNames(), "RollRecoveryUp");
             if (current.GetAbilities().Contains(place))
             {
                 return 1 + weaponTypes[currentWeaponType].GetComponents<Ability>()[place].GetModifier();
@@ -1121,7 +1121,7 @@ public class PlayerController : Character
         CustomWeapon current = GetCustomWeapon();
         if (current != null)
         {
-            int place = System.Array.IndexOf(Ability.GetNames(), "DodgeDistanceUp");
+            int place = System.Array.IndexOf(Ability.GetNames(), "RollDistanceUp");
             if (current.GetAbilities().Contains(place))
                 return 1 + weaponTypes[currentWeaponType].GetComponents<Ability>()[place].GetModifier();
         }

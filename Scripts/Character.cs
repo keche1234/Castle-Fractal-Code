@@ -226,6 +226,12 @@ public abstract class Character : MonoBehaviour
         yield return null;
     }
 
+    public void SetInvincible(bool i)
+    {
+        invincible = i;
+        invincibilityCover.gameObject.SetActive(i);
+    }
+
     public List<Character> GetHitByList()
     {
         return new List<Character>(hitByList);

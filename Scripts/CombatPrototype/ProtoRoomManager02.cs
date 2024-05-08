@@ -230,11 +230,11 @@ public class ProtoRoomManager02 : RoomManager
                         myMods.Add(AttackRateUp.GetMeanMod());
                     break;
                 case 5:
-                    DodgeRecoveryUp.SetMinMaxMods();
+                    RollRecoveryUp.SetMinMaxMods();
                     if (randomMod)
-                        myMods.Add(DodgeRecoveryUp.GetRandomMod());
+                        myMods.Add(RollRecoveryUp.GetRandomMod());
                     else
-                        myMods.Add(DodgeRecoveryUp.GetMeanMod());
+                        myMods.Add(RollRecoveryUp.GetMeanMod());
                     break;
                 case 6:
                     HealthyStrength.SetMinMaxMods();
@@ -278,11 +278,11 @@ public class ProtoRoomManager02 : RoomManager
                         myMods.Add(AttackRangeUp.GetMeanMod());
                     break;
                 case 13:
-                    DodgeDistanceUp.SetMinMaxMods();
+                    RollDistanceUp.SetMinMaxMods();
                     if (randomMod)
-                        myMods.Add(DodgeDistanceUp.GetRandomMod());
+                        myMods.Add(RollDistanceUp.GetRandomMod());
                     else
-                        myMods.Add(DodgeDistanceUp.GetMeanMod());
+                        myMods.Add(RollDistanceUp.GetMeanMod());
                     break;
                 case 14:
                     BurstStrength.SetMinMaxMods();

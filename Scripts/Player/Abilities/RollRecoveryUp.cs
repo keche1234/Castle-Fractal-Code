@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DodgeDistanceUp : Ability
+public class RollRecoveryUp : Ability
 {
     // Start is called before the first frame update
     public override void Start()
     {
         minMod = 0.3f;
-        maxMod = 0.7f;
+        maxMod = 0.9f;
     }
 
     // Update is called once per frame
@@ -24,12 +24,12 @@ public class DodgeDistanceUp : Ability
 
     public override float GetMightMult()
     {
-        return modifier * 0.6f;
+        return modifier * 0.33f;
     }
 
     public static void SetMinMaxMods()
     {
         minMod = 0.3f;
-        maxMod = 0.7f;
+        maxMod = 0.9f;
     }
 }

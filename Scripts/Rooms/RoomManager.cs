@@ -141,5 +141,8 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         player.GetComponent<Rigidbody>().velocity *= 0;
         yield return new WaitForSeconds(wait);
         player.GetComponent<PlayerController>().enabled = true;
+        player.SetMobile(true);
+        player.SetAttackState(0);
+        player.SetInvincible(false);
     }
 }

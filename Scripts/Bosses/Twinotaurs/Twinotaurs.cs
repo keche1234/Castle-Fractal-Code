@@ -123,12 +123,14 @@ public class Twinotaurs : Boss
             cycloneList.Add(cyclone);
         }
 
+        miniHealthBar.transform.parent.gameObject.SetActive(true);
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
 
         miniHealthBar.gameObject.transform.parent.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         miniHealthBar.gameObject.transform.parent.GetComponent<UIAttach>().Setup(spark, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -100));
 
+        attributesUI.gameObject.SetActive(true);
         attributesUI.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         attributesUI.GetComponent<UIAttach>().Setup(spark, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -140));
 
@@ -138,7 +140,7 @@ public class Twinotaurs : Boss
         defenseUIVenom = attributesUIVenom.transform.Find("Group").Find("D-Text").gameObject.GetComponent<Text>();
 
         miniHealthBarVenom.gameObject.transform.parent.transform.parent = transform;
-        attributesUI.gameObject.transform.parent = transform;
+        attributesUIVenom.gameObject.transform.parent = transform;
 
         miniHealthBarVenom.gameObject.transform.parent.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         miniHealthBarVenom.gameObject.transform.parent.GetComponent<UIAttach>().Setup(venom, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -100));

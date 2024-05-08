@@ -15,14 +15,14 @@ public abstract class Ability : MonoBehaviour
     protected static float maxMod;
 
     protected static readonly string[] names = new string[] { "StrengthUp", "DefenseUp", "StrengthDebilitator", "DefenseDebilitator",
-                  "AttackRateUp", "DodgeRecoveryUp", "HealthyStrength", "HealthyDefense", "HealthySpeed", "HealthySignatureGain", "BladeDull", "ArmorPierce",
-                  "AttackRangeUp", "DodgeDistanceUp", "BurstStrength", "BurstDefense", "BurstSpeed", "BurstSignatureGain", "LuckyStrike", "QuickDodge",
+                  "AttackRateUp", "RollRecoveryUp", "HealthyStrength", "HealthyDefense", "HealthySpeed", "HealthySignatureGain", "BladeDull", "ArmorPierce",
+                  "AttackRangeUp", "RollDistanceUp", "BurstStrength", "BurstDefense", "BurstSpeed", "BurstSignatureGain", "LuckyStrike", "QuickDodge",
                   "SignatureDamageUp", "SignatureDurationUp", "CrisisStrength", "CrisisDefense", "CrisisSpeed", "CrisisSignatureGain", "HealthDrain", "SignatureDrain",
                   "PityCounter", "PitySignature", "HealthyLionheart", "CrisisLionheart", "HealthyWolfsoul", "CrisisWolfsoul", "AllOrNothingD", "AllOrNothingS" };
 
     protected static readonly string[] genericNames = new string[] { "Strength Up", "Defense Up", "Strength Debilitator", "Defense Debilitator",
-                  "Attack Rate Up", "Dodge Recovery Up", "Healthy Strength", "Healthy Defense", "Healthy Speed", "Healthy Signature Gain", "Blade Dull", "Armor Pierce",
-                  "Attack Range Up", "Dodge Distance Up", "Burst Strength", "Burst Defense", "Burst Speed", "Burst Signature Gain", "Lucky Strike", "Quick Dodge",
+                  "Attack Rate Up", "Roll Recovery Up", "Healthy Strength", "Healthy Defense", "Healthy Speed", "Healthy Signature Gain", "Blade Dull", "Armor Pierce",
+                  "Attack Range Up", "Roll Distance Up", "Burst Strength", "Burst Defense", "Burst Speed", "Burst Signature Gain", "Lucky Strike", "Quick Dodge",
                   "Signature Damage Up", "Signature Duration Up", "Crisis Strength", "Crisis Defense", "Crisis Speed", "Crisis Signature Gain", "Health Drain", "Signature Drain",
                   "Pity Counter", "Pity Signature", "Healthy Lionheart", "Crisis Lionheart", "Healthy Wolfsoul", "Crisis Wolfsoul", "All or Nothing D", "All or Nothing S" };
 
