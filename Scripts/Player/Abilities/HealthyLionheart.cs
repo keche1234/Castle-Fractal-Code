@@ -12,8 +12,6 @@ public class HealthyLionheart : Ability
     public override void Start()
     {
         triggered = false;
-        minMod = 5;
-        maxMod = 9;
     }
 
     // Update is called once per frame
@@ -91,5 +89,21 @@ public class HealthyLionheart : Ability
     public override float GetMightMult()
     {
         return modifier * 0.15f;
+    }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 5;
+        maxMod = 9;
+    }
+
+    public static float GetMeanMod()
+    {
+        return ((int)minMod + (int)maxMod) / 2;
+    }
+
+    public static float GetRandomMod()
+    {
+        return Random.Range((int)minMod, (int)maxMod + 1);
     }
 }

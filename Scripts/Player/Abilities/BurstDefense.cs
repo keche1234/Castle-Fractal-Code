@@ -41,4 +41,14 @@ public class BurstDefense : BurstStrength
         minMod = 1;
         maxMod = 2;
     }
+
+    public static float GetMeanMod()
+    {
+        return ((int)minMod + (int)maxMod + Random.Range(0, 2)) / 2;
+    }
+
+    public static float GetRandomMod()
+    {
+        return Random.Range((int)minMod, (int)maxMod + 1);
+    }
 }

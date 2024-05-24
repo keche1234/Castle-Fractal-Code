@@ -46,4 +46,14 @@ public class PitySignature : HealthDrain
         minMod = 1;
         maxMod = 5;
     }
+
+    public static float GetMeanMod()
+    {
+        return ((int)minMod + (int)maxMod) / 2;
+    }
+
+    public static float GetRandomMod()
+    {
+        return Random.Range((int)minMod, (int)maxMod + 1);
+    }
 }

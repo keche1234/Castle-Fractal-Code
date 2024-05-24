@@ -61,4 +61,6 @@ public class HealthyWolfsoul : HealthyLionheart
     {
         return modifier * 0.15f;
     }
+
+
 }

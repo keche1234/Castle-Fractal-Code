@@ -168,7 +168,7 @@ public abstract class Enemy : Character
         Reset(true);
         state = ActionState.Waiting;
         stunTime += t;
-        if (stunTime <= 0) stunTime += stunCooldown; 
+        if (stunTime <= 0) stunTime += stunCooldown;
     }
 
     public abstract void Reset(bool zeroSpeed);
@@ -200,19 +200,14 @@ public abstract class Enemy : Character
             float roll = Random.Range(0, 0.9999f);
             if (roll < weaponChance)
             {
-                // TODO: CHANGE CP02 CODE
-                ProtoRoomManager02 protoRM;
-                if ((protoRM = roomManager.gameObject.GetComponent<ProtoRoomManager02>()) != null)
-                {
-                    PickupCW weaponDrop = protoRM.GenerateWeapon(weaponDropType, 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
-                    weaponDrop.gameObject.transform.position = new Vector3(transform.position.x, 1, transform.position.z);
-                    weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
-                }
+                PickupCW weaponDrop = roomManager.GenerateWeapon(weaponDropType, 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+                weaponDrop.gameObject.transform.position = new Vector3(transform.position.x, 1, transform.position.z);
+                weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
             }
             else if (roll < potionChance)
             {
                 List<int> potionTypeChance = new List<int>();
-                
+
                 // Strike, Shield, Swift, Skill
                 for (int i = 0; i < 4; i++)
                     potionTypeChance.Add(20);
@@ -241,7 +236,7 @@ public abstract class Enemy : Character
                     if (roll < ceil)
                     {
                         Potion potionDrop = Instantiate(potionDropPrefab, transform.position, Quaternion.Euler(0, 0, 0));
-                        potionDrop.SetPotionAttribute(i+1);
+                        potionDrop.SetPotionAttribute(i + 1);
                         potionDrop.gameObject.transform.parent = roomManager.transform;
                         i = potionTypeChance.Count;
                     }

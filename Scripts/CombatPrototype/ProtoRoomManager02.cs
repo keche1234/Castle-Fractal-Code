@@ -11,8 +11,8 @@ public class ProtoRoomManager02 : RoomManager
     [SerializeField] protected Text tipText;
     protected MessageRotate tipRotation;
     protected bool finalFloor = false;
-    protected const float MERCY_WEAPON_TIME = 10f;
-    protected float spawnWeaponTimer = 0;
+    //protected const float MERCY_WEAPON_TIME = 10f;
+    //protected float spawnWeaponTimer = 0;
 
     [SerializeField] protected GameManager gameManager; //to pause the game and display full stats
 
@@ -112,53 +112,52 @@ public class ProtoRoomManager02 : RoomManager
     // Update is called once per frame
     new void Update()
     {
-        if (!current.RoomCleared())
-            roomTimes[level] += Time.deltaTime;
+        //if (!current.RoomCleared())
+        //    roomTimes[level] += Time.deltaTime;
 
-        // TODO: Bring this mercy weapon code from CP02 to main pipeline
-        if (level > 0 && player.InventoryCount() == 0 && FindObjectsOfType(System.Type.GetType("PickupCW")).Length == 0)
-        {
-            if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
-            {
-                Room r = GetCurrent();
-                Vector3 weaponPos = new Vector3(Random.Range((-r.GetLength() + 2) / 2, (r.GetLength() - 2)/ 2), 1, Random.Range((-r.GetWidth() + 2) / 2, (r.GetWidth() - 2)/ 2));
-                PickupCW mercy;
-                if (level < 7) // in part 1
-                {
-                    int wType = Random.Range(0, 5);
-                    mercy = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0)).GetComponent<PickupCW>();
-                    switch (wType)
-                    {
-                        case 0:
-                            mercy.Initialize(0, Sword.GetBasePower(), 0, 0, 0, null, null);
-                            break;
-                        case 1:
-                            mercy.Initialize(0, Axe.GetBasePower(), 0, 0, 0, null, null);
-                            break;
-                        case 2:
-                            mercy.Initialize(0, Spear.GetBasePower(), 0, 0, 0, null, null);
-                            break;
-                        case 3:
-                            mercy.Initialize(0, Crossbow.GetBasePower(), 0, 0, 0, null, null);
-                            break;
-                        case 4:
-                            mercy.Initialize(0, Tome.GetBasePower(), 0, 0, 0, null, null);
-                            break;
-                    }
-                }
-                else if (level < 10) // in part 2
-                    mercy = GenerateWeapon(Random.Range(0, 5));
-                else
-                    mercy = GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+        //if (level > 0 && player.InventoryCount() == 0 && FindObjectsOfType(System.Type.GetType("PickupCW")).Length == 0)
+        //{
+        //    if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
+        //    {
+        //        Room r = GetCurrent();
+        //        Vector3 weaponPos = new Vector3(Random.Range((-r.GetLength() + 2) / 2, (r.GetLength() - 2)/ 2), 1, Random.Range((-r.GetWidth() + 2) / 2, (r.GetWidth() - 2)/ 2));
+        //        PickupCW mercy;
+        //        if (level < 7) // in part 1
+        //        {
+        //            int wType = Random.Range(0, 5);
+        //            mercy = Instantiate(pickupPrefab, new Vector3(0, 1, 0), Quaternion.Euler(0, 0, 0)).GetComponent<PickupCW>();
+        //            switch (wType)
+        //            {
+        //                case 0:
+        //                    mercy.Initialize(0, Sword.GetBasePower(), 0, 0, 0, null, null);
+        //                    break;
+        //                case 1:
+        //                    mercy.Initialize(0, Axe.GetBasePower(), 0, 0, 0, null, null);
+        //                    break;
+        //                case 2:
+        //                    mercy.Initialize(0, Spear.GetBasePower(), 0, 0, 0, null, null);
+        //                    break;
+        //                case 3:
+        //                    mercy.Initialize(0, Crossbow.GetBasePower(), 0, 0, 0, null, null);
+        //                    break;
+        //                case 4:
+        //                    mercy.Initialize(0, Tome.GetBasePower(), 0, 0, 0, null, null);
+        //                    break;
+        //            }
+        //        }
+        //        else if (level < 10) // in part 2
+        //            mercy = GenerateWeapon(Random.Range(0, 5));
+        //        else
+        //            mercy = GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
 
-                mercy.gameObject.transform.position = weaponPos;
-                mercy.gameObject.transform.parent = r.gameObject.transform;
-                spawnWeaponTimer = 0;
-            }
-            spawnWeaponTimer += Time.deltaTime;
-        }
+        //        mercy.gameObject.transform.position = weaponPos;
+        //        mercy.gameObject.transform.parent = r.gameObject.transform;
+        //        spawnWeaponTimer = 0;
+        //    }
+        //    spawnWeaponTimer += Time.deltaTime;
+        //}
 
-        ////TODO: Erase Debug Code!
+        ////
         //if (Input.GetKeyDown(KeyCode.Alpha1))
         //    Step();
         //else if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -175,7 +174,7 @@ public class ProtoRoomManager02 : RoomManager
 
     /*
      * Generates a weapon of type `wType`, with two abilities from `abilities`
-     */
+     *
     public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false)
     {
         if (wType < 0 || wType > 4)
@@ -451,7 +450,7 @@ public class ProtoRoomManager02 : RoomManager
 
         return weapon;
     }
-
+    */
     public override void Step()
     {
         if (level < 13)

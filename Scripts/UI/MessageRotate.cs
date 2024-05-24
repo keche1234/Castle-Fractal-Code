@@ -10,7 +10,7 @@ public class MessageRotate : MonoBehaviour
     protected int messageIndex = 0;
     protected Color32 messageTextColor = Color.white;
 
-    protected float fade = 0; // bounces between minFade and maxFade transparency (draws the clamped value)
+    protected float fade = 1; // bounces between minFade and maxFade transparency (draws the clamped value)
     protected float minFade = -0.25f;
     protected float maxFade = 4.5f;
     protected float fadeSpeed = 1f; //Multiply by -1 to switch direction

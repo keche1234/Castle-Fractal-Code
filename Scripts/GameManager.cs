@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
     public void EndRun()
     {
         Application.Quit();
-        //UnityEditor.EditorApplication.isPlaying = false; //TEMP CODE
+        UnityEditor.EditorApplication.isPlaying = false; //TEMP CODE
     }
 
     /*

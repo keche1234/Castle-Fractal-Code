@@ -310,13 +310,11 @@ public abstract class Character : MonoBehaviour
 
     public bool IsHealthy()
     {
-        // TODO: Change to 0.75f after CP02
-        return currentHealth / maxHealth >= 0.7f;
+        return currentHealth / maxHealth >= 0.75f;
     }
     public bool IsInCrisis()
     {
-        // TODO: Change to 0.25f after CP02
-        return currentHealth / maxHealth <= 0.3f;
+        return currentHealth / maxHealth <= 0.25f;
     }
 
     public List<List<Buff>> GetBuffs()

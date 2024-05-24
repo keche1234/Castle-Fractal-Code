@@ -69,7 +69,6 @@ public class Twinotaurs : Boss
     [SerializeField] protected Projectile thunderGasPrefab;
     [SerializeField] protected List<GameObject> summonKOIndicators;
     [SerializeField] protected List<GameObject> summonKOWarnings;
-    // TODO: Warning list for Twinotaurs
 
     [Header("Summoners' Cyclone")]
     [SerializeField] protected Cyclone cyclonePrefab;
@@ -900,7 +899,7 @@ public class Twinotaurs : Boss
         miniHealthBarVenom.SetValue(currentHealth);
     }
 
-    //TODO: Override UI Updaters
+    //Override UI Updaters
     public override void UpdateAttributeUI()
     {
         base.UpdateAttributeUI();
@@ -908,35 +907,6 @@ public class Twinotaurs : Boss
         strengthUIVenom.color = strengthUI.color;
         defenseUIVenom.text = defenseUI.text;
         defenseUIVenom.color = defenseUI.color;
-
-        //float s = strength + SummationBuffs(1) + SummationDebuffs(1);
-        //float d = defense + SummationBuffs(2) + SummationDebuffs(2);
-        //strengthUI.text = "" + Mathf.Min(Mathf.Max(s, -9), 9);
-        //defenseUI.text = "" + Mathf.Min(Mathf.Max(d, -9), 9);
-        //strengthUIVenom.text = "" + Mathf.Min(Mathf.Max(s, -9), 9);
-        //defenseUIVenom.text = "" + Mathf.Min(Mathf.Max(d, -9), 9);
-
-        //if (s < 0)
-        //{
-        //    strengthUI.color = Color.red;
-        //    strengthUIVenom.color = Color.red;
-        //}
-        //else
-        //{
-        //    strengthUI.color = Color.white;
-        //    strengthUIVenom.color = Color.white;
-        //}
-
-        //if (d < 0)
-        //{
-        //    defenseUI.color = Color.red;
-        //    defenseUIVenom.color = Color.red;
-        //}
-        //else
-        //{
-        //    defenseUI.color = Color.white;
-        //    defenseUIVenom.color = Color.white;
-        //}
     }
 
     public override void Reset(bool zeroSpeed)

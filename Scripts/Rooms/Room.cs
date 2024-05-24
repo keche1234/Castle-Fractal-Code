@@ -30,6 +30,14 @@ public class Room : MonoBehaviour
     [SerializeField] protected int bossNum = 0;
     [SerializeField] protected Boss boss;
 
+    //TODO: Update stats appropriately
+    [Header("Room Stats")]
+    [SerializeField] protected float roomTime;
+    [SerializeField] protected int damageTaken;
+    [SerializeField] protected int potionsUsed;
+    [SerializeField] protected int signaturePtsGained;
+    [SerializeField] protected int signatureMovesUsed;
+
     [Header("Booleans")]
     [SerializeField] protected bool breakRoom;
     [SerializeField] protected bool corrected = false;
@@ -256,6 +264,11 @@ public class Room : MonoBehaviour
         return next;
     }
 
+    public bool IsBreakRoom()
+    {
+        return breakRoom;
+    }
+
     /******************
      * Boss Management
      ******************/
@@ -295,5 +308,53 @@ public class Room : MonoBehaviour
     public bool RoomCleared()
     {
         return spawnManager.AllDefeated();
+    }
+
+    /*****************
+     * Room Stats
+     *****************/
+    public float GetRoomTime()
+    {
+        return roomTime;
+    }
+
+    //Damage Taken Defeated
+    public void AddDamageTaken(int pts)
+    {
+        damageTaken += pts;
+    }
+    public int GetDamageTaken()
+    {
+        return damageTaken;
+    }
+
+    // Potions Used
+    public void IncrementPotionsUsed()
+    {
+        potionsUsed++;
+    }
+    public int GetPotionsUsed()
+    {
+        return potionsUsed;
+    }
+
+    // Signature Pts Gained
+    public void AddSignaturePointsGained(int pts)
+    {
+        signaturePtsGained += pts;
+    }
+    public int GetSignaturePointsGained()
+    {
+        return signaturePtsGained;
+    }
+
+    // Signature Moves Used
+    public void IncrementSignatureMovesUsed()
+    {
+        signatureMovesUsed++;
+    }
+    public int GetSignatureMovesUsed()
+    {
+        return signatureMovesUsed;
     }
 }

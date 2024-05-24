@@ -34,4 +34,14 @@ public class DefenseUp : StrengthUp
         minMod = 1;
         maxMod = 3;
     }
+
+    public static float GetMeanMod()
+    {
+        return ((int)minMod + (int)maxMod) / 2;
+    }
+
+    public static float GetRandomMod()
+    {
+        return Random.Range((int)minMod, (int)maxMod + 1);
+    }
 }

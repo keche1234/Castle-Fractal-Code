@@ -106,4 +106,20 @@ public class CrisisLionheart : Ability
     {
         return modifier * 0.1f;
     }
+
+    public static void SetMinMaxMods()
+    {
+        minMod = 5;
+        maxMod = 9;
+    }
+
+    public static float GetMeanMod()
+    {
+        return ((int)minMod + (int)maxMod) / 2;
+    }
+
+    public static float GetRandomMod()
+    {
+        return Random.Range((int)minMod, (int)maxMod + 1);
+    }
 }

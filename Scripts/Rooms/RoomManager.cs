@@ -28,6 +28,9 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected SpawnManager spawnManager;
     [SerializeField] protected PickupCW pickupPrefab;
 
+    protected const float MERCY_WEAPON_TIME = 10f;
+    protected float spawnWeaponTimer = 0;
+
     // Start is called before the first frame update
     protected void Start()
     {
@@ -38,7 +41,21 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     // Update is called once per frame
     protected void Update()
     {
-        
+        if (player.InventoryCount() == 0 && FindObjectsOfType(System.Type.GetType("PickupCW")).Length == 0)
+        {
+            if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
+            {
+                Room r = GetCurrent();
+                Vector3 weaponPos = new Vector3(Random.Range((-r.GetLength() + 2) / 2, (r.GetLength() - 2) / 2), 1, Random.Range((-r.GetWidth() + 2) / 2, (r.GetWidth() - 2) / 2));
+                PickupCW mercy = GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+
+                mercy.gameObject.transform.position = weaponPos;
+                mercy.gameObject.transform.parent = r.gameObject.transform;
+                spawnWeaponTimer = 0;
+            }
+            else
+                spawnWeaponTimer += Time.deltaTime;
+        }
     }
 
     public virtual void CreateNext()
@@ -69,7 +86,8 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
             next.SetBossNumber(Random.Range(0, bossPrefabs.Count));
         }
 
-        //TODO: Generate environmental components (Bosses have different requirements, like no internal walls)
+        //
+        //: Generate environmental components (Bosses have different requirements, like no internal walls)
 
         current.SetNext(next);
     }
@@ -102,6 +120,319 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     public void SetSpawnManager(SpawnManager sm)
     {
         spawnManager = sm;
+    }
+
+    public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false)
+    {
+        if (wType < 0 || wType > 4)
+            return null;
+
+        PickupCW weapon = Instantiate(pickupPrefab);
+        //List<int> possibilities = new List<int>(abilities[wType]);
+
+        List<int> myAbilities = new List<int>();
+        List<float> myMods = new List<float>();
+        for (int i = 0; i < 2; i++)
+        {
+            int ability = Random.Range(0, Ability.GetGenericNames().Length);
+            if (i > 0)
+            {
+                while (ability != myAbilities[0])
+                    ability = Random.Range(0, Ability.GetGenericNames().Length);
+            }
+
+            switch (ability)
+            {
+                case 0:
+                    StrengthUp.SetMinMaxMods();
+
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt((int)StrengthUp.GetRandomMod()));
+                    else
+                        myMods.Add((int)StrengthUp.GetMeanMod());
+                    break;
+                case 1:
+                    DefenseUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(DefenseUp.GetRandomMod()));
+                    else
+                        myMods.Add((int)DefenseUp.GetMeanMod());
+                    break;
+                case 2:
+                    StrengthDebilitator.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(StrengthDebilitator.GetRandomMod());
+                    else
+                        myMods.Add(StrengthDebilitator.GetMeanMod());
+                    break;
+                case 3:
+                    DefenseDebilitator.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(DefenseDebilitator.GetRandomMod());
+                    else
+                        myMods.Add(DefenseDebilitator.GetMeanMod());
+                    break;
+                case 4:
+                    AttackRateUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(AttackRateUp.GetRandomMod());
+                    else
+                        myMods.Add(AttackRateUp.GetMeanMod());
+                    break;
+                case 5:
+                    RollRecoveryUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(RollRecoveryUp.GetRandomMod());
+                    else
+                        myMods.Add(RollRecoveryUp.GetMeanMod());
+                    break;
+                case 6:
+                    HealthyStrength.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(HealthyStrength.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthyStrength.GetMeanMod());
+                    break;
+                case 7:
+                    HealthyDefense.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(HealthyDefense.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthyDefense.GetMeanMod());
+                    break;
+                case 8:
+                    HealthySpeed.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(HealthySpeed.GetRandomMod());
+                    else
+                        myMods.Add(HealthySpeed.GetMeanMod());
+                    break;
+                case 9:
+                    HealthySignatureGain.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(HealthySignatureGain.GetRandomMod());
+                    else
+                        myMods.Add(HealthySignatureGain.GetMeanMod());
+                    break;
+                case 10:
+                    myMods.Add(BladeDull.GetMeanMod());
+                    break;
+                case 11:
+                    myMods.Add(ArmorPierce.GetMeanMod());
+                    break;
+                case 12:
+                    AttackRangeUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(AttackRangeUp.GetRandomMod());
+                    else
+                        myMods.Add(AttackRangeUp.GetMeanMod());
+                    break;
+                case 13:
+                    RollDistanceUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(RollDistanceUp.GetRandomMod());
+                    else
+                        myMods.Add(RollDistanceUp.GetMeanMod());
+                    break;
+                case 14:
+                    BurstStrength.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(BurstStrength.GetRandomMod()));
+                    else
+                        myMods.Add((int)BurstStrength.GetMeanMod());
+                    break;
+                case 15:
+                    BurstDefense.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(BurstDefense.GetRandomMod()));
+                    else
+                        myMods.Add((int)BurstDefense.GetMeanMod());
+                    break;
+                case 16:
+                    BurstSpeed.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(BurstSpeed.GetRandomMod());
+                    else
+                        myMods.Add(BurstSpeed.GetMeanMod());
+                    break;
+                case 17:
+                    BurstSignatureGain.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(BurstSignatureGain.GetRandomMod());
+                    else
+                        myMods.Add(BurstSignatureGain.GetMeanMod());
+                    break;
+                case 18:
+                    LuckyStrike.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(LuckyStrike.GetRandomMod());
+                    else
+                        myMods.Add(LuckyStrike.GetMeanMod());
+                    break;
+                case 19:
+                    QuickDodge.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(QuickDodge.GetRandomMod());
+                    else
+                        myMods.Add(QuickDodge.GetMeanMod());
+                    break;
+                case 20:
+                    SignatureDamageUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(SignatureDamageUp.GetRandomMod());
+                    else
+                        myMods.Add(SignatureDamageUp.GetMeanMod());
+                    break;
+                case 21:
+                    SignatureDurationUp.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(SignatureDurationUp.GetRandomMod());
+                    else
+                        myMods.Add(SignatureDurationUp.GetMeanMod());
+                    break;
+                case 22:
+                    CrisisStrength.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(CrisisStrength.GetRandomMod()));
+                    else
+                        myMods.Add((int)CrisisStrength.GetMeanMod());
+                    break;
+                case 23:
+                    CrisisDefense.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(CrisisDefense.GetRandomMod()));
+                    else
+                        myMods.Add((int)CrisisDefense.GetMeanMod());
+                    break;
+                case 24:
+                    CrisisSpeed.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(CrisisSpeed.GetRandomMod());
+                    else
+                        myMods.Add(CrisisSpeed.GetMeanMod());
+                    break;
+                case 25:
+                    CrisisSignatureGain.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(CrisisSignatureGain.GetRandomMod());
+                    else
+                        myMods.Add(CrisisSignatureGain.GetMeanMod());
+                    break;
+                case 26:
+                    HealthDrain.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(HealthDrain.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthDrain.GetMeanMod());
+                    break;
+                case 27:
+                    SignatureDrain.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(SignatureDrain.GetRandomMod()));
+                    else
+                        myMods.Add((int)SignatureDrain.GetMeanMod());
+                    break;
+                case 28:
+                    PityCounter.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(PityCounter.GetRandomMod()));
+                    else
+                        myMods.Add((int)PityCounter.GetMeanMod());
+                    break;
+                case 29:
+                    PitySignature.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt(PitySignature.GetRandomMod()));
+                    else
+                        myMods.Add((int)PitySignature.GetMeanMod());
+                    break;
+                case 30:
+                    HealthyLionheart.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt((int)HealthyLionheart.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthyLionheart.GetMeanMod());
+                    break;
+                case 31:
+                    CrisisLionheart.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt((int)CrisisLionheart.GetRandomMod()));
+                    else
+                        myMods.Add((int)CrisisLionheart.GetMeanMod());
+                    break;
+                case 32:
+                    HealthyWolfsoul.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt((int)HealthyWolfsoul.GetRandomMod()));
+                    else
+                        myMods.Add((int)HealthyWolfsoul.GetMeanMod());
+                    break;
+                case 33:
+                    CrisisWolfsoul.SetMinMaxMods();
+                    if (randomMod)
+                        myMods.Add(Mathf.RoundToInt((int)CrisisWolfsoul.GetRandomMod()));
+                    else
+                        myMods.Add((int)CrisisWolfsoul.GetMeanMod());
+                    break;
+                case 34:
+                    myMods.Add(AllOrNothingD.GetMeanMod());
+                    break;
+                case 35:
+                    myMods.Add(AllOrNothingS.GetMeanMod());
+                    break;
+                default:
+                    break;
+            }
+
+            //GameObject dummy = Instantiate((GameObject)null);
+            //dummy.AddComponent(System.Type.GetType(Ability.GetNames()[myAbilities[i]]));
+            //myMods.Add(((Ability)dummy.GetComponent(System.Type.GetType(Ability.GetNames()[myAbilities[i]]))).GetRandomMod());
+            //myAbilities.RemoveAt(j);
+            //Destroy(dummy);
+        }
+
+        float pow;
+        float dur;
+
+        switch (wType)
+        {
+            case 0:
+                pow = Sword.GetBasePower();
+                dur = Sword.GetBaseDurability();
+                break;
+            case 1:
+                pow = Axe.GetBasePower();
+                dur = Axe.GetBaseDurability();
+                break;
+            case 2:
+                pow = Spear.GetBasePower();
+                dur = Spear.GetBaseDurability();
+                break;
+            case 3:
+                pow = Crossbow.GetBasePower();
+                dur = Crossbow.GetBaseDurability();
+                break;
+            case 4:
+                pow = Tome.GetBasePower();
+                dur = Tome.GetBaseDurability();
+                break;
+            default:
+                pow = 0;
+                dur = 0;
+                break;
+        }
+
+        if (powMultFloor <= 0 || durMultFloor <= 0 || powMultFloor > powMultCeil || durMultFloor > durMultCeil)
+            Debug.LogError("Invalid Power " + "([" + powMultFloor + ", " + powMultCeil + "]) or Durability " + "([" + durMultFloor + ", " + durMultCeil + "]) Range!");
+        else
+        {
+            pow = Mathf.Round(pow * Random.Range(powMultFloor, powMultCeil) * 10.0f) * 0.1f;
+            dur = (int)(Mathf.Round(dur * Random.Range(durMultFloor, durMultCeil) * 10.0f) * 0.1f);
+        }
+
+        weapon.Initialize(wType, pow, dur, dur, 0, myAbilities, myMods);
+
+        return weapon;
     }
 
     public virtual void Step()
