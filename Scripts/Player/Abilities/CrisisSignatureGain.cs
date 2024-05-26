@@ -37,7 +37,7 @@ public class CrisisSignatureGain : CrisisStrength
         return modifier * 0.65f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 0.8f;
         maxMod = 1.4f;

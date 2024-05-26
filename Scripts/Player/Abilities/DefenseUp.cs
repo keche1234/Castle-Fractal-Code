@@ -29,18 +29,18 @@ public class DefenseUp : StrengthUp
         buff.SetBuff(modifier, -1);
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 1;
         maxMod = 3;
     }
 
-    public static float GetMeanMod()
+    new public static float GetMeanMod()
     {
         return ((int)minMod + (int)maxMod) / 2;
     }
 
-    public static float GetRandomMod()
+    new public static float GetRandomMod()
     {
         return Random.Range((int)minMod, (int)maxMod + 1);
     }

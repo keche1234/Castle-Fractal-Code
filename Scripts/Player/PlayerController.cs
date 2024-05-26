@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : Character
 {
     private Rigidbody playerRb;
 
-    private float horizontalInput;
-    private float verticalInput;
+    //private float horizontalInput;
+    //private float verticalInput;
+    protected Vector2 inputVector;
 
     //character states
     private bool mobile;
@@ -29,18 +31,19 @@ public class PlayerController : Character
     [SerializeField] protected Camera cam;
 
     [Header("Controls")]
-    // TODO: Get Preset Settings from ControlPreset to here
+    PlayerInputActions inputActions;
     // TODO: Program Targeting Reticle Settings
-    [SerializeField] protected List<string> actions;
-    [SerializeField] protected ControlManager controlManager;
-    protected Dictionary<string, List<KeyCode>> keyboardControls;
-    protected Dictionary<string, List<int>> mouseControls;
+    //[SerializeField] protected List<string> actions;
+    //[SerializeField] protected ControlManager controlManager;
+    //protected Dictionary<string, List<KeyCode>> myControls;
+    //protected Dictionary<string, List<int>> mouseControls;
 
-    // TODO: Inventory Scroll Buttons in controls
-    [SerializeField] protected KeyCode invScrollUp = KeyCode.Comma; // For players without
-    [SerializeField] protected KeyCode invScrollDown = KeyCode.Period; // a computer mouse
-    [Range(0.1f, 2f)]
-    [SerializeField] protected float invScrollSen = 0.5f; //inventory scroll sensitivity, 0.1x-2x
+    //[Header("Control Settings")]
+    [SerializeField] protected bool signatureCombo;
+    [SerializeField] protected bool meleeAuto;
+    [SerializeField] protected float rangedAssist;
+    [SerializeField] protected float scrollSensitivity;
+
     protected float invScrollPos; //inventory scroll position, ranges from 0-(inventory.Count + .99), cut off decimal for current weapon
 
     [SerializeField] protected float signatureMultiplier;
@@ -143,25 +146,10 @@ public class PlayerController : Character
         dodgeTrail = GetComponent<TrailRenderer>();
 
         // Initialize Controls
-        keyboardControls = new Dictionary<string, List<KeyCode>>();
-        mouseControls = new Dictionary<string, List<int>>();
-
-        ControlPreset preset = controlManager.GetControlPreset(0);
-        if (preset != null)
-        {
-            foreach (string act in actions)
-            {
-                if (!keyboardControls.ContainsKey(act))
-                    keyboardControls.Add(act, preset.GetKeyboardButton(act));
-                else
-                    keyboardControls[act] = preset.GetKeyboardButton(act);
-
-                if (!mouseControls.ContainsKey(act))
-                    mouseControls.Add(act, preset.GetMouseButton(act));
-                else
-                    mouseControls[act] = preset.GetMouseButton(act);
-            }
-        }
+        //SetControls(0);
+        inputActions = new PlayerInputActions();
+        inputActions.Player.Enable();
+        
     }
 
     // Update is called once per frame
@@ -197,22 +185,44 @@ public class PlayerController : Character
             }
         }
 
+        //TODO: Restore this
+        /* Set Controls */
+        //if (Input.GetKeyDown(KeyCode.Alpha1))
+        //    SetControls(0);
+        //else if (Input.GetKeyDown(KeyCode.Alpha2))
+        //    SetControls(1);
+        //else if (Input.GetKeyDown(KeyCode.Alpha3))
+        //    SetControls(2);
+        //else if (Input.GetKeyDown(KeyCode.Alpha4))
+        //    SetControls(3);
+        //else if (Input.GetKeyDown(KeyCode.Alpha5))
+        //    SetControls(4);
+        //else if (Input.GetKeyDown(KeyCode.Alpha6))
+        //    SetControls(5);
+        //else if (Input.GetKeyDown(KeyCode.Alpha7))
+        //    SetControls(6);
+        //else if (Input.GetKeyDown(KeyCode.Alpha8))
+        //    SetControls(7);
+        //else if (Input.GetKeyDown(KeyCode.Alpha9))
+        //    SetControls(8);
+
+        // TODO: Restore this
         /* Pausing */
-        if (!gameManager.GameIsOver())
-        {
-            if (ListInput.GetKeyDown(keyboardControls["Pause"]) || ListInput.GetMouseButtonDown(mouseControls["Pause"]))
-                gameManager.Pause(0);
-            else if (ListInput.GetKeyDown(keyboardControls["Inventory"]) || ListInput.GetMouseButtonDown(mouseControls["Inventory"]))
-            {
-                gameManager.Pause(1);
-                if (!gameManager.IsPaused())
-                {
-                    UseAllPotions();
-                    for (int i = 0; i < selectedPotions.Count; i++)
-                        selectedPotions[i] = false;
-                }
-            }
-        }
+        //if (!gameManager.GameIsOver())
+        //{
+        //    if (ListInput.GetKeyDown(myControls["Pause"]))
+        //        gameManager.Pause(0);
+        //    else if (ListInput.GetKeyDown(myControls["Inventory"]))
+        //    {
+        //        gameManager.Pause(1);
+        //        if (!gameManager.IsPaused())
+        //        {
+        //            UseAllPotions();
+        //            for (int i = 0; i < selectedPotions.Count; i++)
+        //                selectedPotions[i] = false;
+        //        }
+        //    }
+        //}
 
         if (currentHealth <= 0 && maxHealth > 0)
         {
@@ -230,86 +240,84 @@ public class PlayerController : Character
 
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
         {
-            if (weaponTypes[currentWeaponType].IsInactive() && playerDodge != DodgeState.Dodging) //IsInactive refers to attack activity
-            {
-                if (ListInput.GetKeyDown(keyboardControls["Main Attack"])
-                 || ListInput.GetMouseButtonDown(mouseControls["Main Attack"]))
-                {
-                    if (inventory.Count > 0 && equippedCustomWeapon >= 0)
-                    {
-                        if (ListInput.GetKey(keyboardControls["Signature Attack"])
-                         || ListInput.GetMouseButton(mouseControls["Signature Attack"]))
-                        {
-                            if (inventory[equippedCustomWeapon].SignaturePercentage() >= 1 && !signing)
-                            {
-                                playerRb.velocity *= 0;
-                                weaponTypes[currentWeaponType].StartCoroutine("Signature");
-                                inventory[equippedCustomWeapon].ResetSignature();
-                                signatureBar.SetValue(0);
-                                signing = true;
-                                roomManager.GetCurrent().IncrementSignatureMovesUsed();
-                            }
-                        }
-                        else
-                        {
-                            if (weaponTypes[currentWeaponType].gameObject.activeSelf)
-                                weaponTypes[currentWeaponType].StartCoroutine("Attack");
-                        }
-                    }
-                    else if (playerAttack == AttackState.NotAttacking)
-                    {
-                        //if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
-                        StartCoroutine("Attack");
-                    }
-                }
-                else
-                {
-                    // Scroll Wheel Change Weapon
-                    invScrollPos -= Input.mouseScrollDelta.y * invScrollSen;
-                    if (inventory.Count > 0 && Input.mouseScrollDelta.y != 0)
-                    {
-                        if (invScrollPos < 0)
-                        {
-                            invScrollPos = 0;
-                            if (equippedCustomWeapon != 0) SetCustomWeapon(0);
-                        }
-                        else if (invScrollPos >= inventory.Count)
-                        {
-                            invScrollPos = inventory.Count - invScrollSen;
-                            if (equippedCustomWeapon != inventory.Count - 1) SetCustomWeapon(inventory.Count - 1);
-                        }
-                        else if (equippedCustomWeapon != (int)invScrollPos) SetCustomWeapon((int)invScrollPos);
-                    }
-                    else if (inventory.Count == 0) invScrollPos = 0;
+            //if (weaponTypes[currentWeaponType].IsInactive() && playerDodge != DodgeState.Dodging) //IsInactive refers to attack activity
+            //{
+            //    if (ListInput.GetKeyDown(myControls["Main Attack"]))
+            //    {
+            //        if (inventory.Count > 0 && equippedCustomWeapon >= 0)
+            //        {
+            //            if (ListInput.GetKey(myControls["Signature Attack"]))
+            //            {
+            //                if (inventory[equippedCustomWeapon].SignaturePercentage() >= 1 && !signing)
+            //                {
+            //                    playerRb.velocity *= 0;
+            //                    weaponTypes[currentWeaponType].StartCoroutine("Signature");
+            //                    inventory[equippedCustomWeapon].ResetSignature();
+            //                    signatureBar.SetValue(0);
+            //                    signing = true;
+            //                    roomManager.GetCurrent().IncrementSignatureMovesUsed();
+            //                }
+            //            }
+            //            else
+            //            {
+            //                if (weaponTypes[currentWeaponType].gameObject.activeSelf)
+            //                    weaponTypes[currentWeaponType].StartCoroutine("Attack");
+            //            }
+            //        }
+            //        else if (playerAttack == AttackState.NotAttacking)
+            //        {
+            //            //if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
+            //            StartCoroutine("Attack");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        // Scroll Wheel Change Weapon
+            //        invScrollPos -= Input.mouseScrollDelta.y * scrollSensitivity;
+            //        if (inventory.Count > 0 && Input.mouseScrollDelta.y != 0)
+            //        {
+            //            if (invScrollPos < 0)
+            //            {
+            //                invScrollPos = 0;
+            //                if (equippedCustomWeapon != 0) SetCustomWeapon(0);
+            //            }
+            //            else if (invScrollPos >= inventory.Count)
+            //            {
+            //                invScrollPos = inventory.Count - scrollSensitivity;
+            //                if (equippedCustomWeapon != inventory.Count - 1) SetCustomWeapon(inventory.Count - 1);
+            //            }
+            //            else if (equippedCustomWeapon != (int)invScrollPos) SetCustomWeapon((int)invScrollPos);
+            //        }
+            //        else if (inventory.Count == 0) invScrollPos = 0;
 
-                    // Keys Change Weapon
-                    if (inventory.Count > 0)
-                    {
-                        if (Input.GetKeyDown(invScrollUp) && equippedCustomWeapon > 0)
-                        {
-                            Debug.Log(invScrollPos + "->" + (invScrollPos - 1));
-                            invScrollPos -= 1;
-                            SetCustomWeapon((int)invScrollPos);
-                        }
-                        else if (Input.GetKeyDown(invScrollDown) && equippedCustomWeapon < inventory.Count - 1)
-                        {
-                            Debug.Log(invScrollPos + "->" + (invScrollPos + 1));
-                            invScrollPos += 1;
-                            SetCustomWeapon((int)invScrollPos);
-                        }
-                    }
+            //        // Keys Change Weapon
+            //        if (inventory.Count > 0)
+            //        {
+            //            if (ListInput.GetKeyDown(myControls["Inventory Scroll Up"]) && equippedCustomWeapon > 0)
+            //            {
+            //                Debug.Log(invScrollPos + "->" + (invScrollPos - 1));
+            //                invScrollPos -= 1;
+            //                SetCustomWeapon((int)invScrollPos);
+            //            }
+            //            else if (ListInput.GetKeyDown(myControls["Inventory Scroll Down"]) && equippedCustomWeapon < inventory.Count - 1)
+            //            {
+            //                Debug.Log(invScrollPos + "->" + (invScrollPos + 1));
+            //                invScrollPos += 1;
+            //                SetCustomWeapon((int)invScrollPos);
+            //            }
+            //        }
 
-                    if (ListInput.GetKeyDown(keyboardControls["Drop Weapon"]) || ListInput.GetMouseButtonDown(mouseControls["Drop Weapon"]))
-                        if (inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f))
-                            StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
-                }
-            }
+            //        if (ListInput.GetKeyDown(myControls["Drop Weapon"]))
+            //            if (inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f))
+            //                StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
+            //    }
+            //}
 
-            if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available)
-            {
-                if (ListInput.GetKeyDown(keyboardControls["Roll"]) || ListInput.GetMouseButtonDown(mouseControls["Roll"]))
-                    StartCoroutine(Dodge());
-            }
+            //if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available)
+            //{
+            //    if (ListInput.GetKeyDown(myControls["Roll"]))
+            //        StartCoroutine(Dodge());
+            //}
         }
 
         if (!spawner.AllDefeated())
@@ -322,20 +330,21 @@ public class PlayerController : Character
     public void FixedUpdate()
     {
         hitByList.Clear();
-
-
         if (playerLife != LifeState.Dead && !stunned) //Make sure the player is alive before they try anything
         {
             if (mobile && playerDodge != DodgeState.Dodging) //Make sure the player is not attacking while they have a "heavy" weapon (Axe or Spear)
             {
-                horizontalInput = Input.GetAxis("Horizontal");
-                verticalInput = Input.GetAxis("Vertical");
+                //horizontalInput = Input.GetAxis("Horizontal");
+                //verticalInput = Input.GetAxis("Vertical");
+
+                inputVector = inputActions.Player.Move.ReadValue<Vector2>();
+                Debug.Log(inputVector);
 
                 if (controllable)
                 {
-                    if (Mathf.Abs(verticalInput) >= 0.5f || Mathf.Abs(horizontalInput) >= 0.5f)
+                    if (Mathf.Abs(inputVector.x) >= 0.5f || Mathf.Abs(inputVector.y) >= 0.5f)
                     {
-                        Vector3 direction = new Vector3(horizontalInput, 0, verticalInput).normalized;
+                        Vector3 direction = new Vector3(inputVector.x, 0, inputVector.y).normalized;
                         transform.rotation = Quaternion.LookRotation(direction);
                         playerRb.velocity = transform.forward * speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
                     }
@@ -1181,43 +1190,53 @@ public class PlayerController : Character
     /*******************************************
      * Controls
      *******************************************/
-    public List<KeyCode> GetAttackKeys()
-    {
-        return keyboardControls["Main Attack"];
-    }
+    //public List<KeyCode> GetAttackButtons()
+    //{
+    //    return myControls["Main Attack"];
+    //}
 
-    public List<int> GetAttackMouseButtons()
-    {
-        return mouseControls["Main Attack"];
-    }
+    //public List<int> GetAttackMouseButtons()
+    //{
+    //    return mouseControls["Main Attack"];
+    //}
 
-    public bool SetControls(int i)
-    {
-        if (i < 0 || i >= controlManager.PresetCount())
-            return false;
+    // TODO: Restore This
+    //public bool SetControls(int i)
+    //{
+    //    if (i < 0 || i >= controlManager.PresetCount())
+    //    {
+    //        Debug.LogError("Control Preset " + i + " out of range!");
+    //        return false;
+    //    }
 
-        keyboardControls = new Dictionary<string, List<KeyCode>>();
-        mouseControls = new Dictionary<string, List<int>>();
+    //    myControls = new Dictionary<string, List<KeyCode>>();
+    //    //mouseControls = new Dictionary<string, List<int>>();
 
-        ControlPreset preset = controlManager.GetControlPreset(i);
-        if (preset != null)
-        {
-            foreach (string act in actions)
-            {
-                if (!keyboardControls.ContainsKey(act))
-                    keyboardControls.Add(act, preset.GetKeyboardButton(act));
-                else
-                    keyboardControls[act] = preset.GetKeyboardButton(act);
+    //    ControlPreset preset = controlManager.GetControlPreset(i);
+    //    if (preset != null)
+    //    {
+    //        foreach (string act in actions)
+    //        {
+    //            if (!myControls.ContainsKey(act))
+    //                myControls.Add(act, preset.GetKeyboardButtons(act));
+    //            else
+    //                myControls[act] = preset.GetKeyboardButtons(act);
 
-                if (!mouseControls.ContainsKey(act))
-                    mouseControls.Add(act, preset.GetMouseButton(act));
-                else
-                    mouseControls[act] = preset.GetMouseButton(act);
-            }
-        }
+    //            //if (!mouseControls.ContainsKey(act))
+    //            //    mouseControls.Add(act, preset.GetMouseButtons(act));
+    //            //else
+    //            //    mouseControls[act] = preset.GetMouseButtons(act);
+    //        }
+    //    }
 
-        return true;
-    }
+    //    signatureCombo = preset.GetSignatureActivationMode() == ControlPreset.SignatureActivation.Combo ? true : false;
+    //    meleeAuto = preset.GetMeleeAim() == ControlPreset.MeleeAim.Auto ? true : false;
+    //    rangedAssist = preset.GetRangedAssist();
+    //    scrollSensitivity = preset.GetScrollSensitivity();
+
+    //    Debug.Log("Control Preset " + i + " activated.");
+    //    return true;
+    //}
 
     public bool IsPaused()
     {

@@ -924,20 +924,13 @@ public class Twinotaurs : Boss
         return venom;
     }
 
-    public void OnDestroy()
+    public override void OnDestroy()
     {
-        //for (int i = 0; i < summons.Count; i++)
-        //{
-        //    Destroy(summons[i].gameObject);
-        //    summons.Remove(summons[i]);
-        //}
-
         for (int i = 0; i < pounceClouds.Count; i++)
         {
             Destroy(pounceClouds[i].gameObject);
             pounceClouds.Remove(pounceClouds[i]);
         }
         base.OnDestroy();
-
     }
 }

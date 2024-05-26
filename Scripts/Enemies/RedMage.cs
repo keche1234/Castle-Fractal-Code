@@ -279,7 +279,7 @@ public class RedMage : Enemy
         if (zeroSpeed) charRb.velocity *= 0;
     }
 
-    public void OnDestroy()
+    public override void OnDestroy()
     {
         Destroy(blastAoe.gameObject);
         Destroy(maxAoe.gameObject);

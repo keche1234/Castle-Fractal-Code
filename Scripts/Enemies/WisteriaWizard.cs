@@ -299,7 +299,7 @@ public class WisteriaWizard : Enemy
         if (zeroSpeed) charRb.velocity *= 0;
     }
 
-    public void OnDestroy()
+    new public void OnDestroy()
     {
         Destroy(blastAoe.gameObject);
         Destroy(maxAoe.gameObject);

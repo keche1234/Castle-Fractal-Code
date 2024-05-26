@@ -27,7 +27,7 @@ public class LuckyStrike : Ability
         return modifier * 1.15f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 0.22f;
         maxMod = 0.48f;

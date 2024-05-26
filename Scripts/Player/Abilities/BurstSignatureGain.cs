@@ -41,7 +41,7 @@ public class BurstSignatureGain : BurstStrength
         return modifier * 0.6f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 0.2f;
         maxMod = 0.4f;

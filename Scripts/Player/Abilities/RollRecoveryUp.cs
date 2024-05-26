@@ -27,7 +27,7 @@ public class RollRecoveryUp : Ability
         return modifier * 0.33f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 0.3f;
         maxMod = 0.9f;

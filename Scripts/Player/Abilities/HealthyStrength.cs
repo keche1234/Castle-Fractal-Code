@@ -55,18 +55,18 @@ public class HealthyStrength : Ability
         return modifier * 0.0875f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 2;
         maxMod = 5;
     }
 
-    public static float GetMeanMod()
+    new public static float GetMeanMod()
     {
         return ((int)minMod + (int)maxMod + Random.Range(0, 2)) / 2;
     }
 
-    public static float GetRandomMod()
+    new public static float GetRandomMod()
     {
         return Random.Range((int)minMod, (int)maxMod + 1);
     }

@@ -196,7 +196,7 @@ public abstract class Boss : Enemy
                             Random.Range(-(room.GetWidth() / 2f) + 0.5f, (room.GetWidth() / 2f) - 0.5f));
     }
 
-    public void OnDestroy()
+    public override void OnDestroy()
     {
         GetSpawnManager().RemoveMe(this);
     }

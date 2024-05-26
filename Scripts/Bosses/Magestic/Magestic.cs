@@ -823,7 +823,7 @@ public class Magestic : Boss
 
     }
 
-    public void OnDestroy()
+    public override void OnDestroy()
     {
         //Debug.Log(myWands.Count + " wand(s)");
         for (int i = 0; i < myWands.Count; i++)
@@ -831,13 +831,6 @@ public class Magestic : Boss
             Destroy(myWands[i].gameObject);
             myWands.Remove(myWands[i]);
         }
-
-        //Debug.Log(summons.Count + " summon(s)");
-        //for (int i = 0; i < summons.Count; i++)
-        //{
-        //    Destroy(summons[i].gameObject);
-        //    summons.Remove(summons[i]);
-        //}
         base.OnDestroy();
     }
 }

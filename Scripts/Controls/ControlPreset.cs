@@ -8,55 +8,48 @@ public class ControlPreset : MonoBehaviour
 
     [Tooltip("Map an action to a keyboard button in parallel (buttons can have at most one action)")]
     [Header("Keyboard Controls Initializer")]
-    [SerializeField] protected KeyCode[] keyboardButtons;
-    [SerializeField] protected string[] keyboardActions;
-    protected Dictionary<KeyCode, string> keyboardControls;
+    [SerializeField] protected KeyCode[] buttons;
+    [SerializeField] protected string[] actions;
+    protected Dictionary<KeyCode, string> controls;
 
-    //0 = Left Click
-    //1 = Right Click
-    //2 = Middle Click
-    //3 = Scroll Up
-    //4 = Scroll Down
-    [Tooltip("Map an action to a mouse button in parallel (buttons can have at most one action)")]
-    [Header("Mouse Controls Initializer")]
-    [SerializeField] protected int[] mouseButtons;
-    [SerializeField] protected string[] mouseActions;
-    protected Dictionary<int, string> mouseControls;
+    ////0 = Left Click
+    ////1 = Right Click
+    ////2 = Middle Click
+    //[Tooltip("Map an action to a mouse button in parallel (buttons can have at most one action)")]
+    //[Header("Mouse Controls Initializer")]
+    //[SerializeField] protected int[] mouseButtons;
+    //[SerializeField] protected string[] mouseActions;
+    //protected Dictionary<int, string> mouseControls;
 
     [Header("Other settings")]
+    protected const int MAX_RANGE_ASSIST = 5;
+    protected const float MIN_SCROLL_SENSITIVITY = 0f;
+    protected const float MAX_SCROLL_SENSITIVITY = 2f;
     [SerializeField] protected SignatureActivation sigActivation;
     [SerializeField] protected MeleeAim meleeAim;
     [SerializeField] protected RangedAim rangedAim;
-    [Range(1, 5)]
+
+    [Range(1, MAX_RANGE_ASSIST)]
     [SerializeField] protected int rangedAssist;
+
+    [Range(MIN_SCROLL_SENSITIVITY, MAX_SCROLL_SENSITIVITY)]
+    [SerializeField] protected float scrollSensitivty = 0.5f; //inventory scroll sensitivity, 0.1x-2x
 
     // Start is called before the first frame update
     void Start()
     {
-        keyboardControls = new Dictionary<KeyCode, string>();
-        mouseControls = new Dictionary<int, string>();
+        controls = new Dictionary<KeyCode, string>();
 
-        for (int i = 0; i < Mathf.Min(keyboardActions.Length, keyboardButtons.Length); i++)
-            if (!keyboardControls.ContainsKey(keyboardButtons[i]))
-                keyboardControls.Add(keyboardButtons[i], keyboardActions[i]);
+        for (int i = 0; i < Mathf.Min(actions.Length, buttons.Length); i++)
+            if (!controls.ContainsKey(buttons[i]))
+                controls.Add(buttons[i], actions[i]);
             else
-                keyboardControls[keyboardButtons[i]] = keyboardActions[i];
+                controls[buttons[i]] = actions[i];
 
-        if (keyboardButtons.Length > keyboardControls.Count)
-            Debug.LogWarning("Some defined keyboardButtons are going unused!");
-        if (keyboardActions.Length > keyboardControls.Count)
-            Debug.LogWarning("Some defined keyboardActions have not been mapped!");
-
-        for (int i = 0; i < Mathf.Min(mouseActions.Length, mouseButtons.Length); i++)
-            if (!mouseControls.ContainsKey(mouseButtons[i]) && !mouseControls.ContainsValue(mouseActions[i]))
-                mouseControls.Add(mouseButtons[i], mouseActions[i]);
-            else
-                mouseControls[mouseButtons[i]] = mouseActions[i];
-
-        if (mouseButtons.Length > mouseControls.Count)
-            Debug.LogWarning("Some defined mouseButtons are going unused!");
-        if (mouseActions.Length > mouseControls.Count)
-            Debug.LogWarning("Some defined keyboardActions have not been mapped!");
+        if (buttons.Length > controls.Count)
+            Debug.LogWarning("Some defined buttons were mapped twice!");
+        if (actions.Length > controls.Count)
+            Debug.LogWarning("Some defined actions have gone unmapped!");
     }
 
     // Update is called once per frame
@@ -68,40 +61,18 @@ public class ControlPreset : MonoBehaviour
     /****************************************************
      * Maps a keyboard `button` to an `action`, replacing
      * the action already there. Returns the action
-     * that got replaced if `button` replaced an action,
+     * that got replaced if `button` is mapped to a new action,
      * or the empty string otherwise
      ****************************************************/
-    public string SetActionControl(KeyCode button, string action)
+    public string MapButtonToAction(KeyCode button, string action)
     {
-        if (keyboardControls.ContainsKey(button))
+        if (controls.ContainsKey(button))
         {
-            string replaced = keyboardControls[button];
-            keyboardControls[button] = action;
+            string replaced = controls[button];
+            controls[button] = action;
             return replaced;
         }
-        keyboardControls.Add(button, action);
-        return "";
-    }
-
-    /****************************************************
-     * Maps a mouse `button` to an `action`, replacing
-     * the action already there. Returns the action
-     * that got replaced if `button` replaced an action,
-     * or the empty string otherwise
-     ****************************************************/
-    public string SetActionControl(int button, string action)
-    {
-        if (mouseControls.ContainsKey(button))
-        {
-            string replaced = mouseControls[button];
-            mouseControls[button] = action;
-            if (button < 0 || button > 4)
-                replaced += " (Unknown Mouse Button " + button + ")";
-            return replaced;
-        }
-        mouseControls.Add(button, action);
-        if (button < 0 || button > 4)
-            return "(Unknown Mouse Button " + button + ")";
+        controls.Add(button, action);
         return "";
     }
 
@@ -110,33 +81,76 @@ public class ControlPreset : MonoBehaviour
      * `action`; then returns the key, or `KeyCode.None` if no key
      * maps to `action`
      *****************************************************************/
-    public List<KeyCode> GetKeyboardButton(string action)
+    public List<KeyCode> GetKeyboardButtons(string action)
     {
         List<KeyCode> buttonList = new List<KeyCode>();
-        foreach (KeyCode k in keyboardControls.Keys)
+        foreach (KeyCode k in controls.Keys)
         {
-            if (keyboardControls[k] == action)
+            if (controls[k] == action)
                 buttonList.Add(k);
         }
         return buttonList;
     }
 
-    /*****************************************************************
-     * Search the mouse mappings for the button corresponding
-     * to `action`; then returns the mouse, or `KeyCode.None` if no key
-     * maps to `action`
-     *****************************************************************/
-    public List<int> GetMouseButton(string action)
+    /**********
+     * Settings
+     **********/
+    public void SetSignatureActivationMode(SignatureActivation mode)
     {
-        List<int> buttonList = new List<int>();
-        foreach (int m in mouseControls.Keys)
-        {
-            if (mouseActions[m] == action)
-                buttonList.Add(m);
-        }
-        return buttonList;
+        sigActivation = mode;
     }
 
+    public SignatureActivation GetSignatureActivationMode()
+    {
+        return sigActivation;
+    }
+
+    public void SetMeleeAim(MeleeAim mode)
+    {
+        meleeAim = mode;
+    }
+
+    public MeleeAim GetMeleeAim()
+    {
+        return meleeAim;
+    }
+
+    public void SetRangedAim(RangedAim mode, int assist = 3)
+    {
+        rangedAim = mode;
+        rangedAssist = assist;
+    }
+
+    public int GetRangedAssist()
+    {
+        if (rangedAim == RangedAim.Manual)
+            return 0;
+
+        if (rangedAim == RangedAim.Auto)
+            return MAX_RANGE_ASSIST + 1;
+
+        return rangedAssist;
+    }
+
+    public bool SetScrollSensititvity(float sensitivity)
+    {
+        if (sensitivity < MIN_SCROLL_SENSITIVITY || sensitivity > MAX_SCROLL_SENSITIVITY)
+        {
+            Debug.LogError("Scroll sensitivity must be within range (" + MIN_SCROLL_SENSITIVITY + ", " + MAX_SCROLL_SENSITIVITY + ")!");
+            return false;
+        }
+        scrollSensitivty = sensitivity;
+        return true;
+    }
+
+    public float GetScrollSensitivity()
+    {
+        return scrollSensitivty;
+    }    
+
+    /***************************
+     * Miscellaneous Object Info
+     ***************************/
     public string GetPresetName()
     {
         return presetName;

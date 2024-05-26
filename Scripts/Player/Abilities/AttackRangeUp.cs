@@ -27,7 +27,7 @@ public class AttackRangeUp : Ability
         return modifier * 0.6f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 0.3f;
         maxMod = 0.7f;

@@ -52,18 +52,18 @@ public class StrengthUp : Ability
         return modifier * 0.1f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 1f;
         maxMod = 3f;
     }
 
-    public static float GetMeanMod()
+    new public static float GetMeanMod()
     {
         return ((int)minMod + (int)maxMod)/2;
     }
 
-    public static float GetRandomMod()
+    new public static float GetRandomMod()
     {
         return Random.Range((int)minMod, (int)maxMod + 1);
     }

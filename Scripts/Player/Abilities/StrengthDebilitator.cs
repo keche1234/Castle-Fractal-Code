@@ -28,7 +28,7 @@ public class StrengthDebilitator : Ability
         return modifier * 0.3f;
     }
 
-    public static void SetMinMaxMods()
+    new public static void SetMinMaxMods()
     {
         minMod = 0.4f;
         maxMod = 1f;

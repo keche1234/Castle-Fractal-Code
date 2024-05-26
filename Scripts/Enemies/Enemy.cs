@@ -173,7 +173,7 @@ public abstract class Enemy : Character
 
     public abstract void Reset(bool zeroSpeed);
 
-    public void OnDestroy()
+    public virtual void OnDestroy()
     {
         if (hasItem && currentHealth <= 0)
             DropItem();

@@ -858,7 +858,7 @@ public class Ogrelord : Boss
             //}
         }
     }
-    public void OnDestroy()
+    public override void OnDestroy()
     {
         //for (int i = 0; i < summons.Count; i++)
         //{

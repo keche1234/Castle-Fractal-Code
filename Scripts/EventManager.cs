@@ -5,7 +5,7 @@ using UnityEngine;
 public class EventManager : MonoBehaviour
 {
     public delegate void TriggerAction();
-    public static event TriggerAction OnFreeze;
+    //public static event TriggerAction OnFreeze;
 
     // Start is called before the first frame update
     //void Start()

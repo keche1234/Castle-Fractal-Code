@@ -95,7 +95,7 @@ public class Sword : Weapon
             while (chainNum < chainMax && actionTime <= chainWindow)
             {
                 //if you haven't made a new chain AND the total number of chains is less than 3 && the player attempts to chain
-                if (!chain && ListInput.GetKeyDown(owner.GetAttackKeys()) || ListInput.GetMouseButtonDown(owner.GetAttackMouseButtons()))
+                if (!chain)// && ListInput.GetKeyDown(owner.GetAttackButtons())) // || ListInput.GetMouseButtonDown(owner.GetAttackMouseButtons()))
                 {
                     chain = true;
                     chainNum++;
