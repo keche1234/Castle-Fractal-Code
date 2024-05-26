@@ -31,7 +31,9 @@ public class PlayerController : Character
     [SerializeField] protected Camera cam;
 
     [Header("Controls")]
-    PlayerInputActions inputActions;
+    [SerializeField] protected PlayerInputActions inputActions;
+    [SerializeField] protected string currentScheme = "Standard";
+
     // TODO: Program Targeting Reticle Settings
     //[SerializeField] protected List<string> actions;
     //[SerializeField] protected ControlManager controlManager;
@@ -149,7 +151,7 @@ public class PlayerController : Character
         //SetControls(0);
         inputActions = new PlayerInputActions();
         inputActions.Player.Enable();
-        
+        inputActions.bindingMask = InputBinding.MaskByGroup(inputActions.StandardScheme.bindingGroup);
     }
 
     // Update is called once per frame
@@ -240,6 +242,7 @@ public class PlayerController : Character
 
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
         {
+            //TODO: Restore Attack
             //if (weaponTypes[currentWeaponType].IsInactive() && playerDodge != DodgeState.Dodging) //IsInactive refers to attack activity
             //{
             //    if (ListInput.GetKeyDown(myControls["Main Attack"]))
@@ -334,12 +337,7 @@ public class PlayerController : Character
         {
             if (mobile && playerDodge != DodgeState.Dodging) //Make sure the player is not attacking while they have a "heavy" weapon (Axe or Spear)
             {
-                //horizontalInput = Input.GetAxis("Horizontal");
-                //verticalInput = Input.GetAxis("Vertical");
-
                 inputVector = inputActions.Player.Move.ReadValue<Vector2>();
-                Debug.Log(inputVector);
-
                 if (controllable)
                 {
                     if (Mathf.Abs(inputVector.x) >= 0.5f || Mathf.Abs(inputVector.y) >= 0.5f)
