@@ -79,7 +79,7 @@ public class Crossbow : Weapon
                 arrows[i].transform.parent = roomManager.GetCurrent().transform;
             }
 
-            if (current.GetMaxDurability() > 0f && (chainNum == 1 || chainNum == 4) && current.DecrementDurability(1) <= 0)
+            if (current.GetMaxDurability() > 0f && chainNum == 1 && current.DecrementDurability(1) <= 0)
             {
                 owner.BreakCustomWeapon(current);
                 chain = true;

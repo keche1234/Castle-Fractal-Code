@@ -61,7 +61,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""Scroll Inventory"",
@@ -246,72 +246,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""6ed8a8c8-66c7-43ec-a496-277b9a20153a"",
-                    ""path"": ""<Keyboard>/l"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard"",
-                    ""action"": ""Signature Attack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""Hold + Button"",
-                    ""id"": ""033db814-6bf9-420b-ac52-e23cf5b82b30"",
-                    ""path"": ""OneModifier"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Signature Attack"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""modifier"",
-                    ""id"": ""24c25d50-735c-466d-8649-52d04074cb93"",
-                    ""path"": ""<Keyboard>/leftShift"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Standard"",
-                    ""action"": ""Signature Attack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""binding"",
-                    ""id"": ""a49bfc51-92d2-4d56-8dc4-0ed235e22f46"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Standard"",
-                    ""action"": ""Signature Attack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""857599eb-ef17-47ef-83a7-5fa7423c7da5"",
-                    ""path"": ""<Keyboard>/capsLock"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Left-Handed"",
-                    ""action"": ""Signature Attack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""ceeedae1-d67c-43c7-9326-345cc346d21d"",
-                    ""path"": ""<Keyboard>/quote"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Right-Handed"",
-                    ""action"": ""Signature Attack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""a6998301-e05b-4a2c-89f5-b34f4aa4409e"",
                     ""path"": ""<Keyboard>/k"",
                     ""interactions"": """",
@@ -355,7 +289,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""Up/Down"",
+                    ""name"": ""Keyboard Up/Down"",
                     ""id"": ""d3a991ce-c626-401f-9620-ac5365af15e4"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
@@ -388,7 +322,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""Up/Down"",
+                    ""name"": ""Mouse Up/Down"",
                     ""id"": ""4bc216de-d568-4d38-b7a2-4d714e730b8b"",
                     ""path"": ""1DAxis"",
                     ""interactions"": """",
@@ -538,6 +472,72 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Right-Handed"",
                     ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6ed8a8c8-66c7-43ec-a496-277b9a20153a"",
+                    ""path"": ""<Keyboard>/l"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""Signature Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Hold + Button"",
+                    ""id"": ""033db814-6bf9-420b-ac52-e23cf5b82b30"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Signature Attack"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""24c25d50-735c-466d-8649-52d04074cb93"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Standard"",
+                    ""action"": ""Signature Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""a49bfc51-92d2-4d56-8dc4-0ed235e22f46"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Standard"",
+                    ""action"": ""Signature Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""857599eb-ef17-47ef-83a7-5fa7423c7da5"",
+                    ""path"": ""<Keyboard>/capsLock"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Left-Handed"",
+                    ""action"": ""Signature Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ceeedae1-d67c-43c7-9326-345cc346d21d"",
+                    ""path"": ""<Keyboard>/quote"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Right-Handed"",
+                    ""action"": ""Signature Attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
