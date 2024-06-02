@@ -96,7 +96,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard;Standard;Left-Handed",
+                    "groups": "Keyboard-Only;Keyboard-Mouse;Left-Handed",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -107,7 +107,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard;Standard;Left-Handed",
+                    "groups": "Keyboard-Only;Keyboard-Mouse;Left-Handed",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -118,7 +118,7 @@
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard;Standard;Left-Handed",
+                    "groups": "Keyboard-Only;Keyboard-Mouse;Left-Handed",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -129,7 +129,7 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard;Standard;Left-Handed",
+                    "groups": "Keyboard-Only;Keyboard-Mouse;Left-Handed",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -195,7 +195,7 @@
                     "path": "<Keyboard>/j",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Main Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -206,7 +206,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Main Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -228,7 +228,7 @@
                     "path": "<Keyboard>/k",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -239,7 +239,7 @@
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -283,7 +283,7 @@
                     "path": "<Keyboard>/i",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Scroll Inventory",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -294,7 +294,7 @@
                     "path": "<Keyboard>/o",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Scroll Inventory",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -316,7 +316,7 @@
                     "path": "<Mouse>/scroll/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Scroll Inventory",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -327,7 +327,7 @@
                     "path": "<Mouse>/scroll/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Scroll Inventory",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -338,7 +338,7 @@
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Drop Weapon",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -349,7 +349,7 @@
                     "path": "<Keyboard>/capsLock",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Drop Weapon",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -382,7 +382,7 @@
                     "path": "<Keyboard>/semicolon",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Inventory",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -393,7 +393,7 @@
                     "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard;Left-Handed",
+                    "groups": "Keyboard-Mouse;Left-Handed",
                     "action": "Inventory",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -404,7 +404,7 @@
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Inventory",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -426,7 +426,7 @@
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard;Keyboard",
+                    "groups": "Keyboard-Mouse;Keyboard-Only",
                     "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -459,7 +459,7 @@
                     "path": "<Keyboard>/l",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Signature Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -481,7 +481,7 @@
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Signature Attack",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -492,7 +492,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Signature Attack",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -614,7 +614,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -636,7 +636,7 @@
                     "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Read",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -647,7 +647,7 @@
                     "path": "<Keyboard>/l",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Read",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -680,7 +680,7 @@
                     "path": "<Keyboard>/j",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -702,7 +702,7 @@
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -713,7 +713,7 @@
                     "path": "<Keyboard>/k",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "Keyboard-Only",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -757,7 +757,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard;Keyboard;Left-Handed",
+                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -768,7 +768,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard;Keyboard;Left-Handed",
+                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -779,7 +779,7 @@
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard;Keyboard;Left-Handed",
+                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -790,7 +790,7 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard;Keyboard;Left-Handed",
+                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -856,7 +856,7 @@
                     "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Standard",
+                    "groups": "Keyboard-Mouse",
                     "action": "Point",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -866,8 +866,8 @@
     ],
     "controlSchemes": [
         {
-            "name": "Standard",
-            "bindingGroup": "Standard",
+            "name": "Keyboard-Mouse",
+            "bindingGroup": "Keyboard-Mouse",
             "devices": [
                 {
                     "devicePath": "<Keyboard>",
@@ -882,8 +882,8 @@
             ]
         },
         {
-            "name": "Keyboard",
-            "bindingGroup": "Keyboard",
+            "name": "Keyboard-Only",
+            "bindingGroup": "Keyboard-Only",
             "devices": [
                 {
                     "devicePath": "<Keyboard>",

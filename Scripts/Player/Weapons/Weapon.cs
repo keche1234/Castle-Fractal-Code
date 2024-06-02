@@ -5,7 +5,7 @@ using UnityEngine;
 
 public abstract class Weapon : MonoBehaviour
 {
-    [Header("Basic Attributes")]
+    //[Header("Basic Attributes")]
     //[SerializeField] protected float power;
     //[SerializeField] protected int maxDurability;
     protected bool heavy; //Player cannot move and use heavy weapons at the same time
@@ -34,7 +34,6 @@ public abstract class Weapon : MonoBehaviour
     // Start is called before the first frame update
     protected virtual void Start()
     {
-
         state = ActionState.Inactive;
         owner = transform.parent.GetComponent<PlayerController>();
         sigSlowdown = 4;
@@ -84,10 +83,21 @@ public abstract class Weapon : MonoBehaviour
 
     protected enum ActionState
     {
-        Inactive,
-        Startup,
-        Active,
-        Cooldown
+        Inactive = 0b_0001,
+        Startup = 0b_0010,
+        Active = 0b_0100,
+        Cooldown = 0b_1000,
+        Attacking = Startup | Active | Cooldown
+    }
+
+    public bool IsInactive()
+    {
+        return state == ActionState.Inactive;
+    }
+
+    public bool IsStarting()
+    {
+        return state == ActionState.Startup;
     }
 
     public bool IsActive()
@@ -95,9 +105,14 @@ public abstract class Weapon : MonoBehaviour
         return state == ActionState.Active;
     }
 
-    public bool IsInactive()
+    public bool IsCoolingDown()
     {
-        return state == ActionState.Inactive;
+        return state == ActionState.Cooldown;
+    }
+
+    public bool IsAttacking()
+    {
+        return (state & ActionState.Attacking) != 0;
     }
 
     public void SetActivity(bool b)
@@ -184,5 +199,41 @@ public abstract class Weapon : MonoBehaviour
                 return 1 + GetComponents<Ability>()[place].GetModifier();
         }
         return 1;
+    }
+
+    protected GameObject AutoAim()
+    {
+        //Auto Aiming
+        if (owner.GetMeleeAuto())
+        {
+            Enemy[] enemies = FindObjectsOfType<Enemy>();
+            if (enemies.Length > 0)
+            {
+                // Find closest enemy
+                int closestIndex = 0;
+                float closestDistance = new Vector3(owner.transform.position.x - enemies[0].transform.position.x, 0,
+                                                    owner.transform.position.z - enemies[0].transform.position.z).magnitude;
+                for (int i = 1; i < enemies.Length; i++)
+                {
+                    float thisDistance = new Vector3(owner.transform.position.x - enemies[i].transform.position.x, 0,
+                                                    owner.transform.position.z - enemies[i].transform.position.z).magnitude;
+                    if (thisDistance < closestDistance)
+                    {
+                        closestIndex = i;
+                        closestDistance = thisDistance;
+                    }
+                }
+                LookAtTarget(enemies[closestIndex].gameObject);
+                return enemies[closestIndex].gameObject;
+            }
+        }
+        return null;
+    }
+
+    protected void LookAtTarget(GameObject obj)
+    {
+        Vector3 direction = new Vector3(obj.transform.position.x - owner.transform.position.x, 0,
+                                                obj.transform.position.z - owner.transform.position.z).normalized;
+        owner.transform.rotation = Quaternion.LookRotation(direction);
     }
 }

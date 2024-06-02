@@ -28,9 +28,11 @@ public class Axe : Weapon
 
     public override IEnumerator Attack()
     {
-        owner.SetMobile(false);
-
+        //Auto Aiming
+        AutoAim();
+        
         //Push the axe out
+        owner.SetMobile(false);
         state = ActionState.Startup;
         owner.SetAttackState(1);
 

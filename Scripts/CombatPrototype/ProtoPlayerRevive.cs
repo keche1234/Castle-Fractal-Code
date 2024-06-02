@@ -24,7 +24,8 @@ public class ProtoPlayerRevive : MonoBehaviour
 
     protected IEnumerator Revive()
     {
-        protoRoomManager2.IncrementFalls();
+        if (protoRoomManager2 != null)
+            protoRoomManager2.IncrementFalls();
         reviving = true;
         yield return new WaitForSeconds(delay);
         player.TakeDamage(((int)player.GetCurrentHealth()) - 30, Vector3.zero);

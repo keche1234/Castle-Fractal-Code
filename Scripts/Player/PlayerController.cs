@@ -33,7 +33,8 @@ public class PlayerController : Character
 
     [Header("Controls")]
     [SerializeField] protected PlayerInputActions inputActions;
-    [SerializeField] protected string currentScheme = "Standard";
+    protected List<string> controlSchemes;
+    [SerializeField] protected List<ControlPresetSettings> controlSettings;
 
     // TODO: Program Targeting Reticle Settings
     //[SerializeField] protected List<string> actions;
@@ -152,10 +153,20 @@ public class PlayerController : Character
     private void Awake()
     {
         // Initialize Controls
-        //SetControls(0);
         inputActions = new PlayerInputActions();
+        controlSchemes = new List<string>();
+        controlSchemes.Add(inputActions.KeyboardMouseScheme.bindingGroup);
+        controlSchemes.Add(inputActions.KeyboardOnlyScheme.bindingGroup);
+        controlSchemes.Add(inputActions.LeftHandedScheme.bindingGroup);
+        controlSchemes.Add(inputActions.RightHandedScheme.bindingGroup);
+        controlSchemes.Add(inputActions.Custom1Scheme.bindingGroup);
+        controlSchemes.Add(inputActions.Custom2Scheme.bindingGroup);
+        controlSchemes.Add(inputActions.Custom3Scheme.bindingGroup);
+        controlSchemes.Add(inputActions.Custom4Scheme.bindingGroup);
+        controlSchemes.Add(inputActions.Custom5Scheme.bindingGroup);
+
         inputActions.Player.Enable();
-        inputActions.bindingMask = InputBinding.MaskByGroup(inputActions.StandardScheme.bindingGroup);
+        SetControls(0);
     }
 
     private void OnEnable()
@@ -164,7 +175,7 @@ public class PlayerController : Character
         inputActions.Player.MainAttack.performed += PlayerMainAttack;
         inputActions.Player.Roll.performed += PlayerRoll;
         inputActions.Player.SignatureAttack.performed += PlayerSignatureAttack;
-        inputActions.Player.ScrollInventory.performed += PlayerScroll;
+        inputActions.Player.ScrollInventory.performed += PlayerScrollInventory;
         inputActions.Player.DropWeapon.performed += PlayerDropWeapon;
         inputActions.Player.Inventory.performed += PlayerInventory;
         inputActions.Player.Pause.performed += PlayerPause;
@@ -176,7 +187,7 @@ public class PlayerController : Character
         inputActions.Player.MainAttack.performed -= PlayerMainAttack;
         inputActions.Player.Roll.performed -= PlayerRoll;
         inputActions.Player.SignatureAttack.performed -= PlayerSignatureAttack;
-        inputActions.Player.ScrollInventory.performed -= PlayerScroll;
+        inputActions.Player.ScrollInventory.performed -= PlayerScrollInventory;
         inputActions.Player.DropWeapon.performed -= PlayerDropWeapon;
         inputActions.Player.Inventory.performed -= PlayerInventory;
         inputActions.Player.Pause.performed += PlayerPause;
@@ -187,29 +198,29 @@ public class PlayerController : Character
      ****************************/
     public void PlayerMainAttack(InputAction.CallbackContext context)
     {
-        //TODO: Get callback context of inputActions.Player.SignatureAttack.performed
-        //InputBindingCompositeContext signatureContext = new InputBindingCompositeContext();
-        //string buffer;
+        StartCoroutine("PlayerAttackCoroutine");
+    }
 
-        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
+    public IEnumerator PlayerAttackCoroutine()
+    {
+        yield return new WaitForSeconds(1f / 60);
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused())
         {
-            if (playerDodge != DodgeState.Dodging)
+            if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
             {
-                if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive()) //IsInactive refers to attack activity
+                if (weaponTypes[currentWeaponType].gameObject.activeSelf)
+                    weaponTypes[currentWeaponType].StartCoroutine("Attack");
+            }
+            else
+            {
+                if (playerAttack == AttackState.NotAttacking)
                 {
-                    if (weaponTypes[currentWeaponType].gameObject.activeSelf)
-                        weaponTypes[currentWeaponType].StartCoroutine("Attack");
-                }
-                else
-                {
-                    if (playerAttack == AttackState.NotAttacking)
-                    {
-                        if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
-                        StartCoroutine("Attack");
-                    }
+                    if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
+                    StartCoroutine("Attack");
                 }
             }
         }
+        yield return null;
     }
 
     public void PlayerRoll(InputAction.CallbackContext context)
@@ -222,37 +233,45 @@ public class PlayerController : Character
 
     public void PlayerSignatureAttack(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
         {
-            if (playerDodge != DodgeState.Dodging) //IsInactive refers to attack activity
+            if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
             {
-                if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
+                if (inventory[equippedCustomWeapon].SignaturePercentage() >= 1 && !signing)
                 {
-                    if (inventory[equippedCustomWeapon].SignaturePercentage() >= 1 && !signing)
-                    {
-                        playerRb.velocity *= 0;
-                        weaponTypes[currentWeaponType].StartCoroutine("Signature");
-                        inventory[equippedCustomWeapon].ResetSignature();
-                        signatureBar.SetValue(0);
-                        signing = true;
-                        roomManager.GetCurrent().IncrementSignatureMovesUsed();
-                    }
+                    playerRb.velocity *= 0;
+                    weaponTypes[currentWeaponType].StartCoroutine("Signature");
+                    inventory[equippedCustomWeapon].ResetSignature();
+                    signatureBar.SetValue(0);
+                    signing = true;
+                    roomManager.GetCurrent().IncrementSignatureMovesUsed();
                 }
             }
+
         }
     }
 
-    public void PlayerScroll(InputAction.CallbackContext context)
+    public void PlayerScrollInventory(InputAction.CallbackContext context)
     {
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused())
         {
+            Debug.Log("Scroll Delta (" + context.control.path.Substring(0, 6) + "): " + context.ReadValue<float>());
             scrollDelta = context.ReadValue<float>();
-            if (scrollDelta > 0)
-                invScrollPos += Mathf.Max(1, (int)(scrollDelta * scrollSensitivity * Time.deltaTime * 0.5f));
-            else
-                invScrollPos += Mathf.Min(-1, (int)(scrollDelta * scrollSensitivity * Time.deltaTime * 0.5f));
 
-            if (inventory.Count > 0 && Input.mouseScrollDelta.y != 0)
+            if (context.control.path.Substring(0, 6) == "/Mouse")
+            {
+                if (scrollDelta > 0)
+                    invScrollPos += Mathf.Max(1, (int)(scrollDelta * scrollSensitivity * Time.deltaTime * 0.5f));
+                else
+                    invScrollPos += Mathf.Min(-1, (int)(scrollDelta * scrollSensitivity * Time.deltaTime * 0.5f));
+            }
+            else
+            {
+                invScrollPos += scrollDelta;
+                Debug.Log(invScrollPos);
+            }
+
+            if (inventory.Count > 0 && scrollDelta != 0)
             {
                 if (invScrollPos < 0)
                 {
@@ -315,26 +334,25 @@ public class PlayerController : Character
             playerLife = LifeState.Alive;
         }
 
-        //TODO: Restore this
         /* Set Controls */
-        //if (Input.GetKeyDown(KeyCode.Alpha1))
-        //    SetControls(0);
-        //else if (Input.GetKeyDown(KeyCode.Alpha2))
-        //    SetControls(1);
-        //else if (Input.GetKeyDown(KeyCode.Alpha3))
-        //    SetControls(2);
-        //else if (Input.GetKeyDown(KeyCode.Alpha4))
-        //    SetControls(3);
-        //else if (Input.GetKeyDown(KeyCode.Alpha5))
-        //    SetControls(4);
-        //else if (Input.GetKeyDown(KeyCode.Alpha6))
-        //    SetControls(5);
-        //else if (Input.GetKeyDown(KeyCode.Alpha7))
-        //    SetControls(6);
-        //else if (Input.GetKeyDown(KeyCode.Alpha8))
-        //    SetControls(7);
-        //else if (Input.GetKeyDown(KeyCode.Alpha9))
-        //    SetControls(8);
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            SetControls(0);
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            SetControls(1);
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+            SetControls(2);
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+            SetControls(3);
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+            SetControls(4);
+        else if (Input.GetKeyDown(KeyCode.Alpha6))
+            SetControls(5);
+        else if (Input.GetKeyDown(KeyCode.Alpha7))
+            SetControls(6);
+        else if (Input.GetKeyDown(KeyCode.Alpha8))
+            SetControls(7);
+        else if (Input.GetKeyDown(KeyCode.Alpha9))
+            SetControls(8);
 
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
         {
@@ -1245,43 +1263,30 @@ public class PlayerController : Character
     //    return mouseControls["Main Attack"];
     //}
 
-    // TODO: Restore This
-    //public bool SetControls(int i)
-    //{
-    //    if (i < 0 || i >= controlManager.PresetCount())
-    //    {
-    //        Debug.LogError("Control Preset " + i + " out of range!");
-    //        return false;
-    //    }
+    public bool SetControls(int i)
+    {
+        if (i < 0 || i >= controlSchemes.Count)
+        {
+            Debug.LogError("Control Preset " + i + " out of range!");
+            return false;
+        }
 
-    //    myControls = new Dictionary<string, List<KeyCode>>();
-    //    //mouseControls = new Dictionary<string, List<int>>();
+        inputActions.bindingMask = InputBinding.MaskByGroup(controlSchemes[i]);
+        ControlPresetSettings preset = controlSettings[i];
 
-    //    ControlPreset preset = controlManager.GetControlPreset(i);
-    //    if (preset != null)
-    //    {
-    //        foreach (string act in actions)
-    //        {
-    //            if (!myControls.ContainsKey(act))
-    //                myControls.Add(act, preset.GetKeyboardButtons(act));
-    //            else
-    //                myControls[act] = preset.GetKeyboardButtons(act);
+        signatureCombo = preset.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Combo ? true : false;
+        meleeAuto = preset.GetMeleeAim() == ControlPresetSettings.MeleeAim.Auto ? true : false;
+        rangedAssist = preset.GetRangedAssist();
+        scrollSensitivity = preset.GetScrollSensitivity();
 
-    //            //if (!mouseControls.ContainsKey(act))
-    //            //    mouseControls.Add(act, preset.GetMouseButtons(act));
-    //            //else
-    //            //    mouseControls[act] = preset.GetMouseButtons(act);
-    //        }
-    //    }
+        Debug.Log("Control Preset " + i + " activated.");
+        return true;
+    }
 
-    //    signatureCombo = preset.GetSignatureActivationMode() == ControlPreset.SignatureActivation.Combo ? true : false;
-    //    meleeAuto = preset.GetMeleeAim() == ControlPreset.MeleeAim.Auto ? true : false;
-    //    rangedAssist = preset.GetRangedAssist();
-    //    scrollSensitivity = preset.GetScrollSensitivity();
-
-    //    Debug.Log("Control Preset " + i + " activated.");
-    //    return true;
-    //}
+    public bool GetMeleeAuto()
+    {
+        return meleeAuto;
+    }
 
     public bool IsPaused()
     {

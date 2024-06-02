@@ -29,6 +29,9 @@ public class Spear : Weapon
 
     public override IEnumerator Attack()
     {
+        //Auto Aiming
+        AutoAim();
+
         //Pull the spear in
         owner.SetMobile(false);
         state = ActionState.Startup;

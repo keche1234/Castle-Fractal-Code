@@ -34,6 +34,7 @@ public class Sword : Weapon
 
     public override IEnumerator Attack()
     {
+        GameObject target = AutoAim();
         chainHitList = new List<Character>();
         state = ActionState.Startup;
         owner.SetAttackState(1);
@@ -49,6 +50,8 @@ public class Sword : Weapon
         {
             transform.RotateAround(owner.transform.position, owner.transform.up, (180 / (startupTime / rate)) * Time.deltaTime * -1);
             actionTime += Time.deltaTime;
+            if (target != null)
+                LookAtTarget(target);
             yield return null;
         }
         transform.localScale *= 2 * range;
@@ -81,6 +84,8 @@ public class Sword : Weapon
                 degreesRotated += angSpeed * Time.deltaTime;
                 actionTime += Time.deltaTime;
 
+                if (target != null)
+                    LookAtTarget(target);
                 yield return null;
             }
             yield return new WaitForSeconds(1f / 60f);
@@ -99,13 +104,22 @@ public class Sword : Weapon
                 {
                     chain = true;
                     chainNum++;
+                    actionTime = 0;
+                    target = AutoAim();
+                    while (actionTime < startupTime * 0.5f / rate)
+                    {
+                        if (target != null)
+                            LookAtTarget(target);
+                        actionTime += Time.deltaTime;
+                        yield return null;
+                    }
                     actionTime = chainWindow;
-                    yield return new WaitForSeconds(startupTime * 0.5f / rate);
                 }
                 actionTime += Time.deltaTime;
                 yield return null;
             }
         }
+
         if (chainNum % 2 == 1) transform.localPosition -= new Vector3(finalDist - 0.5f, 0, 0);
         else transform.localPosition += new Vector3(finalDist - 0.5f, 0, 0);
         yield return new WaitForSeconds(cooldownTime * 0.5f / rate);

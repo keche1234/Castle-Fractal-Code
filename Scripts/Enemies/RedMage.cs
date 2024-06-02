@@ -143,7 +143,7 @@ public class RedMage : Enemy
         {
             if (GetMyFreezeTime() <= 0)
             {
-                gameObject.tag = ""; //immune to freezing
+                gameObject.tag = "Untagged"; //immune to freezing
                 newX = Mathf.SmoothDamp(transform.localScale.x, target.x, ref xVelocity, sizeTime - actionTime);
                 newY = Mathf.SmoothDamp(transform.localScale.y, target.y, ref yVelocity, sizeTime - actionTime);
                 newZ = Mathf.SmoothDamp(transform.localScale.z, target.z, ref zVelocity, sizeTime - actionTime);
