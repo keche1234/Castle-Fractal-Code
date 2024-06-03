@@ -5,14 +5,15 @@ using UnityEngine;
 public class ControlPresetSettings : MonoBehaviour
 {
     [Header("Other settings")]
-    protected const int MAX_RANGE_ASSIST = 5;
+    protected const float RANGE_ASSIST_BASE = 10f; // Range assist is (base * level) degrees
+    protected const int MAX_RANGE_ASSIST_LEVEL = 9;
     protected const float MIN_SCROLL_SENSITIVITY = 0f;
     protected const float MAX_SCROLL_SENSITIVITY = 2f;
     [SerializeField] protected SignatureActivation sigActivation; //Changing this changes the signature activation between Button <-> Button + Attack
     [SerializeField] protected MeleeAim meleeAim;
     [SerializeField] protected RangedAim rangedAim;
 
-    [Range(1, MAX_RANGE_ASSIST)]
+    [Range(1, MAX_RANGE_ASSIST_LEVEL)]
     [SerializeField] protected int rangedAssist;
 
     [Range(MIN_SCROLL_SENSITIVITY, MAX_SCROLL_SENSITIVITY)]
@@ -65,7 +66,7 @@ public class ControlPresetSettings : MonoBehaviour
             return 0;
 
         if (rangedAim == RangedAim.Auto)
-            return MAX_RANGE_ASSIST + 1;
+            return 999;
 
         return rangedAssist;
     }
@@ -84,7 +85,17 @@ public class ControlPresetSettings : MonoBehaviour
     public float GetScrollSensitivity()
     {
         return scrollSensitivty;
-    }    
+    }
+
+    public static float GetRangeAssistBase()
+    {
+        return RANGE_ASSIST_BASE;
+    }
+
+    public static int GetMaxRangedAssist()
+    {
+        return MAX_RANGE_ASSIST_LEVEL;
+    }
 
     /***************************
      * Enumerated Types

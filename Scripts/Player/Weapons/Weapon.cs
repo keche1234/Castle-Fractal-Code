@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public abstract class Weapon : MonoBehaviour
 {
@@ -10,11 +11,13 @@ public abstract class Weapon : MonoBehaviour
     //[SerializeField] protected int maxDurability;
     protected bool heavy; //Player cannot move and use heavy weapons at the same time
     protected bool melee;
+    protected Enemy rangedAutoTarget = null;
 
     [Header("Player + Cam")]
     protected ActionState state;
     [SerializeField] protected PlayerController owner;
     [SerializeField] protected Camera cam;
+    [SerializeField] protected Canvas reticle;
     protected float sigSlowdown;
 
     protected List<GameObject> connected;
@@ -63,8 +66,132 @@ public abstract class Weapon : MonoBehaviour
 
     }
 
-    public abstract IEnumerator Attack();
-    public abstract IEnumerator Signature();
+    /******************
+     * Ranged Mechanics
+     ******************/
+    protected bool ReticleRender(bool signatureCheck = false)
+    {
+        // Determine whether to render the reticle
+        if (owner.GetActionInputDevice("main attack") == Mouse.current
+            || (signatureCheck && owner.GetActionInputDevice("signature attack") == Mouse.current && owner.IsSigning()))
+        {
+            reticle.gameObject.SetActive(true);
+            float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
+            reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
+            reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
+            return true;
+        }
+        else
+        {
+            reticle.gameObject.SetActive(false);
+            // TODO: Enable subreticle if ranged assist is on
+
+            return false;
+        }
+    }
+
+    protected void FindAutoTarget()
+    {
+        if (IsInactive())
+        {
+            // Find AutoTarget
+            if (owner.GetRangedAssist() > 0)
+            {
+                /*****************************************************
+                 * Determine what the player might be trying to aim at
+                 *****************************************************/
+                RaycastHit hit;
+                Vector3 aimVector = Vector3.zero;
+                if (owner.GetActionInputDevice("main attack") == Mouse.current)
+                {
+                    // Wherever the mouse hovers, treat that as your forward
+                    aimVector = reticle.transform.position - owner.transform.position;
+                    aimVector = new Vector3(aimVector.x, 0, aimVector.z).normalized;
+                }
+                else if (owner.GetActionInputDevice("main attack") == Keyboard.current)
+                {
+                    aimVector = owner.transform.forward;
+                }
+
+                /****************
+                 * Set the target
+                 ****************/
+                if (owner.GetRangedAssist() > ControlPresetSettings.GetMaxRangedAssist())
+                {
+                    // Overwrite the current target if the player faces an enemy
+                    if (Physics.Raycast(owner.transform.position, aimVector, out hit, Mathf.Infinity, LayerMask.GetMask("Enemy")))
+                        rangedAutoTarget = hit.collider.gameObject.GetComponent<Enemy>();
+                }
+                else
+                {
+                    float angle = ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist();
+                    Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(angle, Vector3.up) * aimVector * 30f, Color.red);
+                    Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(-angle, Vector3.up) * aimVector * 30f, Color.red);
+                    rangedAutoTarget = FindClosestTarget(aimVector, ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist());
+                }
+                // TODO: Draw Subreticle under target
+            }
+            else
+                rangedAutoTarget = null;
+        }
+    }
+
+    /************
+     * Parameters
+     ************/
+    public bool IsHeavy()
+    {
+        return heavy;
+    }
+
+    public bool IsMelee()
+    {
+        return melee;
+    }
+
+    public static float GetBasePower()
+    {
+        return 0;
+    }
+
+    public static float GetBaseDurability()
+    {
+        return 0;
+    }
+
+    /************
+     * Attacking
+     ************/
+    public abstract IEnumerator Attack(InputDevice device);
+    public abstract IEnumerator Signature(InputDevice device);
+
+    public Vector3 DetermineAttackDirection(InputDevice device)
+    {
+        Vector3 worldPoint;
+        Vector3 depthVec;
+        float cameraDistance;
+        Vector3 dir;
+
+        if (rangedAutoTarget)
+        {
+            dir = new Vector3(rangedAutoTarget.gameObject.transform.position.x - owner.transform.position.x, 0,
+                                rangedAutoTarget.gameObject.transform.position.z - owner.transform.position.z).normalized;
+        }
+        else
+        {
+            if (device == Mouse.current)
+            {
+                worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
+                depthVec = (worldPoint - cam.transform.position).normalized;
+                cameraDistance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
+                worldPoint = cam.transform.position + (depthVec * cameraDistance);
+                dir = new Vector3(worldPoint.x - owner.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
+            }
+            else
+                dir = owner.transform.forward;
+        }
+        return dir;
+    }
 
     public void Abort()
     {
@@ -81,6 +208,9 @@ public abstract class Weapon : MonoBehaviour
         transform.localScale = initScale;
     }
 
+    /************************
+     * Action State Handling
+     ************************/
     protected enum ActionState
     {
         Inactive = 0b_0001,
@@ -121,26 +251,6 @@ public abstract class Weapon : MonoBehaviour
         else state = ActionState.Inactive;
     }
 
-    public bool IsHeavy()
-    {
-        return heavy;
-    }
-
-    public bool IsMelee()
-    {
-        return melee;
-    }
-
-    public static float GetBasePower()
-    {
-        return 0;
-    }
-
-    public static float GetBaseDurability()
-    {
-        return 0;
-    }
-
     public void SetState(int s)
     {
         if (s == 0)
@@ -153,6 +263,9 @@ public abstract class Weapon : MonoBehaviour
             state = ActionState.Cooldown;
     }
 
+    /*****************************
+     * Ability Modifier Mechanics
+     *****************************/
     protected float CalculateRate()
     {
         CustomWeapon current = owner.GetCustomWeapon();
@@ -201,30 +314,82 @@ public abstract class Weapon : MonoBehaviour
         return 1;
     }
 
-    protected GameObject AutoAim()
+    /*************
+     * Targetting
+     *************/
+    protected Enemy FindClosestTarget()
     {
-        //Auto Aiming
-        if (owner.GetMeleeAuto())
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        if (enemies.Length > 0)
         {
-            Enemy[] enemies = FindObjectsOfType<Enemy>();
-            if (enemies.Length > 0)
+            // Find closest enemy
+            int closestIndex = 0;
+            float closestDistance = new Vector3(owner.transform.position.x - enemies[0].transform.position.x, 0,
+                                                owner.transform.position.z - enemies[0].transform.position.z).magnitude;
+            for (int i = 1; i < enemies.Length; i++)
             {
-                // Find closest enemy
-                int closestIndex = 0;
-                float closestDistance = new Vector3(owner.transform.position.x - enemies[0].transform.position.x, 0,
-                                                    owner.transform.position.z - enemies[0].transform.position.z).magnitude;
-                for (int i = 1; i < enemies.Length; i++)
+                float thisDistance = new Vector3(owner.transform.position.x - enemies[i].transform.position.x, 0,
+                                                owner.transform.position.z - enemies[i].transform.position.z).magnitude;
+                if (thisDistance < closestDistance)
                 {
-                    float thisDistance = new Vector3(owner.transform.position.x - enemies[i].transform.position.x, 0,
-                                                    owner.transform.position.z - enemies[i].transform.position.z).magnitude;
-                    if (thisDistance < closestDistance)
+                    closestIndex = i;
+                    closestDistance = thisDistance;
+                }
+            }
+            return enemies[closestIndex];
+        }
+        return null;
+    }
+
+    /************************************************************************
+     * Find the closest target within a field of view of the owner
+     * (fovDegrees means fovDegrees to the left, and fovDegrees to the right)
+     ************************************************************************/
+    protected Enemy FindClosestTarget(Vector3 myAim, float fovDegrees)
+    {
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+        if (enemies.Length > 0)
+        {
+            // Find closest enemy
+            int closestIndex = -1;
+            float closestDistance = 9999999f;
+            for (int i = 0; i < enemies.Length; i++)
+            {
+                Vector3 thisDistanceVector = new Vector3(enemies[i].transform.position.x - owner.transform.position.x, 0,
+                                                enemies[i].transform.position.z - owner.transform.position.z);
+                if (closestIndex == -1 || thisDistanceVector.magnitude < closestDistance)
+                {
+                    // Get angle between owner.transform.forward and thisDistanceVector
+                    if (Vector3.Angle(myAim, thisDistanceVector) <= fovDegrees)
                     {
                         closestIndex = i;
-                        closestDistance = thisDistance;
+                        closestDistance = thisDistanceVector.magnitude;
+                        Debug.DrawRay(owner.transform.position, thisDistanceVector);
                     }
                 }
-                LookAtTarget(enemies[closestIndex].gameObject);
-                return enemies[closestIndex].gameObject;
+            }
+            if (closestIndex >= 0)
+                return enemies[closestIndex];
+            return null;
+        }
+        return null;
+    }
+
+    protected GameObject MeleeAutoAim()
+    {
+        if (!melee)
+        {
+            Debug.LogError("Cannot use this method for ranged weapons! You may be looking for `FindClosestTarget`.");
+            return null;
+        }
+
+        if (owner.GetMeleeAuto())
+        {
+            Enemy closest = FindClosestTarget();
+            if (closest != null)
+            {
+                LookAtTarget(closest.gameObject);
+                return closest.gameObject;
             }
         }
         return null;

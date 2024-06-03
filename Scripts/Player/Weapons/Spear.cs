@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Spear : Weapon
 {
@@ -27,10 +28,10 @@ public class Spear : Weapon
 
     }
 
-    public override IEnumerator Attack()
+    public override IEnumerator Attack(InputDevice device)
     {
         //Auto Aiming
-        AutoAim();
+        MeleeAutoAim();
 
         //Pull the spear in
         owner.SetMobile(false);
@@ -85,7 +86,7 @@ public class Spear : Weapon
         yield return null;
     }
 
-    public override IEnumerator Signature()
+    public override IEnumerator Signature(InputDevice device)
     {
         state = ActionState.Startup;
         owner.SetAttackState(1);

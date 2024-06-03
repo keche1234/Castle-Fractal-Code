@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Sword : Weapon
 {
@@ -32,9 +33,9 @@ public class Sword : Weapon
 
     }
 
-    public override IEnumerator Attack()
+    public override IEnumerator Attack(InputDevice device)
     {
-        GameObject target = AutoAim();
+        GameObject target = MeleeAutoAim();
         chainHitList = new List<Character>();
         state = ActionState.Startup;
         owner.SetAttackState(1);
@@ -105,7 +106,7 @@ public class Sword : Weapon
                     chain = true;
                     chainNum++;
                     actionTime = 0;
-                    target = AutoAim();
+                    target = MeleeAutoAim();
                     while (actionTime < startupTime * 0.5f / rate)
                     {
                         if (target != null)
@@ -147,7 +148,7 @@ public class Sword : Weapon
         state = ActionState.Inactive;
     }
 
-    public override IEnumerator Signature()
+    public override IEnumerator Signature(InputDevice device)
     {
         state = ActionState.Startup;
         owner.SetAttackState(1);

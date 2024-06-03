@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Crossbow : Weapon
 {
@@ -17,8 +18,6 @@ public class Crossbow : Weapon
     public Projectile arrowPrefab;
     private Projectile[] arrows = new Projectile[7];
 
-    [SerializeField] protected Canvas reticle;
-
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -31,23 +30,17 @@ public class Crossbow : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
-        reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
-        reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
+        ReticleRender(true);
+        FindAutoTarget();
     }
 
-    public override IEnumerator Attack()
+    public override IEnumerator Attack(InputDevice device)
     {
         //Vector3 startVector = new Vector3(0, 0.8f, 0.6f);
         //Startup: Charge up
         state = ActionState.Startup;
         owner.SetAttackState(1);
-
-        Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
-        Vector3 depthVec = (worldPoint - cam.transform.position).normalized;
-        float distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
-        worldPoint = cam.transform.position + (depthVec * distance);
-        Vector3 dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
+        Vector3 dir = DetermineAttackDirection(device);
 
         // Attack Rate, Range Up
         float rate = CalculateRate();
@@ -104,11 +97,7 @@ public class Crossbow : Weapon
                     chainNum++;
                     actionTime = chainWindow;
 
-                    worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
-                    depthVec = (worldPoint - cam.transform.position).normalized;
-                    distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
-                    worldPoint = cam.transform.position + (depthVec * distance);
-                    dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
+                    dir = DetermineAttackDirection(device);
                     yield return new WaitForSeconds(startupTime);
                 }
                 actionTime += Time.deltaTime;
@@ -126,7 +115,7 @@ public class Crossbow : Weapon
         yield return null;
     }
 
-    public override IEnumerator Signature()
+    public override IEnumerator Signature(InputDevice device)
     {
         state = ActionState.Startup;
         owner.SetAttackState(1);
@@ -162,20 +151,16 @@ public class Crossbow : Weapon
         float delay = 0;
         for (float i = 0; i < (sigActiveTime * duration); i += Time.deltaTime)
         {
-            if (delay >= (6f / 60))
+            while (delay >= (6f / 60))
             {
-                Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
-                Vector3 depthVec = (worldPoint - cam.transform.position).normalized;
-                float distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
-                worldPoint = cam.transform.position + (depthVec * distance);
-                Vector3 dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
+                Vector3 dir = DetermineAttackDirection(device);
 
-                Projectile arrow = Instantiate(arrowPrefab, owner.gameObject.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
+                Projectile arrow = Instantiate(arrowPrefab, owner.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrow.transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * -0.6f) + ((Quaternion.AngleAxis(90, transform.up) * dir) * 0.2f);
                 arrow.Setup(18, owner, true, owner.GetCustomWeapon().GetPower() * damage, -1, 1.11f, 1, true);
                 arrow.SetKB(0, 0, 1, 3, false);
                 arrow.transform.parent = roomManager.GetCurrent().transform;
-                delay = 0;
+                delay -= 6f / 60;
             }
 
             delay += Time.deltaTime;

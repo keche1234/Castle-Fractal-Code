@@ -183,13 +183,13 @@ public class WisteriaWizard : Enemy
         //Cooldown
         state = ActionState.Cooldown;
         GetComponent<Collider>().isTrigger = false;
+        gameObject.tag = "Enemy";
         float i = 0;
         while (i < cooldownTime)
         {
             if (GetMyFreezeTime() <= 0) i += Time.deltaTime;
             yield return null;
         }
-        gameObject.tag = "Enemy";
         state = ActionState.Waiting;
     }
 

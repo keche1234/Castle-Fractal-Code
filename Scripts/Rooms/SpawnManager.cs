@@ -68,7 +68,7 @@ public class SpawnManager : MonoBehaviour
         spawned = true;
         currentWave++;
         allDefeated = false;
-        int spawnCount = Random.Range(lowRoll, highRoll);
+        int spawnCount = Random.Range(lowRoll, highRoll + 1);
         spawnPos = new List<Vector3>();
         covers = new List<GameObject>();
         List<int> spawnNum = new List<int>();

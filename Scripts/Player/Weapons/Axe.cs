@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Axe : Weapon
 {
@@ -26,10 +27,10 @@ public class Axe : Weapon
 
     }
 
-    public override IEnumerator Attack()
+    public override IEnumerator Attack(InputDevice device)
     {
         //Auto Aiming
-        AutoAim();
+        MeleeAutoAim();
         
         //Push the axe out
         owner.SetMobile(false);
@@ -117,7 +118,7 @@ public class Axe : Weapon
         yield return null;
     }
 
-    public override IEnumerator Signature()
+    public override IEnumerator Signature(InputDevice device)
     {
         state = ActionState.Startup;
         owner.SetAttackState(1);

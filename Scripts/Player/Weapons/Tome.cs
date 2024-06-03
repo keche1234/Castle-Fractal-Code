@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Tome : Weapon
 {
@@ -8,12 +9,10 @@ public class Tome : Weapon
     private float cooldownTime = 18f / 60f; //18 frames of endlag
 
     public Explosive fireball;
-    private float crisisMod = 1; //increases to 1.1 in Crisis (health is 25% or less)
+    private float crisisMod = 1; //increases to 1.1 in Crisis (health is 30% or less)
 
     private float sigStartup = 1f; //slow down time by 50% for this (realtime) duration
     private float sigActiveTime = 16f;
-
-    [SerializeField] protected Canvas reticle;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -32,23 +31,18 @@ public class Tome : Weapon
         else
             crisisMod = 1;
 
-        float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
-        reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
-        reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
+        ReticleRender(false);
+        FindAutoTarget();
     }
 
-    public override IEnumerator Attack()
+    public override IEnumerator Attack(InputDevice device)
     {
         owner.SetMobile(false);
         state = ActionState.Startup;
         owner.SetAttackState(1);
 
         // Find the magnitude needed for y to be cam.transform.position.y - 1f
-        Vector3 worldPoint = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.transform.position.y));
-        Vector3 depthVec = (worldPoint - cam.transform.position).normalized;
-        float distance = (cam.transform.position.y - 1f) / (depthVec.y != 0 ? Mathf.Abs(depthVec.y) : 1);
-        worldPoint = cam.transform.position + (depthVec * distance);
-        Vector3 dir = new Vector3(worldPoint.x - owner.gameObject.transform.position.x, 0, worldPoint.z - owner.gameObject.transform.position.z).normalized;
+        Vector3 dir = DetermineAttackDirection(device);
 
         // Attack Rate, Range Up
         float rate = CalculateRate();
@@ -90,7 +84,7 @@ public class Tome : Weapon
         yield return null;
     }
 
-    public override IEnumerator Signature()
+    public override IEnumerator Signature(InputDevice device)
     {
         //Startup
         state = ActionState.Startup;

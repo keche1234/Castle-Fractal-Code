@@ -9,7 +9,7 @@ public class PlayerController : Character
 
     //private float horizontalInput;
     //private float verticalInput;
-    protected Vector2 moveVector;
+    protected Vector2 moveInputVector;
     protected float scrollDelta;
 
     //character states
@@ -198,10 +198,10 @@ public class PlayerController : Character
      ****************************/
     public void PlayerMainAttack(InputAction.CallbackContext context)
     {
-        StartCoroutine("PlayerAttackCoroutine");
+        StartCoroutine(PlayerAttackCoroutine(context.control.device));
     }
 
-    public IEnumerator PlayerAttackCoroutine()
+    public IEnumerator PlayerAttackCoroutine(InputDevice device)
     {
         yield return new WaitForSeconds(1f / 60);
         if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused())
@@ -209,13 +209,15 @@ public class PlayerController : Character
             if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
             {
                 if (weaponTypes[currentWeaponType].gameObject.activeSelf)
-                    weaponTypes[currentWeaponType].StartCoroutine("Attack");
+                {
+                    if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
+                    weaponTypes[currentWeaponType].StartCoroutine(weaponTypes[currentWeaponType].Attack(device));
+                }
             }
             else
             {
                 if (playerAttack == AttackState.NotAttacking)
                 {
-                    if (weaponTypes[currentWeaponType].IsHeavy()) playerRb.velocity *= 0;
                     StartCoroutine("Attack");
                 }
             }
@@ -240,7 +242,7 @@ public class PlayerController : Character
                 if (inventory[equippedCustomWeapon].SignaturePercentage() >= 1 && !signing)
                 {
                     playerRb.velocity *= 0;
-                    weaponTypes[currentWeaponType].StartCoroutine("Signature");
+                    weaponTypes[currentWeaponType].StartCoroutine(weaponTypes[currentWeaponType].Signature(context.control.device));
                     inventory[equippedCustomWeapon].ResetSignature();
                     signatureBar.SetValue(0);
                     signing = true;
@@ -255,7 +257,6 @@ public class PlayerController : Character
     {
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused())
         {
-            Debug.Log("Scroll Delta (" + context.control.path.Substring(0, 6) + "): " + context.ReadValue<float>());
             scrollDelta = context.ReadValue<float>();
 
             if (context.control.path.Substring(0, 6) == "/Mouse")
@@ -268,7 +269,6 @@ public class PlayerController : Character
             else
             {
                 invScrollPos += scrollDelta;
-                Debug.Log(invScrollPos);
             }
 
             if (inventory.Count > 0 && scrollDelta != 0)
@@ -334,25 +334,29 @@ public class PlayerController : Character
             playerLife = LifeState.Alive;
         }
 
-        /* Set Controls */
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            SetControls(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            SetControls(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-            SetControls(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
-            SetControls(3);
-        else if (Input.GetKeyDown(KeyCode.Alpha5))
-            SetControls(4);
-        else if (Input.GetKeyDown(KeyCode.Alpha6))
-            SetControls(5);
-        else if (Input.GetKeyDown(KeyCode.Alpha7))
-            SetControls(6);
-        else if (Input.GetKeyDown(KeyCode.Alpha8))
-            SetControls(7);
-        else if (Input.GetKeyDown(KeyCode.Alpha9))
-            SetControls(8);
+        // Can change controls while not attacking
+        if (GetAttackState() == 0 && (equippedCustomWeapon == -1 || weaponTypes[currentWeaponType].IsInactive()))
+        {
+            /* Set Controls */
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+                SetControls(0);
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+                SetControls(1);
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+                SetControls(2);
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+                SetControls(3);
+            else if (Input.GetKeyDown(KeyCode.Alpha5))
+                SetControls(4);
+            else if (Input.GetKeyDown(KeyCode.Alpha6))
+                SetControls(5);
+            else if (Input.GetKeyDown(KeyCode.Alpha7))
+                SetControls(6);
+            else if (Input.GetKeyDown(KeyCode.Alpha8))
+                SetControls(7);
+            else if (Input.GetKeyDown(KeyCode.Alpha9))
+                SetControls(8);
+        }
 
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
         {
@@ -386,7 +390,7 @@ public class PlayerController : Character
                 }
             }
 
-            moveVector = inputActions.Player.Move.ReadValue<Vector2>();
+            moveInputVector = inputActions.Player.Move.ReadValue<Vector2>();
         }
 
         if (!spawner.AllDefeated())
@@ -405,11 +409,35 @@ public class PlayerController : Character
             {
                 if (controllable)
                 {
-                    if (Mathf.Abs(moveVector.x) >= 0.5f || Mathf.Abs(moveVector.y) >= 0.5f)
+                    if (Mathf.Abs(moveInputVector.x) >= 0.5f || Mathf.Abs(moveInputVector.y) >= 0.5f)
                     {
-                        Vector3 direction = new Vector3(moveVector.x, 0, moveVector.y).normalized;
-                        transform.rotation = Quaternion.LookRotation(direction);
-                        playerRb.velocity = transform.forward * speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
+                        Vector3 travelVector = transform.forward;
+
+                        // If meleeAuto and starting up or attacking, don't rotate to face movement direction
+                        if (meleeAuto && FindObjectsOfType<Enemy>().Length > 0)
+                        {
+                            if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsMelee()
+                                && (weaponTypes[currentWeaponType].IsStarting() || weaponTypes[currentWeaponType].IsAttacking()))
+                            {
+                                travelVector = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                            }
+                            else if (GetAttackState() == 1 || GetAttackState() == 2)
+                            {
+                                travelVector = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                            }
+                            else
+                            {
+                                Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                                transform.rotation = Quaternion.LookRotation(direction);
+                            }
+                        }
+                        else
+                        {
+                            Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                            transform.rotation = Quaternion.LookRotation(direction);
+                        }
+
+                        playerRb.velocity = travelVector * speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
                     }
                     else
                     {
@@ -1137,14 +1165,16 @@ public class PlayerController : Character
             int damage;
             if (h.gameObject.GetComponent<Explosive>() != null)
             {
-                damage = (int)(h.GetSource().GetPower() * h.GetDamageMod() * 100 / 30);
+                damage = (int)(h.GetSource().GetPower() * h.GetDamageMod() * 100 / 5);
+                Debug.Log(damage);
                 //damage = ((Enemy)h.GetSource()).SimulateDamage(((Explosive)h).GetDamageMod(), this);
             }
             else
             {
-                damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 100 / 30);
+                damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 100 / 5);
+                Debug.Log(damage);
             }
-            int pts = (int)(damage * 100 * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
+            int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
             {
                 int pity = 1;
@@ -1283,9 +1313,51 @@ public class PlayerController : Character
         return true;
     }
 
+    /**********************************************
+     * Get the input device of the requested action
+     **********************************************/
+    public InputDevice GetActionInputDevice(string s)
+    {
+        InputAction act;
+        s = s.ToLower();
+        switch (s)
+        {
+            case "main attack":
+                act = inputActions.Player.MainAttack;
+                break;
+            case "roll":
+                act = inputActions.Player.Roll;
+                break;
+            case "signature attack":
+                act = inputActions.Player.SignatureAttack;
+                break;
+            case "scroll inventory":
+                act = inputActions.Player.ScrollInventory;
+                break;
+            case "drop weapon":
+                act = inputActions.Player.DropWeapon;
+                break;
+            case "inventory":
+                act = inputActions.Player.Inventory;
+                break;
+            case "pause":
+                act = inputActions.Player.Pause;
+                break;
+            default:
+                Debug.LogError("Please check the spelling for requested action \"" + s + "\".");
+                return null;
+        }
+        return act.controls[0].device;
+    }
+
     public bool GetMeleeAuto()
     {
         return meleeAuto;
+    }
+
+    public float GetRangedAssist()
+    {
+        return rangedAssist;
     }
 
     public bool IsPaused()
