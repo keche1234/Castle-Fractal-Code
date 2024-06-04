@@ -30,7 +30,11 @@ public class Sword : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-
+        if (IsInactive())
+        {
+            Enemy target = FindClosestTarget();
+            RenderSubReticle(target ? target.gameObject : null);
+        }
     }
 
     public override IEnumerator Attack(InputDevice device)
@@ -51,8 +55,8 @@ public class Sword : Weapon
         {
             transform.RotateAround(owner.transform.position, owner.transform.up, (180 / (startupTime / rate)) * Time.deltaTime * -1);
             actionTime += Time.deltaTime;
-            if (target != null)
-                LookAtTarget(target);
+            LookAtTarget(target);
+            RenderSubReticle(target);
             yield return null;
         }
         transform.localScale *= 2 * range;
@@ -85,8 +89,8 @@ public class Sword : Weapon
                 degreesRotated += angSpeed * Time.deltaTime;
                 actionTime += Time.deltaTime;
 
-                if (target != null)
-                    LookAtTarget(target);
+                LookAtTarget(target);
+                RenderSubReticle(target);
                 yield return null;
             }
             yield return new WaitForSeconds(1f / 60f);
@@ -109,8 +113,8 @@ public class Sword : Weapon
                     target = MeleeAutoAim();
                     while (actionTime < startupTime * 0.5f / rate)
                     {
-                        if (target != null)
-                            LookAtTarget(target);
+                        LookAtTarget(target);
+                        RenderSubReticle(target);
                         actionTime += Time.deltaTime;
                         yield return null;
                     }
@@ -136,12 +140,23 @@ public class Sword : Weapon
             else angSpeed = -(degreesRotated - 180) / (cooldownTime * 0.8f / rate);
 
             transform.RotateAround(owner.transform.position, owner.transform.up, angSpeed * Time.deltaTime);
-            actionTime += Time.deltaTime;
 
+            LookAtTarget(target);
+            RenderSubReticle(target);
+
+            actionTime += Time.deltaTime;
             yield return null;
         }
         InitializeTransform();
-        yield return new WaitForSeconds(cooldownTime * 0.1f / rate);
+        actionTime = 0;
+        while (actionTime <= (cooldownTime * 0.1f / rate))
+        {
+            LookAtTarget(target);
+            RenderSubReticle(target);
+
+            actionTime += Time.deltaTime;
+            yield return null;
+        }
 
         chainHitList = new List<Character>();
         owner.SetAttackState(0);

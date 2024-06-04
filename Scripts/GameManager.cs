@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] protected GameObject screenBars;
 
+    [Header("Event Manager")]
+    [SerializeField] protected EventSystem eventSystem;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,6 +56,9 @@ public class GameManager : MonoBehaviour
             blackFade.enabled = true;
             Cursor.visible = true;
             pauseMenus[m].gameObject.SetActive(true);
+
+            Button[] buttons = pauseMenus[m].GetComponentsInChildren<Button>(true);
+            eventSystem.SetSelectedGameObject(buttons[0].gameObject);
         }
         else //unpause the game!
         {

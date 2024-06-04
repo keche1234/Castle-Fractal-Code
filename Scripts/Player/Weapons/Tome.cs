@@ -31,8 +31,8 @@ public class Tome : Weapon
         else
             crisisMod = 1;
 
-        ReticleRender(false);
-        FindAutoTarget();
+        RenderReticles(false);
+        FindRangedAutoTarget();
     }
 
     public override IEnumerator Attack(InputDevice device)
@@ -42,7 +42,7 @@ public class Tome : Weapon
         owner.SetAttackState(1);
 
         // Find the magnitude needed for y to be cam.transform.position.y - 1f
-        Vector3 dir = DetermineAttackDirection(device);
+        Vector3 dir = DetermineRangedAttackDirection(device);
 
         // Attack Rate, Range Up
         float rate = CalculateRate();

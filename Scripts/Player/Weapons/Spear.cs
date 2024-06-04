@@ -25,13 +25,17 @@ public class Spear : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-
+        if (IsInactive())
+        {
+            Enemy target = FindClosestTarget();
+            RenderSubReticle(target ? target.gameObject : null);
+        }
     }
 
     public override IEnumerator Attack(InputDevice device)
     {
         //Auto Aiming
-        MeleeAutoAim();
+        GameObject target = MeleeAutoAim();
 
         //Pull the spear in
         owner.SetMobile(false);
@@ -42,7 +46,12 @@ public class Spear : Weapon
         float rate = CalculateRate();
         float range = CalculateRange();
         transform.localPosition = new Vector3(0.25f, 0.2f, 0) * range;
-        yield return new WaitForSeconds(startupTime / rate);
+
+        for (float t = 0; t < startupTime / rate; t += Time.deltaTime)
+        {
+            RenderSubReticle(target);
+            yield return null;
+        }
 
         //Thrust!
         state = ActionState.Active;
@@ -62,6 +71,7 @@ public class Spear : Weapon
             con = mainAttack[0].GetConnected();
             foreach (Character c in con)
                 mainAttack[1].AddConnected(c);
+            RenderSubReticle(target);
             yield return null;
         }
 
@@ -73,10 +83,19 @@ public class Spear : Weapon
             item.ClearConnected();
             item.gameObject.SetActive(false);
         }
-        yield return new WaitForSeconds((cooldownTime / rate) / 2);
+
+        for (float t = 0; t < (cooldownTime / rate) / 2; t += Time.deltaTime)
+        {
+            RenderSubReticle(target);
+            yield return null;
+        }
         transform.localPosition = new Vector3(0.25f, 0.2f, 0) * range;
         transform.localScale /= 2 * range;
-        yield return new WaitForSeconds((cooldownTime / rate) / 2);
+        for (float t = 0; t < (cooldownTime / rate) / 2; t += Time.deltaTime)
+        {
+            RenderSubReticle(target);
+            yield return null;
+        }
 
         //Set it to normal
         state = ActionState.Inactive;

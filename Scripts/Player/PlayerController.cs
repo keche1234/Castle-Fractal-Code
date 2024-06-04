@@ -257,6 +257,10 @@ public class PlayerController : Character
     {
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused())
         {
+            Debug.Log(weaponTypes[currentWeaponType].IsInactive());
+            if (equippedCustomWeapon >= 0 && !weaponTypes[currentWeaponType].IsInactive())
+                return;
+
             scrollDelta = context.ReadValue<float>();
 
             if (context.control.path.Substring(0, 6) == "/Mouse")
@@ -416,6 +420,7 @@ public class PlayerController : Character
                         // If meleeAuto and starting up or attacking, don't rotate to face movement direction
                         if (meleeAuto && FindObjectsOfType<Enemy>().Length > 0)
                         {
+                            // Travel vector should be movement vector since the weapon handles the character rotation
                             if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsMelee()
                                 && (weaponTypes[currentWeaponType].IsStarting() || weaponTypes[currentWeaponType].IsAttacking()))
                             {
@@ -437,6 +442,7 @@ public class PlayerController : Character
                             transform.rotation = Quaternion.LookRotation(direction);
                         }
 
+                        // Actual movement
                         playerRb.velocity = travelVector * speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
                     }
                     else

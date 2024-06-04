@@ -24,14 +24,18 @@ public class Axe : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-
+        if (IsInactive())
+        {
+            Enemy target = FindClosestTarget();
+            RenderSubReticle(target ? target.gameObject : null);
+        }
     }
 
     public override IEnumerator Attack(InputDevice device)
     {
         //Auto Aiming
-        MeleeAutoAim();
-        
+        GameObject target = MeleeAutoAim();
+
         //Push the axe out
         owner.SetMobile(false);
         state = ActionState.Startup;
@@ -46,11 +50,12 @@ public class Axe : Weapon
         float actionTime = 0;
         float degreesRotated = 0;
 
-        while (actionTime <= startupTime / rate)
+        while (actionTime < startupTime / rate)
         {
             transform.RotateAround(owner.transform.position, owner.transform.right, (-195 / (startupTime / rate)) * Time.deltaTime);
-
             degreesRotated += (-195 / (startupTime / rate)) * Time.deltaTime;
+
+            RenderSubReticle(target);
             actionTime += Time.deltaTime;
             yield return null;
         }
@@ -68,11 +73,12 @@ public class Axe : Weapon
         degreesRotated = 0;
         //bool groundCollision = false;
 
-        while (actionTime <= (startupTime / rate))
+        while (actionTime < (startupTime / rate))
         {
             transform.RotateAround(owner.transform.position, owner.transform.right, (195 / (startupTime / rate)) * Time.deltaTime);
-
             degreesRotated += (195 / startupTime) * Time.deltaTime;
+
+            RenderSubReticle(target);
             actionTime += Time.deltaTime;
 
             //if (degreesRotated >= 180 && !groundCollision)
@@ -95,7 +101,13 @@ public class Axe : Weapon
             mainAttack[i].gameObject.SetActive(true);
         }
 
-        yield return new WaitForSeconds(activeTime);
+        actionTime = 0;
+        while (actionTime < activeTime)
+        {
+            RenderSubReticle(target);
+            actionTime += Time.deltaTime;
+            yield return null;
+        }
 
         //Cooldown (shift to the side)
         state = ActionState.Cooldown;
@@ -107,7 +119,13 @@ public class Axe : Weapon
             item.gameObject.SetActive(false);
         }
 
-        yield return new WaitForSeconds(cooldownTime / rate);
+        actionTime = 0;
+        while (actionTime < cooldownTime / rate)
+        {
+            RenderSubReticle(target);
+            actionTime += Time.deltaTime;
+            yield return null;
+        }
 
         state = ActionState.Inactive;
         transform.localPosition = new Vector3(-.25f, 0.2f, 0.2f) * range;

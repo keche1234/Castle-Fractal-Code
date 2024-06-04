@@ -18,6 +18,7 @@ public abstract class Weapon : MonoBehaviour
     [SerializeField] protected PlayerController owner;
     [SerializeField] protected Camera cam;
     [SerializeField] protected Canvas reticle;
+    [SerializeField] protected Canvas subReticle;
     protected float sigSlowdown;
 
     protected List<GameObject> connected;
@@ -67,30 +68,9 @@ public abstract class Weapon : MonoBehaviour
     }
 
     /******************
-     * Ranged Mechanics
+     * Aim Mechanics
      ******************/
-    protected bool ReticleRender(bool signatureCheck = false)
-    {
-        // Determine whether to render the reticle
-        if (owner.GetActionInputDevice("main attack") == Mouse.current
-            || (signatureCheck && owner.GetActionInputDevice("signature attack") == Mouse.current && owner.IsSigning()))
-        {
-            reticle.gameObject.SetActive(true);
-            float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
-            reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
-            reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
-            return true;
-        }
-        else
-        {
-            reticle.gameObject.SetActive(false);
-            // TODO: Enable subreticle if ranged assist is on
-
-            return false;
-        }
-    }
-
-    protected void FindAutoTarget()
+    protected void FindRangedAutoTarget()
     {
         if (IsInactive())
         {
@@ -129,11 +109,43 @@ public abstract class Weapon : MonoBehaviour
                     Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(-angle, Vector3.up) * aimVector * 30f, Color.red);
                     rangedAutoTarget = FindClosestTarget(aimVector, ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist());
                 }
-                // TODO: Draw Subreticle under target
             }
             else
                 rangedAutoTarget = null;
         }
+    }
+
+    protected void RenderReticles(bool signatureCheck = false)
+    {
+        // Determine whether to render the reticle
+        if (owner.GetActionInputDevice("main attack") == Mouse.current
+            || (signatureCheck && owner.GetActionInputDevice("signature attack") == Mouse.current && owner.IsSigning()))
+        {
+            reticle.gameObject.SetActive(true);
+            float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
+            reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
+            reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
+        }
+        else
+            reticle.gameObject.SetActive(false);
+
+        RenderSubReticle(rangedAutoTarget ? rangedAutoTarget.gameObject : null);
+    }
+
+    protected void RenderSubReticle(GameObject target)
+    {
+        if (target)
+        {
+            subReticle.gameObject.SetActive(true);
+            subReticle.transform.position = new Vector3(target.transform.position.x, 0.1f, target.transform.position.z);
+
+            subReticle.transform.localScale = Vector3.one * 0.0075f;
+            if (target.gameObject.GetComponent<Boss>()) subReticle.transform.localScale *= 2.5f;
+
+            subReticle.transform.rotation = Quaternion.Euler(90, 0, 0);
+        }
+        else
+            subReticle.gameObject.SetActive(false);
     }
 
     /************
@@ -165,7 +177,7 @@ public abstract class Weapon : MonoBehaviour
     public abstract IEnumerator Attack(InputDevice device);
     public abstract IEnumerator Signature(InputDevice device);
 
-    public Vector3 DetermineAttackDirection(InputDevice device)
+    public Vector3 DetermineRangedAttackDirection(InputDevice device)
     {
         Vector3 worldPoint;
         Vector3 depthVec;
@@ -395,10 +407,16 @@ public abstract class Weapon : MonoBehaviour
         return null;
     }
 
-    protected void LookAtTarget(GameObject obj)
+    protected bool LookAtTarget(GameObject obj)
     {
-        Vector3 direction = new Vector3(obj.transform.position.x - owner.transform.position.x, 0,
-                                                obj.transform.position.z - owner.transform.position.z).normalized;
-        owner.transform.rotation = Quaternion.LookRotation(direction);
+        if (obj)
+        {
+            Vector3 direction = new Vector3(obj.transform.position.x - owner.transform.position.x, 0,
+                                                    obj.transform.position.z - owner.transform.position.z).normalized;
+            owner.transform.rotation = Quaternion.LookRotation(direction);
+            return true;
+        }
+
+        return false;
     }
 }

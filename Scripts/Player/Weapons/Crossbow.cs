@@ -30,8 +30,8 @@ public class Crossbow : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        ReticleRender(true);
-        FindAutoTarget();
+        RenderReticles(true);
+        FindRangedAutoTarget();
     }
 
     public override IEnumerator Attack(InputDevice device)
@@ -40,7 +40,7 @@ public class Crossbow : Weapon
         //Startup: Charge up
         state = ActionState.Startup;
         owner.SetAttackState(1);
-        Vector3 dir = DetermineAttackDirection(device);
+        Vector3 dir = DetermineRangedAttackDirection(device);
 
         // Attack Rate, Range Up
         float rate = CalculateRate();
@@ -97,7 +97,7 @@ public class Crossbow : Weapon
                     chainNum++;
                     actionTime = chainWindow;
 
-                    dir = DetermineAttackDirection(device);
+                    dir = DetermineRangedAttackDirection(device);
                     yield return new WaitForSeconds(startupTime);
                 }
                 actionTime += Time.deltaTime;
@@ -153,7 +153,7 @@ public class Crossbow : Weapon
         {
             while (delay >= (6f / 60))
             {
-                Vector3 dir = DetermineAttackDirection(device);
+                Vector3 dir = DetermineRangedAttackDirection(device);
 
                 Projectile arrow = Instantiate(arrowPrefab, owner.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrow.transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * -0.6f) + ((Quaternion.AngleAxis(90, transform.up) * dir) * 0.2f);
