@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 using TMPro;
 
 public class GameManager : MonoBehaviour
@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] protected int lastMenu = 0;
     [SerializeField] protected bool gameOver = false;
 
+    [SerializeField] protected PlayerController player;
     [SerializeField] protected GameObject screenBars;
 
     [Header("Event Manager")]
@@ -58,7 +59,10 @@ public class GameManager : MonoBehaviour
             pauseMenus[m].gameObject.SetActive(true);
 
             Button[] buttons = pauseMenus[m].GetComponentsInChildren<Button>(true);
-            eventSystem.SetSelectedGameObject(buttons[0].gameObject);
+            if (player.GetActionInputDevice("main attack") == Keyboard.current)
+                eventSystem.SetSelectedGameObject(buttons[0].gameObject);
+            else
+                eventSystem.SetSelectedGameObject(null);
         }
         else //unpause the game!
         {
@@ -67,7 +71,7 @@ public class GameManager : MonoBehaviour
             //hide menus
             blackFade.enabled = false;
             Cursor.visible = false;
-            EventSystem.current.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(null);
             foreach (Canvas menu in pauseMenus)
                 menu.gameObject.SetActive(false);
         }

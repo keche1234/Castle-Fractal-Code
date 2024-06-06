@@ -25,11 +25,13 @@ public class Spear : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        if (IsInactive())
+        if (IsInactive() && owner.GetMeleeAuto())
         {
             Enemy target = FindClosestTarget();
             RenderSubReticle(target ? target.gameObject : null);
         }
+        else
+            subReticle.gameObject.SetActive(false);
     }
 
     public override IEnumerator Attack(InputDevice device)

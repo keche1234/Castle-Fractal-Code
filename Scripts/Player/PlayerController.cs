@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PlayerController : Character
 {
@@ -166,6 +168,7 @@ public class PlayerController : Character
         controlSchemes.Add(inputActions.Custom5Scheme.bindingGroup);
 
         inputActions.Player.Enable();
+        inputActions.Menus.Enable();
         SetControls(0);
     }
 
@@ -198,7 +201,14 @@ public class PlayerController : Character
      ****************************/
     public void PlayerMainAttack(InputAction.CallbackContext context)
     {
-        StartCoroutine(PlayerAttackCoroutine(context.control.device));
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused())
+        {
+            StartCoroutine(PlayerAttackCoroutine(context.control.device));
+        }
+        else if (gameManager.IsPaused() && GetActionInputDevice("main attack") == Keyboard.current)
+        {
+            EventSystem.current.currentSelectedGameObject.GetComponent<Button>().onClick.Invoke();
+        }
     }
 
     public IEnumerator PlayerAttackCoroutine(InputDevice device)
@@ -227,7 +237,7 @@ public class PlayerController : Character
 
     public void PlayerRoll(InputAction.CallbackContext context)
     {
-        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available)
+        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && !gameManager.IsPaused())
         {
             StartCoroutine(Dodge());
         }
@@ -249,7 +259,6 @@ public class PlayerController : Character
                     roomManager.GetCurrent().IncrementSignatureMovesUsed();
                 }
             }
-
         }
     }
 
@@ -295,7 +304,7 @@ public class PlayerController : Character
 
     public void PlayerDropWeapon(InputAction.CallbackContext context)
     {
-        if (inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f))
+        if (inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f) && !gameManager.IsPaused())
             StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
     }
 
@@ -393,7 +402,6 @@ public class PlayerController : Character
                     aonSignatureTimer += Time.deltaTime;
                 }
             }
-
             moveInputVector = inputActions.Player.Move.ReadValue<Vector2>();
         }
 
@@ -413,7 +421,7 @@ public class PlayerController : Character
             {
                 if (controllable)
                 {
-                    if (Mathf.Abs(moveInputVector.x) >= 0.5f || Mathf.Abs(moveInputVector.y) >= 0.5f)
+                    if (Mathf.Abs(moveInputVector.x) >= 0.1f || Mathf.Abs(moveInputVector.y) >= 0.1f)
                     {
                         Vector3 travelVector = transform.forward;
 
@@ -865,17 +873,20 @@ public class PlayerController : Character
              *  +30% if the weapon has "All Or Nothing D"
              *  +50% if the weapon has "All Or Nothing S"
              ********************************************/
-            float sigLoss = 0.2f;
-            int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
-            if (current.GetAbilities().Contains(place))
-                sigLoss += 0.3f;
+            if (!IsPaused())
+            {
+                float sigLoss = 0.2f;
+                int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
+                if (current.GetAbilities().Contains(place))
+                    sigLoss += 0.3f;
 
-            place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
-            if (current.GetAbilities().Contains(place))
-                sigLoss += 0.5f;
+                place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
+                if (current.GetAbilities().Contains(place))
+                    sigLoss += 0.5f;
 
-            if (equippedCustomWeapon != num)
-                current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
+                if (equippedCustomWeapon != num)
+                    current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
+            }
         }
         if (inventory.Count == 0) //no weapons? *megamind face*
         {
@@ -1178,7 +1189,6 @@ public class PlayerController : Character
             else
             {
                 damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 100 / 5);
-                Debug.Log(damage);
             }
             int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)

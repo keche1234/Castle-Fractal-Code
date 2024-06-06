@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class WeaponButton : MonoBehaviour
 {
@@ -114,14 +116,21 @@ public class WeaponButton : MonoBehaviour
 
             /*********************************************************************
              * Left Card Only- enable/disable arrows and show page based on index
+             * And select weapon button if on keyboard controls
              *********************************************************************/
             if (upArrow != null && downArrow != null)
             {
+                bool changedSelected = false;
                 if (weaponNumber == 0) //beginning of the inventory
                 {
                     upArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
                     upArrow.GetComponent<Image>().color = emptyColor;
                     upArrow.gameObject.GetComponent<Button>().enabled = false;
+                    if (player.GetActionInputDevice("main attack") == Keyboard.current)
+                    {
+                        EventSystem.current.SetSelectedGameObject(gameObject);
+                        changedSelected = true;
+                    }
                 }
                 else
                 {
@@ -135,6 +144,8 @@ public class WeaponButton : MonoBehaviour
                     downArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
                     downArrow.GetComponent<Image>().color = emptyColor;
                     downArrow.gameObject.GetComponent<Button>().enabled = false;
+                    if (!changedSelected && player.GetActionInputDevice("main attack") == Keyboard.current)
+                        EventSystem.current.SetSelectedGameObject(gameObject);
                 }
                 else
                 {
