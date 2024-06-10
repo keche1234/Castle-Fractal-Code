@@ -42,4 +42,14 @@ public class CrisisSignatureGain : CrisisStrength
         minMod = 0.8f;
         maxMod = 1.4f;
     }
+
+    new public static float GetMeanMod()
+    {
+        return (minMod + maxMod) / 2;
+    }
+
+    new public static float GetRandomMod()
+    {
+        return Random.Range(minMod, maxMod);
+    }
 }

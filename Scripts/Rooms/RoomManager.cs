@@ -11,18 +11,14 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected float height;
     //[SerializeField] protected ExitDoor exit;
 
-    [Header("Prefabs")]
+    //[Header("Prefabs")]
     [SerializeField] protected Room emptyRoomPrefab;
-    [SerializeField] protected GameObject floorPrefab;
-    [SerializeField] protected GameObject borderPrefab;
-    [SerializeField] protected GameObject wallPrefab;
-    [SerializeField] protected GameObject chestPrefab;
-    [SerializeField] protected GameObject doorPrefab;
+    //[SerializeField] protected GameObject floorPrefab;
+    //[SerializeField] protected GameObject borderPrefab;
+    //[SerializeField] protected GameObject wallPrefab;
+    //[SerializeField] protected GameObject chestPrefab;
+    //[SerializeField] protected GameObject doorPrefab;
     [SerializeField] protected List<Boss> bossPrefabs;
-
-    [Header("Materials")]
-    [SerializeField] protected Material locked;
-    [SerializeField] protected Material unlocked;
 
     [Header("Game Management")]
     [SerializeField] protected SpawnManager spawnManager;
@@ -46,7 +42,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
             if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
             {
                 Room r = GetCurrent();
-                Vector3 weaponPos = new Vector3(Random.Range((-r.GetLength() + 2) / 2, (r.GetLength() - 2) / 2), 1, Random.Range((-r.GetWidth() + 2) / 2, (r.GetWidth() - 2) / 2));
+                Vector3 weaponPos = new Vector3(Random.Range((-r.GetXDimension() + 2) / 2, (r.GetXDimension() - 2) / 2), 1, Random.Range((-r.GetZDimension() + 2) / 2, (r.GetZDimension() - 2) / 2));
                 PickupCW mercy = GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
 
                 mercy.gameObject.transform.position = weaponPos;
@@ -61,23 +57,26 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     public virtual void CreateNext()
     {
         Room next = Instantiate(emptyRoomPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0));
-        Vector3 topL = new Vector3(-9.5f, height, -4.5f);
-        int length = 19;
-        int width = 9;
+        next.Initialize(20, 10, this, spawnManager);
+        next.GenerateRoom();
+        //Vector3 topL = new Vector3(-9.5f, height, -4.5f);
+        //int length = 19;
+        //int width = 9;
 
         //Set next
-        next.Initialize(topL, length, width, borderPrefab, spawnManager);
-        next.AddFloor(Instantiate(floorPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0)));
-        next.AddEntrance(Instantiate(doorPrefab, new Vector3(-0.5f, height + 0.75f, -4.75f), Quaternion.Euler(0, -90, 0)));
+        //next.Initialize(topL, length, width, borderPrefab, spawnManager);
+        //next.AddFloor(Instantiate(floorPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0)));
+        //next.AddEntrance(Instantiate(doorPrefab, new Vector3(-0.5f, height + 0.75f, -4.75f), Quaternion.Euler(0, -90, 0)));
 
-        GameObject exit = Instantiate(doorPrefab, new Vector3(-0.5f, height + 0.75f, 4.75f), Quaternion.Euler(0, 90, 0));
-        exit.AddComponent<ExitDoor>();
-        exit.GetComponent<ExitDoor>().SetRoomManager(this);
-        exit.GetComponent<ExitDoor>().AddLocked(locked);
-        exit.GetComponent<ExitDoor>().AddUnlocked(unlocked);
-        next.AddExit(exit);
+        // TODO: Add this to exit set up!
+        //GameObject exit = Instantiate(doorPrefab, new Vector3(-0.5f, height + 0.75f, 4.75f), Quaternion.Euler(0, 90, 0));
+        //exit.AddComponent<ExitDoor>();
+        //exit.GetComponent<ExitDoor>().SetRoomManager(this);
+        //exit.GetComponent<ExitDoor>().AddLocked(locked);
+        //exit.GetComponent<ExitDoor>().AddUnlocked(unlocked);
+        //next.AddExit(exit);
 
-        next.CreateBorders();
+        //next.CreateBorders();
 
         if ((level + 1) % 5 == 0) //Boss Room
         {
@@ -137,9 +136,10 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
             int ability = Random.Range(0, Ability.GetGenericNames().Length);
             if (i > 0)
             {
-                while (ability != myAbilities[0])
+                while (ability == myAbilities[0])
                     ability = Random.Range(0, Ability.GetGenericNames().Length);
             }
+            myAbilities.Add(ability);
 
             switch (ability)
             {
@@ -214,11 +214,9 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
                     else
                         myMods.Add(HealthySignatureGain.GetMeanMod());
                     break;
-                case 10:
-                    myMods.Add(BladeDull.GetMeanMod());
-                    break;
-                case 11:
-                    myMods.Add(ArmorPierce.GetMeanMod());
+                case 10: //Blade Dull
+                case 11: //Armor Pierce
+                    myMods.Add(0);
                     break;
                 case 12:
                     AttackRangeUp.SetMinMaxMods();
@@ -374,11 +372,9 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
                     else
                         myMods.Add((int)CrisisWolfsoul.GetMeanMod());
                     break;
-                case 34:
-                    myMods.Add(AllOrNothingD.GetMeanMod());
-                    break;
-                case 35:
-                    myMods.Add(AllOrNothingS.GetMeanMod());
+                case 34: //All or Nothing D
+                case 35: //All or Nothing S
+                    myMods.Add(0);
                     break;
                 default:
                     break;

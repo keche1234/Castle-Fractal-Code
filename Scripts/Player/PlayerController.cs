@@ -266,7 +266,7 @@ public class PlayerController : Character
     {
         if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused())
         {
-            Debug.Log(weaponTypes[currentWeaponType].IsInactive());
+            //Debug.Log(weaponTypes[currentWeaponType].IsInactive());
             if (equippedCustomWeapon >= 0 && !weaponTypes[currentWeaponType].IsInactive())
                 return;
 
@@ -451,7 +451,8 @@ public class PlayerController : Character
                         }
 
                         // Actual movement
-                        playerRb.velocity = travelVector * speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
+                        float characterSpeed = speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
+                        playerRb.velocity = travelVector * characterSpeed;
                     }
                     else
                     {
@@ -465,8 +466,14 @@ public class PlayerController : Character
             }
         }
 
-        if (IsOOB())
-            ReturnToInBounds();
+        Vector3 moveVector3D = new Vector3(moveInputVector.x, 0, moveInputVector.y);
+        RaycastHit hit;
+        if (moveVector3D.magnitude > 0 && playerRb.velocity.magnitude > 0
+            && Physics.Raycast(transform.position, playerRb.velocity.normalized, out hit, playerRb.velocity.magnitude * Time.deltaTime * 2, ~LayerMask.GetMask("Wall", "Enemy")))
+            playerRb.velocity *= 0;
+
+        //if (IsOOB())
+        //    ReturnToInBounds();
     }
 
     public override void DealDamage(float val, Character target, float p, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool overrideDMG = false, bool fixKB = false)
@@ -1215,7 +1222,8 @@ public class PlayerController : Character
     public IEnumerator Dodge()
     {
         playerDodge = DodgeState.Dodging;
-        playerRb.velocity = transform.forward * speed * 2.5f * (1 + (SummationBuffs(3) / 2)) * CalculateDodgeDistance();
+        float characterSpeed = speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
+        playerRb.velocity = transform.forward * characterSpeed * 2.5f * (1 + (SummationBuffs(3) / 2)) * CalculateDodgeDistance();
         List<Hitbox> dodged = new List<Hitbox>();
         dodgeTrail.time = 0.5f;
         dodgeTrail.emitting = true;
@@ -1264,16 +1272,16 @@ public class PlayerController : Character
         yield return null;
     }
 
-    public virtual void OnTriggerEnter(Collider targetCollider)
-    {
-        if (targetCollider.gameObject.CompareTag("Wall"))
-        {
-            Vector3 dir = transform.position - targetCollider.gameObject.transform.position;
-            dir = (new Vector3(dir.x, 0, dir.z)).normalized;
-            transform.position += dir * playerRb.velocity.magnitude * 2 * Time.deltaTime;
-            playerRb.velocity *= 0;
-        }
-    }
+    //public virtual void OnTriggerEnter(Collider targetCollider)
+    //{
+    //    if (targetCollider.gameObject.CompareTag("Wall"))
+    //    {
+    //        Vector3 dir = transform.position - targetCollider.gameObject.transform.position;
+    //        dir = (new Vector3(dir.x, 0, dir.z)).normalized;
+    //        transform.position += dir * playerRb.velocity.magnitude * 2 * Time.deltaTime;
+    //        playerRb.velocity *= 0;
+    //    }
+    //}
 
     public void SetLifeState(bool s)
     {

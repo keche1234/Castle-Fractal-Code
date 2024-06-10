@@ -329,7 +329,7 @@ public class Magestic : Boss
 
                     //Teleport
                     Room r = roomManager.GetCurrent();
-                    transform.position = new Vector3(((r.GetLength() / 2) - 2f) * Mathf.Pow(-1, (int)(i / 2) + 1), transform.position.y, ((r.GetWidth() / 2) - 2f) * Mathf.Pow(-1, (i + 1) % 2));
+                    transform.position = new Vector3(((r.GetXDimension() / 2) - 2f) * Mathf.Pow(-1, (int)(i / 2) + 1), transform.position.y, ((r.GetZDimension() / 2) - 2f) * Mathf.Pow(-1, (i + 1) % 2));
                     Vector3 otherCorner = new Vector3(-transform.position.x, transform.position.y, -transform.position.z);
                     transform.rotation = Quaternion.LookRotation(otherCorner - transform.position);
 

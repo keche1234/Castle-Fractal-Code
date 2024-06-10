@@ -18,23 +18,23 @@ public class Singletaur : MonoBehaviour
         if (twins.GetRoomManager() != null)
         {
             Room room = twins.GetRoomManager().GetCurrent();
-            if (transform.position.x > (room.GetLength() / 2))
+            if (transform.position.x > (room.GetXDimension() / 2))
             {
                 transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
                 //Debug.Log("Push left");
             }
-            else if (transform.position.x < -(room.GetLength() / 2))
+            else if (transform.position.x < -(room.GetXDimension() / 2))
             {
                 transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
                 //Debug.Log("Push right");
             }
 
-            if (transform.position.z > room.GetWidth() / 2)
+            if (transform.position.z > room.GetZDimension() / 2)
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
                 //Debug.Log("Push down");
             }
-            else if (transform.position.z < -(room.GetWidth() / 2))
+            else if (transform.position.z < -(room.GetZDimension() / 2))
             {
                 transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
                 //Debug.Log("Push up");

@@ -42,4 +42,14 @@ public class HealthySpeed : HealthyStrength
         minMod = 0.2f;
         maxMod = 0.5f;
     }
+
+    new public static float GetMeanMod()
+    {
+        return (minMod + maxMod) / 2;
+    }
+
+    new public static float GetRandomMod()
+    {
+        return Random.Range(minMod, maxMod);
+    }
 }

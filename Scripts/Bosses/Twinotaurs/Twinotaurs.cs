@@ -205,7 +205,7 @@ public class Twinotaurs : Boss
         {
             Vector3 jump = new Vector3(0, Physics.gravity.magnitude * AIR_TIME * 0.5f, 0);
             Vector3 latDir = (new Vector3(side, 0, 0)).normalized;
-            float xDist = (((0.5f * roomManager.GetCurrent().GetLength()) - 3) * latDir.x) - obj.transform.position.x;
+            float xDist = (((0.5f * roomManager.GetCurrent().GetXDimension()) - 3) * latDir.x) - obj.transform.position.x;
             float zDist = -obj.transform.position.z;
 
             obj.GetComponent<Rigidbody>().AddForce(new Vector3(xDist / AIR_TIME, Physics.gravity.magnitude * AIR_TIME * 0.5f, zDist / AIR_TIME), ForceMode.VelocityChange);
@@ -216,8 +216,8 @@ public class Twinotaurs : Boss
         {
             Vector3 jump = new Vector3(0, Physics.gravity.magnitude * AIR_TIME * 0.5f, 0);
             Vector3 latDir = (new Vector3(obj.transform.position.x - player.transform.position.x, 0, obj.transform.position.z - player.transform.position.z)).normalized;
-            float xDist = (((0.5f * roomManager.GetCurrent().GetLength()) - 3) * latDir.x) - obj.transform.position.x;
-            float zDist = (((0.5f * roomManager.GetCurrent().GetWidth()) - 3) * latDir.z) - obj.transform.position.z;
+            float xDist = (((0.5f * roomManager.GetCurrent().GetXDimension()) - 3) * latDir.x) - obj.transform.position.x;
+            float zDist = (((0.5f * roomManager.GetCurrent().GetZDimension()) - 3) * latDir.z) - obj.transform.position.z;
 
             obj.GetComponent<Rigidbody>().AddForce(new Vector3(xDist / AIR_TIME, Physics.gravity.magnitude * AIR_TIME * 0.5f, zDist / AIR_TIME), ForceMode.VelocityChange);
             obj.GetComponent<Rigidbody>().useGravity = true;
@@ -237,7 +237,7 @@ public class Twinotaurs : Boss
         {
             Vector3 jump = new Vector3(0, Physics.gravity.magnitude * AIR_TIME * 0.5f, 0);
             Vector3 latDir = (new Vector3(side, 0, 0)).normalized;
-            float xDist = (((0.2f * roomManager.GetCurrent().GetLength()) * latDir.x) - obj.transform.position.x);
+            float xDist = (((0.2f * roomManager.GetCurrent().GetXDimension()) * latDir.x) - obj.transform.position.x);
             float zDist = -obj.transform.position.z;
 
             obj.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
@@ -395,8 +395,8 @@ public class Twinotaurs : Boss
                 for (int i = 0; i < 4; i++)
                 {
                     // Set start and goals
-                    float xPos = Random.Range((room.GetLength() / 2) * 0.5f, (room.GetLength() / 2) * 0.8f);
-                    float zPos = Random.Range((room.GetWidth() / 2) * 0.5f, (room.GetWidth() / 2) * 0.8f);
+                    float xPos = Random.Range((room.GetXDimension() / 2) * 0.5f, (room.GetXDimension() / 2) * 0.8f);
+                    float zPos = Random.Range((room.GetZDimension() / 2) * 0.5f, (room.GetZDimension() / 2) * 0.8f);
                     pounceClouds[i].transform.position = venom.transform.position;
 
                     switch (i)

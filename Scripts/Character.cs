@@ -547,7 +547,7 @@ public abstract class Character : MonoBehaviour
     //Detects if the object is out of bounds
     protected bool IsOOB()
     {
-        if (Mathf.Abs(transform.position.x) > spawner.GetXBorder() || Mathf.Abs(transform.position.z) > spawner.GetZBorder())
+        if (Mathf.Abs(transform.position.x) > (roomManager.GetCurrent().GetXDimension() / 2) || Mathf.Abs(transform.position.z) > (roomManager.GetCurrent().GetZDimension() / 2))
             return true;
         return false;
     }

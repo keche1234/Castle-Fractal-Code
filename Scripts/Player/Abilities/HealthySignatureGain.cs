@@ -42,4 +42,14 @@ public class HealthySignatureGain : HealthyStrength
         minMod = 0.4f;
         maxMod = 1f;
     }
+
+    new public static float GetMeanMod()
+    {
+        return (minMod + maxMod) / 2;
+    }
+
+    new public static float GetRandomMod()
+    {
+        return Random.Range(minMod, maxMod);
+    }
 }

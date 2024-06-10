@@ -17,15 +17,18 @@ public class ExitDoor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (roomManager.GetCurrent().RoomCleared())
+        if (roomManager && roomManager.GetCurrent())
         {
-            gameObject.GetComponent<MeshRenderer>().material = unlockedMat;
-            locked = false;
-        }
-        else
-        {
-            gameObject.GetComponent<MeshRenderer>().material = lockedMat;
-            locked = true;
+            if (roomManager.GetCurrent().RoomCleared())
+            {
+                gameObject.GetComponent<MeshRenderer>().material = unlockedMat;
+                locked = false;
+            }
+            else
+            {
+                gameObject.GetComponent<MeshRenderer>().material = lockedMat;
+                locked = true;
+            }
         }
     }
 

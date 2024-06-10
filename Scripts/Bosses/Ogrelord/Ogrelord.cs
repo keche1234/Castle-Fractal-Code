@@ -102,23 +102,23 @@ public class Ogrelord : Boss
         base.Update();
 
         room = GetRoomManager().GetCurrent();
-        if (transform.position.x > (room.GetLength() / 2))
+        if (transform.position.x > (room.GetXDimension() / 2))
         {
             transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
             //Debug.Log("Push left");
         }
-        else if (transform.position.x < -(room.GetLength() / 2))
+        else if (transform.position.x < -(room.GetXDimension() / 2))
         {
             transform.position = new Vector3(lastPos.x, transform.position.y, transform.position.z);
             //Debug.Log("Push right");
         }
 
-        if (transform.position.z > room.GetWidth() / 2)
+        if (transform.position.z > room.GetZDimension() / 2)
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
             //Debug.Log("Push down");
         }
-        else if (transform.position.z < -(room.GetWidth() / 2))
+        else if (transform.position.z < -(room.GetZDimension() / 2))
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, lastPos.z);
             //Debug.Log("Push up");
@@ -167,14 +167,14 @@ public class Ogrelord : Boss
             if (differenceVector.magnitude < 2.5f)
             {
                 s.transform.position -= differenceVector.normalized * (2.55f - differenceVector.magnitude);
-                if (s.transform.position.x >= (room.GetLength() / 2))
+                if (s.transform.position.x >= (room.GetXDimension() / 2))
                     s.transform.position += Vector3.right * -5.1f;
-                else if (s.transform.position.x <= (-room.GetLength() / 2))
+                else if (s.transform.position.x <= (-room.GetXDimension() / 2))
                     s.transform.position += Vector3.right * 5.1f;
 
-                if (s.transform.position.z >= (room.GetWidth() / 2))
+                if (s.transform.position.z >= (room.GetZDimension() / 2))
                     s.transform.position += Vector3.forward * -5.1f;
-                else if (s.transform.position.z <= (-room.GetWidth() / 2))
+                else if (s.transform.position.z <= (-room.GetZDimension() / 2))
                     s.transform.position += Vector3.forward * 5.1f;
             }
         }
@@ -457,12 +457,12 @@ public class Ogrelord : Boss
                 Vector3 xDir = (new Vector3(transform.position.x - player.transform.position.x, 0, 0)).normalized;
                 if (xDir.x == 0)
                     xDir = Vector3.right;
-                float xDist = (((roomManager.GetCurrent().GetLength() * 0.5f) - 1) * xDir.x) - transform.position.x;
+                float xDist = (((roomManager.GetCurrent().GetXDimension() * 0.5f) - 1) * xDir.x) - transform.position.x;
                 charRb.AddForce(new Vector3(xDist / airTime, Physics.gravity.magnitude * airTime * 0.5f, (0 - transform.position.z) / airTime), ForceMode.VelocityChange);
                 transform.rotation = Quaternion.LookRotation(-xDir);
 
                 //move all summons inside, away from where the Ogrelord will be
-                float length = roomManager.GetCurrent().GetLength() / 2;
+                float length = roomManager.GetCurrent().GetXDimension() / 2;
                 if (xDir.x < 0)
                 {
                     foreach (Enemy e in summons)
@@ -525,7 +525,7 @@ public class Ogrelord : Boss
                     bodyBox.gameObject.SetActive(true);
 
                     //Determine destination and set speed
-                    float z = location * ((roomManager.GetCurrent().GetWidth() / 2) - 2f);
+                    float z = location * ((roomManager.GetCurrent().GetZDimension() / 2) - 2f);
                     charRb.AddForce(new Vector3(0, Physics.gravity.magnitude * airTime * 0.5f, (z - transform.position.z) / airTime), ForceMode.VelocityChange);
 
                     //Wait for state to be cooldown (I landed)

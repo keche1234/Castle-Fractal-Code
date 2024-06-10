@@ -46,4 +46,14 @@ public class BurstSignatureGain : BurstStrength
         minMod = 0.2f;
         maxMod = 0.4f;
     }
+
+    new public static float GetMeanMod()
+    {
+        return (minMod + maxMod) / 2;
+    }
+
+    new public static float GetRandomMod()
+    {
+        return Random.Range(minMod, maxMod);
+    }
 }

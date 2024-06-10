@@ -191,9 +191,9 @@ public abstract class Boss : Enemy
 
     protected Vector3 GenerateSpawnPos(Enemy type)
     {
-        return new Vector3(Random.Range(-(room.GetLength() / 2f) + 0.5f, (room.GetLength() / 2f) - 0.5f),
+        return new Vector3(Random.Range(-(room.GetXDimension() / 2f) + 0.5f, (room.GetXDimension() / 2f) - 0.5f),
                             type.transform.position.y,
-                            Random.Range(-(room.GetWidth() / 2f) + 0.5f, (room.GetWidth() / 2f) - 0.5f));
+                            Random.Range(-(room.GetZDimension() / 2f) + 0.5f, (room.GetZDimension() / 2f) - 0.5f));
     }
 
     public override void OnDestroy()
