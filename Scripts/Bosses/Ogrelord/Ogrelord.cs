@@ -34,7 +34,7 @@ public class Ogrelord : Boss
     protected int rippleGeyserCount = 5;
     protected bool landing = false;
     protected List<Projectile> geysers = new List<Projectile>();
-    protected int jumps = 6;
+    protected int jumps = 4;
     protected float airTime = 1f;
     protected float geyserStart = 1.5f;
     protected float geyserLand = 6f;

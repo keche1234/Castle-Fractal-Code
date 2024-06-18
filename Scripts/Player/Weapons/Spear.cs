@@ -117,7 +117,7 @@ public class Spear : Weapon
         float duration = CalculateSignatureDuration();
 
         //owner.StopInvincibility();
-        StartCoroutine(owner.GrantInvincibility(sigStartup + (sigActiveTimeA * duration) + sigActiveTimeB + (cooldownTime / 3) + 1));
+        owner.OverrideInvincibility(sigStartup + (sigActiveTimeA * duration) + sigActiveTimeB + (cooldownTime / 3) + 1);
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
         owner.SetMobile(false);

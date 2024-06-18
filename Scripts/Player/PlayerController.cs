@@ -91,10 +91,10 @@ public class PlayerController : Character
     //[SerializeField] protected float baseSigFillRate = 4; // This many pts per percentage of health save when dodging.
     protected TrailRenderer dodgeTrail;
 
-    protected int rank;
-    protected int healthRank;
-    protected int invRank;
-    protected int sigRank;
+    protected int[] ranks; // Health, Inventory, Signature Multiplier
+    protected int baseHealthCap;
+    protected int baseMPCap;
+    protected const int MAX_RANK = 9;
 
     // Start is called before the first frame update
     public override void Start()
@@ -113,19 +113,20 @@ public class PlayerController : Character
         playerAttack = AttackState.NotAttacking;
         playerDodge = DodgeState.Available;
         playerLife = LifeState.Alive;
-        currentHealth = 30;
-        maxHealth = 30;
+
+        baseHealthCap = 30;
+        baseMPCap = 1000;
+
+        currentHealth = baseHealthCap;
+        maxHealth = baseHealthCap;
         currentMP = 0;
-        maxMP = 1000;
+        maxMP = baseMPCap;
         speed = 3.5f;
         signatureMultiplier = 1f;
 
         invScrollPos = 0;
 
-        rank = 0;
-        healthRank = 0;
-        invRank = 0;
-        sigRank = 0;
+        ranks = new int[3];
 
         mobile = true;
         controllable = true;
@@ -304,7 +305,7 @@ public class PlayerController : Character
 
     public void PlayerDropWeapon(InputAction.CallbackContext context)
     {
-        if (inventory.Count > 0 && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f) && !gameManager.IsPaused())
+        if (inventory.Count > 0 && weaponTypes[currentWeaponType].IsInactive() && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f) && !gameManager.IsPaused())
             StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
     }
 
@@ -405,6 +406,16 @@ public class PlayerController : Character
             moveInputVector = inputActions.Player.Move.ReadValue<Vector2>();
         }
 
+        if (invincibilityTime > 0)
+            invincibilityTime -= Time.deltaTime;
+        else
+            invincibilityTime = 0;
+        
+        if (invincibilityTime > 0)
+            invincibilityCover.gameObject.SetActive(true);
+        else
+            invincibilityCover.gameObject.SetActive(false);
+
         if (!spawner.AllDefeated())
             ProgressBuffTime();
         UpdateAttributeUI();
@@ -470,7 +481,7 @@ public class PlayerController : Character
         RaycastHit hit;
         if (playerRb.velocity.magnitude > 0
             && Physics.Raycast(transform.position - (playerRb.velocity.normalized * Time.deltaTime),
-                                playerRb.velocity.normalized, out hit, playerRb.velocity.magnitude * Time.deltaTime * 3, ~LayerMask.GetMask("Wall")))
+                                playerRb.velocity.normalized, out hit, playerRb.velocity.magnitude * Time.deltaTime * 3, LayerMask.GetMask("Wall")))
             playerRb.velocity *= 0;
 
         //if (IsOOB())
@@ -619,7 +630,7 @@ public class PlayerController : Character
     {
         if (damage > 0) // Taking damage (NOT healing)
         {
-            if (!invincible)
+            if (invincibilityTime <= 0)
             {
                 CustomWeapon current = GetCustomWeapon();
                 if (current != null)
@@ -630,7 +641,7 @@ public class PlayerController : Character
                         float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1.5f - (currentHealth / maxHealth));
                         if (Random.Range(0, 0.99f) < chance)
                         {
-                            StartCoroutine(GrantInvincibility(0.5f));
+                            OverrideInvincibility(0.5f);
                             return;
                         }
                     }
@@ -680,7 +691,7 @@ public class PlayerController : Character
                 roomManager.GetCurrent().AddDamageTaken(damage);
 
                 if (triggerInvinc)
-                    StartCoroutine(GrantInvincibility(10 * (damage / maxHealth)));
+                    OverrideInvincibility(10 * (damage / maxHealth));
 
                 if (kbMod != 0)
                 {
@@ -1283,6 +1294,72 @@ public class PlayerController : Character
     //        playerRb.velocity *= 0;
     //    }
     //}
+
+    /***************
+     * RANKS
+     ***************/
+
+    /***********************************************************************
+     * Attempts to Rank Up either Health, Inventory, or Signature Fill Rate
+     ***********************************************************************/
+    public void RankUp(int r)
+    {        
+        if (ranks[r] < MAX_RANK)
+        {
+            ranks[r]++;
+            switch (r)
+            {
+                case 0:
+                    maxHealth = baseHealthCap * (1 + (0.5f * ranks[r]));
+                    currentHealth = maxHealth;
+
+                    miniHealthBar.SetMax(maxHealth);
+                    miniHealthBar.SetValue(currentHealth);
+
+                    healthBar.SetMax(maxHealth);
+                    healthBar.SetValue(currentHealth);
+                    healthBar.UpdateAmountTxt(currentHealth + "/" + maxHealth);
+                    healthBar.UpdateRankTxt(ranks[r].ToString());
+                    break;
+                case 1:
+                    maxMP = (int)(baseMPCap * (1 + (0.5f * ranks[r])));
+
+                    miniDurabilityBar.SetMax(maxMP);
+                    inventoryBar.SetMax(maxMP);
+
+                    miniDurabilityBar.SetValue(currentMP);
+                    inventoryBar.SetValue(currentMP);
+                    inventoryBar.UpdateAmountTxt(currentMP + "/" + maxMP);
+                    inventoryBar.UpdateRankTxt(ranks[r].ToString());
+                    break;
+                case 2:
+                default:
+                    signatureBar.UpdateAmountTxt((1 + (0.2f * ranks[r])).ToString());
+                    signatureBar.UpdateRankTxt(ranks[r].ToString());
+                    break;
+            }
+        }
+    }
+
+    public int GetRank(int r)
+    {
+        if (r < 0 || r >= ranks.Length)
+            return -1;
+        return ranks[r];
+    }
+
+    public int GetCurrentTotalRank()
+    {
+        int total = 0;
+        foreach (int rank in ranks)
+            total += rank;
+        return total;
+    }
+
+    public int GetMaxTotalRank()
+    {
+        return MAX_RANK * ranks.Length;
+    }
 
     public void SetLifeState(bool s)
     {

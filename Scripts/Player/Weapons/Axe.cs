@@ -149,7 +149,7 @@ public class Axe : Weapon
 
         owner.SetControllable(false);
         //owner.StopInvincibility();
-        StartCoroutine(owner.GrantInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2) + 1));
+        owner.OverrideInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2) + 1);
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
 

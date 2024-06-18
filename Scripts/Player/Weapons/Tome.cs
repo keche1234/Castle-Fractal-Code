@@ -96,7 +96,7 @@ public class Tome : Weapon
 
         owner.SetMobile(false);
         //owner.StopInvincibility();
-        StartCoroutine(owner.GrantInvincibility((sigStartup * sigSlowdown * duration * damage) + sigActiveTime + 1));
+        owner.OverrideInvincibility((sigStartup * sigSlowdown * duration * damage) + sigActiveTime + 1);
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
 

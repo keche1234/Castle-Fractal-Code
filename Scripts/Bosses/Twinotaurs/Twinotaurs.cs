@@ -629,7 +629,7 @@ public class Twinotaurs : Boss
                 PartitionSpawn(noxPathPrefab, noxPath, venom);
                 while (t < PERILOUS_ACTIVE)
                 {
-                    int wallMask = ~LayerMask.GetMask("Wall", "Door");
+                    int dashMask = LayerMask.GetMask("Wall");
                     //int perilMask = 1 << 8;
                     if (GetMyFreezeTime() <= 0)
                     {
@@ -638,9 +638,12 @@ public class Twinotaurs : Boss
                         sparkCharge.gameObject.SetActive(true);
                         venomCharge.gameObject.SetActive(true);
 
-                        //Turn if you hit a wall, a spawn part of the path
+                        Debug.DrawRay(spark.transform.position + spark.transform.up, spark.transform.forward * 1, Color.yellow);
+                        Debug.DrawRay(venom.transform.position + venom.transform.up, venom.transform.forward * 1, Color.magenta);
+
+                        //Turn if you hit a wall, spawn part of the path
                         RaycastHit sparkHit;
-                        if (Physics.Raycast(spark.transform.position + spark.transform.up, spark.transform.forward, out sparkHit, 1, wallMask))
+                        if (Physics.Raycast(spark.transform.position + spark.transform.up, spark.transform.forward, out sparkHit, 1, dashMask))
                         {
                             PartitionSpawn(zapPathPrefab, zapPath, spark);
                             spark.transform.Rotate(0, 180, 0);
@@ -649,7 +652,7 @@ public class Twinotaurs : Boss
                         }
 
                         RaycastHit venomHit;
-                        if (Physics.Raycast(venom.transform.position + venom.transform.up, venom.transform.forward, out venomHit, 1, wallMask))
+                        if (Physics.Raycast(venom.transform.position + venom.transform.up, venom.transform.forward, out venomHit, 1, dashMask))
                         {
                             venom.transform.Rotate(0, 180, 0);
                             venomRb.velocity *= -1;

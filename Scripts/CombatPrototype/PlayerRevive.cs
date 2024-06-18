@@ -45,7 +45,7 @@ public class PlayerRevive : MonoBehaviour
         player.gameObject.transform.localScale = new Vector3(1, 1, 1);
         player.GetComponent<PlayerController>().enabled = true;
         player.SetLifeState(true);
-        StartCoroutine(player.GrantInvincibility(2.5f));
+        player.OverrideInvincibility(2.5f);
         player.SetCustomWeapon(0);
         player.SetAttackState(0);
         reviving = false;

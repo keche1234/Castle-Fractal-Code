@@ -9,6 +9,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected PlayerController player;
     [SerializeField] protected int level; //offset of 0
     [SerializeField] protected float height;
+    protected int bossInterval = 1;
     //[SerializeField] protected ExitDoor exit;
 
     //[Header("Prefabs")]
@@ -59,7 +60,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         Debug.Log(level);
         Room next = Instantiate(emptyRoomPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0));
         next.Initialize(20, 10, this, spawnManager);
-        if ((level + 1) % 2 == 0) //Boss Room
+        if ((level + 1) % bossInterval == 0) //Boss Room
         {
             //Select a random boss
             next.SetBossRoom(true);
@@ -130,7 +131,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         player.transform.rotation = current.GetEntrance().transform.rotation;
         StartCoroutine(DisablePlayer(0.5f));
 
-        if (level % 2 == 0)
+        if (level % bossInterval == 0)
         {
             //spawn boss
             current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], bossPrefabs[current.GetBossNumber()].transform.position, Quaternion.Euler(0, 0, 0)));
@@ -152,7 +153,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         player.GetComponent<PlayerController>().enabled = true;
         player.SetMobile(true);
         player.SetAttackState(0);
-        player.SetInvincible(false);
+        player.OverrideInvincibility(0);
     }
 
     public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false)

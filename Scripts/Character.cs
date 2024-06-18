@@ -17,6 +17,7 @@ public abstract class Character : MonoBehaviour
     [SerializeField] protected int defense;
     [SerializeField] protected float speed;
     protected bool armored;
+    protected float invincibilityTime = 0;
 
     [Header("Buffs and Debuffs")]
     /*0) Special
@@ -189,41 +190,24 @@ public abstract class Character : MonoBehaviour
         charRb.velocity *= 0;
     }
 
-    public IEnumerator GrantInvincibility(float duration)
+    public void GrantInvincibility(float duration)
     {
-        invincible = true;
-        invincibilityCover.SetActive(true);
-        float t = 0;
-        while (t < duration)
-        {
-            //if (invincible == false)
-            //{
-            //    Debug.Log("breaki?!");
-            //    yield break;
-            //}
-            invincible = true;
-            t += Time.deltaTime;
-            //Debug.Log(invincible + ", " + t + "/" + duration);
-            yield return null;
-        }
+        invincibilityTime += duration;
+    }
 
-        invincibilityCover.SetActive(false);
-        t = 0;
-        while (t < 0.25f)
-        {
-            //if (invincible == false)
-            //{
-            //    Debug.Log("breaki?!");
-            //    yield break;
-            //}
-            invincible = true;
-            t += Time.deltaTime;
-            //Debug.Log(invincible + ", " + (duration + t) + "/" + duration);
-            yield return null;
-        }
+    public void OverrideInvincibility(float duration)
+    {
+        invincibilityTime = duration;
+    }
 
-        invincible = false;
-        yield return null;
+    public void ResetInvincibility()
+    {
+        invincibilityTime = 0;
+    }
+
+    public float GetInvincibility()
+    {
+        return invincibilityTime;
     }
 
     public void SetInvincible(bool i)

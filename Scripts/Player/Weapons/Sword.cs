@@ -176,7 +176,7 @@ public class Sword : Weapon
 
         owner.SetMobile(false);
         //owner.StopInvincibility();
-        StartCoroutine(owner.GrantInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2)));
+        owner.OverrideInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2));
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
 

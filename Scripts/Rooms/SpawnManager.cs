@@ -174,12 +174,23 @@ public class SpawnManager : MonoBehaviour
         return zBorder;
     }
 
+    public void SetWaveNumber(int w)
+    {
+        if (w >= 0)
+            currentWave = w;
+    }
+
     public void SetWaveInfo(int c, int t)
     {
         currentWave = c;
         totalWaves = t;
 
         if (currentWave < totalWaves) allDefeated = false;
+    }
+
+    public void SetToWaveZero()
+    {
+        currentWave = 0;
     }
 
     public void SetBossInfo(bool b)
