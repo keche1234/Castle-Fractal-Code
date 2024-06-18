@@ -468,8 +468,9 @@ public class PlayerController : Character
 
         Vector3 moveVector3D = new Vector3(moveInputVector.x, 0, moveInputVector.y);
         RaycastHit hit;
-        if (moveVector3D.magnitude > 0 && playerRb.velocity.magnitude > 0
-            && Physics.Raycast(transform.position, playerRb.velocity.normalized, out hit, playerRb.velocity.magnitude * Time.deltaTime * 2, ~LayerMask.GetMask("Wall", "Enemy")))
+        if (playerRb.velocity.magnitude > 0
+            && Physics.Raycast(transform.position - (playerRb.velocity.normalized * Time.deltaTime),
+                                playerRb.velocity.normalized, out hit, playerRb.velocity.magnitude * Time.deltaTime * 3, ~LayerMask.GetMask("Wall")))
             playerRb.velocity *= 0;
 
         //if (IsOOB())

@@ -48,7 +48,7 @@ public class Singletaur : MonoBehaviour
     {
         if (twins.GetState() == 2)
         {
-            if (twins.GetCurrentAttack() == 0 && (collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door"))) //Poison Cutoff
+            if (twins.GetCurrentAttack() == 0 && (collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door"))) //Cross Gap Zap
             {
                 collider.isTrigger = false;
                 twins.SetState(3);

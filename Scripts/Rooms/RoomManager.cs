@@ -56,8 +56,15 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
 
     public virtual void CreateNext()
     {
+        Debug.Log(level);
         Room next = Instantiate(emptyRoomPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0));
         next.Initialize(20, 10, this, spawnManager);
+        if ((level + 1) % 2 == 0) //Boss Room
+        {
+            //Select a random boss
+            next.SetBossRoom(true);
+            next.SetBossNumber(Random.Range(0, bossPrefabs.Count));
+        }
         next.GenerateRoom();
         //Vector3 topL = new Vector3(-9.5f, height, -4.5f);
         //int length = 19;
@@ -78,28 +85,11 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
 
         //next.CreateBorders();
 
-        if ((level + 1) % 5 == 0) //Boss Room
-        {
-            //Select a random boss
-            next.SetBossRoom(true);
-            next.SetBossNumber(Random.Range(0, bossPrefabs.Count));
-        }
-
         //
-        //: Generate environmental components (Bosses have different requirements, like no internal walls)
+        //TODO: Generate environmental components (Bosses have different requirements, like no internal walls)
 
         current.SetNext(next);
     }
-
-    //public void SetCurrent(Room r)
-    //{
-    //    current = r;
-    //}
-
-    //public void SetNext(Room r)
-    //{
-    //    next = r;
-    //}
 
     public Room GetCurrent()
     {
@@ -119,6 +109,50 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     public void SetSpawnManager(SpawnManager sm)
     {
         spawnManager = sm;
+    }
+
+    public virtual void Step()
+    {
+        //Push the next room down to current
+        Room temp = current;
+        current = temp.GetNext();
+        Destroy(temp.gameObject);
+        current.gameObject.transform.Translate(0, -height, 0);
+
+        //Game Info
+        level++;
+
+        //Create the next room
+        CreateNext();
+
+        //Move the player
+        player.transform.position = current.GetEntrance().transform.position + current.GetEntrance().transform.forward - new Vector3(0, 0.25f, 0);
+        player.transform.rotation = current.GetEntrance().transform.rotation;
+        StartCoroutine(DisablePlayer(0.5f));
+
+        if (level % 2 == 0)
+        {
+            //spawn boss
+            current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], bossPrefabs[current.GetBossNumber()].transform.position, Quaternion.Euler(0, 0, 0)));
+            spawnManager.SetBoss(current.GetBoss());
+            spawnManager.SetAllDefeated(false);
+        }
+        else
+        {
+            spawnManager.SetWaveInfo(0, 1);
+            spawnManager.SetBoss(null);
+        }
+    }
+
+    protected IEnumerator DisablePlayer(float wait)
+    {
+        player.GetComponent<PlayerController>().enabled = false;
+        player.GetComponent<Rigidbody>().velocity *= 0;
+        yield return new WaitForSeconds(wait);
+        player.GetComponent<PlayerController>().enabled = true;
+        player.SetMobile(true);
+        player.SetAttackState(0);
+        player.SetInvincible(false);
     }
 
     public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false)
@@ -429,47 +463,5 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         weapon.Initialize(wType, pow, dur, dur, 0, myAbilities, myMods);
 
         return weapon;
-    }
-
-    public virtual void Step()
-    {
-        //Push the next room down to current
-        Room temp = current;
-        current = temp.GetNext();
-        Destroy(temp.gameObject);
-        current.gameObject.transform.Translate(0, -height, 0);
-
-        //Create the next room
-        CreateNext();
-
-        //Move the player
-        player.transform.position = current.GetEntrance().transform.position + (current.GetEntrance().transform.right) - new Vector3(0, 0.25f, 0);
-        player.transform.rotation = current.GetEntrance().transform.rotation;
-        player.transform.Rotate(0, 90, 0);
-        StartCoroutine(DisablePlayer(0.5f));
-
-        //Game Info
-        level++;
-
-        //if (level % 5 == 0)
-        //{
-        //    //spawn boss
-        //    current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 0)));
-        //}
-        //else
-        //{
-        //    spawnManager.SetWaveInfo(0, 1);
-        //}
-    }
-
-    protected IEnumerator DisablePlayer(float wait)
-    {
-        player.GetComponent<PlayerController>().enabled = false;
-        player.GetComponent<Rigidbody>().velocity *= 0;
-        yield return new WaitForSeconds(wait);
-        player.GetComponent<PlayerController>().enabled = true;
-        player.SetMobile(true);
-        player.SetAttackState(0);
-        player.SetInvincible(false);
     }
 }

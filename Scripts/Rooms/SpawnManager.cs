@@ -9,7 +9,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] protected List<Enemy> spawnList;
     [SerializeField] protected List<GameObject> covers;
     [SerializeField] protected GameObject spawnCover;
-    protected List<Vector3> spawnPos;
+    protected List<Vector3> spawnPosList;
 
     [Header("Spawn Time")]
     [SerializeField] protected float spawnDelay;
@@ -41,13 +41,14 @@ public class SpawnManager : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         spawnList = new List<Enemy>();
-        spawnPos = new List<Vector3>();
+        spawnPosList = new List<Vector3>();
     }
 
     // Update is called once per frame
     protected void Update()
     {
-        if (!bossWave && !spawned && spawnList.Count == 0 && currentWave < totalWaves)
+        Room currentRoom = roomManager.GetCurrent();
+        if (!bossWave && !currentRoom.IsBreakRoom() && !spawned && spawnList.Count == 0 && currentWave < totalWaves)
         {
             if (spawnCoroutine != null)
                 StopCoroutine(spawnCoroutine);
@@ -59,7 +60,7 @@ public class SpawnManager : MonoBehaviour
             spawnCoroutine = StartCoroutine("SpawnWave");
         }
 
-        if (totalWaves == 0)
+        if ((totalWaves == 0 && !currentRoom.IsBossRoom()) || currentRoom.IsBreakRoom())
             allDefeated = true;
     }
 
@@ -69,7 +70,7 @@ public class SpawnManager : MonoBehaviour
         currentWave++;
         allDefeated = false;
         int spawnCount = Random.Range(lowRoll, highRoll + 1);
-        spawnPos = new List<Vector3>();
+        spawnPosList = new List<Vector3>();
         covers = new List<GameObject>();
         List<int> spawnNum = new List<int>();
 
@@ -80,11 +81,17 @@ public class SpawnManager : MonoBehaviour
             yield return null;
         }
 
-        for (int i = 0; i < spawnCount; i++)
+        List<Vector3> positions = roomManager.GetCurrent().OpenWorldPositions();
+        Debug.Log(positions.Count);
+        int ogPositionCount = positions.Count;
+        for (int i = 0; i < Mathf.Min(spawnCount, ogPositionCount); i++)
         {
             spawnNum.Add(SelectEnemy());
-            spawnPos.Add(GenerateSpawnPos(enemyPrefabs[spawnNum[i]]));
-            covers.Add(Instantiate(spawnCover, spawnPos[i], gameObject.transform.rotation));
+            int spawnIndex = Random.Range(0, positions.Count);
+            spawnPosList.Add(positions[spawnIndex] + (Vector3.up * (-positions[spawnIndex].y + enemyPrefabs[spawnNum[i]].transform.position.y)));
+            positions.RemoveAt(spawnIndex);
+
+            covers.Add(Instantiate(spawnCover, spawnPosList[i], gameObject.transform.rotation));
             covers[i].transform.parent = roomManager.GetCurrent().transform;
         }
 
@@ -95,10 +102,10 @@ public class SpawnManager : MonoBehaviour
             yield return null;
         }
 
-        for (int i = 0; i < spawnCount; i++)
+        for (int i = 0; i < spawnPosList.Count; i++)
         {
             Destroy(covers[i]);
-            spawnList.Add((Enemy)Instantiate(enemyPrefabs[spawnNum[i]], spawnPos[i], gameObject.transform.rotation));
+            spawnList.Add((Enemy)Instantiate(enemyPrefabs[spawnNum[i]], spawnPosList[i], gameObject.transform.rotation));
             spawnList[i].SetSpawnManager(this);
             spawnList[i].SetRoomManager(roomManager);
             spawnList[i].transform.parent = roomManager.GetCurrent().transform;
@@ -110,10 +117,10 @@ public class SpawnManager : MonoBehaviour
 
     //private void SpawnPickups()
 
-    protected Vector3 GenerateSpawnPos(Enemy type)
-    {
-        return new Vector3(Random.Range(-spawnRangeX, spawnRangeX + 1), type.transform.position.y, Random.Range(-spawnRangeZ, spawnRangeZ + 1));
-    }
+    //protected Vector3 GenerateSpawnPos(Enemy type)
+    //{
+    //    return new Vector3(Random.Range(-spawnRangeX, spawnRangeX + 1), type.transform.position.y, Random.Range(-spawnRangeZ, spawnRangeZ + 1));
+    //}
 
     protected int SelectEnemy()
     {
@@ -198,7 +205,7 @@ public class SpawnManager : MonoBehaviour
     public void SetBoss(Boss b)
     {
         boss = b;
-        bossWave = true;
+        bossWave = boss != null;
     }
 
     public void DestroyAllEnemies()

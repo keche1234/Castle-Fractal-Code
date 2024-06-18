@@ -48,10 +48,10 @@ public class Room : MonoBehaviour
 
     [Header("Booleans")]
     [SerializeField] protected bool breakRoom;
-    [SerializeField] protected bool corrected = false;
 
     // Random Generation Algorithm Info
     protected int MAX_FENCES = 3;
+    protected int MAX_QUADS = 2;
     //protected int SINGLE_WALL_ATTEMPTS = 2;
     //protected int DOUBLE_WALL_ATTEMPTS = 3;
     //protected int QUAD_WALL_ATTEMPTS = 5;
@@ -96,75 +96,77 @@ public class Room : MonoBehaviour
     public int GenerateRoom()
     {
         AddFloor(Instantiate(floorPrefab));
-        AddEntrance(Instantiate(entrancePrefab));
+        AddDoor(Instantiate(entrancePrefab));
 
         ExitDoor generatedExit = Instantiate(exitPrefab);
         generatedExit.SetRoomManager(roomManager);
-        Debug.Log(roomManager);
-        AddExit(generatedExit.gameObject);
+        AddDoor(generatedExit.gameObject);
 
-        /***************************************************
-         * There are four types of wall formations to spawn:
-         * Single: One wall
-         * Double: Two walls
-         * Quad: Four walls in a square
-         * Plus: One square surrounded by four adjacent walls
-         * Fence: Squares just out from one of four borders
-         *        up to halfway + 1 through the room
-         **************************************************/
-        walls = new List<GameObject>();
-
-        // FENCES
-        GameObject[] fences = GenerateFences();
-        foreach (GameObject fence in fences)
-            walls.Add(fence);
-
-        //GameObject addMe = GenerateQuad();
-        //if (addMe)
-        //{
-        //    walls.Add(addMe);
-        //    //w -= 4;
-        //}
-
-        int wallCount = (int)(Random.Range(0.01f, 0.025f * (MAX_FENCES + 1 - fences.Length)) * xDimension * zDimension);
-        Debug.Log("Remaining walls to spawn: " + wallCount);
-
-        int possibilityVector = 0b_1111;
-        int w = wallCount;
-        while (w > 0)
+        if (!bossRoom)
         {
-            int chosen = Random.Range(0, 4);
+            /***************************************************
+             * There are four types of wall formations to spawn:
+             * Single: One wall
+             * Pair: Two walls
+             * Quad: Four walls in a square
+             * Fence: Squares just out from one of four borders
+             *        up to halfway + 1 through the room
+             **************************************************/
+            walls = new List<GameObject>();
+
+            // FENCES
+            GameObject[] fences = GenerateFences();
+            foreach (GameObject fence in fences)
+                walls.Add(fence);
+
+            // QUADS
+            GameObject[] quads = GenerateQuads();
+            foreach (GameObject quad in quads)
+                walls.Add(quad);
+
+            // In a 10x20 grid, anywhere from 2 to 28 walls
+            int wallCount = (int)(Random.Range(0.01f, 0.02f * (MAX_FENCES + 1 - fences.Length + MAX_QUADS + 1 - quads.Length)) * xDimension * zDimension);
+
+            int possibilityVector = 0b_11;
             GameObject addMe;
-            switch (chosen)
+            while (((possibilityVector & 0b_11) != 0) && wallCount > 0)
             {
-                case 0: // TODO: PLUSES
-                case 1: // QUADS
-                    if ((possibilityVector & 0b_0100) != 0)
-                    {
-                        addMe = GenerateQuad();
+                int chosen = Random.Range(0, 2);
+                switch (chosen)
+                {
+                    case 0: // SINGLES
+                        addMe = GenerateSingleWall();
                         if (addMe)
                         {
                             walls.Add(addMe);
-                            w -= 4;
+                            wallCount--;
                         }
                         else
+                            possibilityVector &= 0b_00;
+                        break;
+                    case 1: // DOUBLES
+                        if (wallCount >= 2)
                         {
-                            possibilityVector &= 0b_1011;
-                            w = 0;
+                            addMe = GeneratePair();
+                            if (addMe)
+                            {
+                                walls.Add(addMe);
+                                wallCount -= 2;
+                            }
+                            else
+                                possibilityVector &= 0b_10;
                         }
-                    }
-                    break;
-                case 2: // TODO: DOUBLES
-                case 3: // TODO: SINGLES
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
             }
-        }
 
-        foreach (GameObject wall in walls)
-        {
-            wall.transform.parent = transform;
-            wall.transform.localPosition = wall.transform.position;
+            foreach (GameObject wall in walls)
+            {
+                wall.transform.parent = transform;
+                wall.transform.localPosition = wall.transform.position;
+            }
         }
         return OpenGridPositions().Count;
     }
@@ -174,7 +176,7 @@ public class Room : MonoBehaviour
         if (PositionInBounds(space.Item1, space.Item2))
         {
             // Set position using gridStart and gridDirection
-            Vector3 wallPosition = GridToLocalPosition(space.Item1, space.Item2);
+            Vector3 wallPosition = GridToVector3(space.Item1, space.Item2);
 
             // Create wall
             GameObject wall = Instantiate(wallPrefab);
@@ -185,58 +187,169 @@ public class Room : MonoBehaviour
         return null;
     }
 
-    /****************************************************
-     * Attempt up to 5 times:
-     * 1) Select a random left-hand corner grid location
-     * 2) Check if all four spaces can support quad
-     * 3) Mark the grid
-     * 4) Check if all four borders can be reached
-     *     - If successful, return
-     ***************************************************/
-    protected GameObject GenerateQuad()
+    protected GameObject GenerateSingleWall()
     {
-        List<(int, int)> possiblePositions = OpenGridPositions(1, 1, zDimension - 2, xDimension - 2);
+        if (!AllSpaceReachable())
+            return null;
 
-        int j = Random.Range(0, possiblePositions.Count);
-        (int, int) upLeftGrid = possiblePositions[j];
-        possiblePositions.RemoveAt(j);
+        List<(int, int)> possiblePositions = OpenGridPositions(2, 2, zDimension - 2, xDimension - 2);
+        (int, int) gridPosition;
 
-        // I assert that gridPosition is in bounds based on OpenGridPositions
-        (int, int) upRightGrid = (upLeftGrid.Item1, upLeftGrid.Item2 + 1);
-        (int, int) downLeftGrid = (upLeftGrid.Item1 + 1, upLeftGrid.Item2);
-        (int, int) downRightGrid = (upLeftGrid.Item1 + 1, upLeftGrid.Item2 + 1);
-
-        if (!grid[upRightGrid.Item1, upRightGrid.Item2] && !grid[downLeftGrid.Item1, downLeftGrid.Item2] && !grid[downRightGrid.Item1, downRightGrid.Item2])
+        do
         {
-            grid[upLeftGrid.Item1, upLeftGrid.Item2] = true;
-            grid[upRightGrid.Item1, upRightGrid.Item2] = true;
-            grid[downLeftGrid.Item1, downLeftGrid.Item2] = true;
-            grid[downRightGrid.Item1, downRightGrid.Item2] = true;
+            int index = Random.Range(0, possiblePositions.Count);
+            gridPosition = possiblePositions[index];
+            possiblePositions.RemoveAt(index);
+
+            grid[gridPosition.Item1, gridPosition.Item2] = true;
             if (AllSpaceReachable())
-            {
-                GameObject quad = new GameObject("Quad");
-                GameObject upLeftWall = GenerateSingleWall(upLeftGrid);
-                GameObject upRightWall = GenerateSingleWall(upRightGrid);
-                GameObject downLeftWall = GenerateSingleWall(downLeftGrid);
-                GameObject downRightWall = GenerateSingleWall(downRightGrid);
-
-                upLeftWall.transform.parent = quad.transform;
-                upRightWall.transform.parent = quad.transform;
-                downLeftWall.transform.parent = quad.transform;
-                downRightWall.transform.parent = quad.transform;
-                return quad;
-            }
+                return GenerateSingleWall(gridPosition);
             else
-            {
-                grid[upLeftGrid.Item1, upLeftGrid.Item2] = false;
-                grid[upRightGrid.Item1, upRightGrid.Item2] = false;
-                grid[downLeftGrid.Item1, downLeftGrid.Item2] = false;
-                grid[downRightGrid.Item1, downRightGrid.Item2] = false;
-            }
-        }
+                grid[gridPosition.Item1, gridPosition.Item2] = false;
 
+        } while (possiblePositions.Count > 0);
 
         return null;
+    }
+
+    /************************************************
+     * Create a double (two walls next to each other)
+     ************************************************/
+    protected GameObject GeneratePair()
+    {
+        if (!AllSpaceReachable())
+            return null;
+
+        GameObject pair = new GameObject("Double");
+        List<(int, int)> possiblePositions = OpenGridPositions(3, 3, zDimension - 3, xDimension - 3);
+        HashSet<((int, int), (int, int))> triedPairs = new HashSet<((int, int), (int, int))>();
+
+        (int, int) anchorPosition;
+        do
+        {
+            if (possiblePositions.Count == 0)
+                return null;
+            int index = Random.Range(0, possiblePositions.Count);
+            anchorPosition = possiblePositions[index];
+            possiblePositions.RemoveAt(index);
+
+            int wing;
+            (int, int) wingPosition;
+            do
+            {
+                wing = Random.Range(0, 4);
+                switch (wing)
+                {
+                    case 0: // Left
+                        wingPosition = (anchorPosition.Item1, anchorPosition.Item2 - 1);
+                        break;
+                    case 1: // Right
+                        wingPosition = (anchorPosition.Item1, anchorPosition.Item2 + 1);
+                        break;
+                    case 2: // Up
+                        wingPosition = (anchorPosition.Item1 - 1, anchorPosition.Item2);
+                        break;
+                    case 3: // Down
+                    default:
+                        wingPosition = (anchorPosition.Item1 + 1, anchorPosition.Item2);
+                        break;
+                }
+            } while (!PositionInBounds(wingPosition.Item1, wingPosition.Item2) || grid[wingPosition.Item1, wingPosition.Item2]);
+
+            grid[anchorPosition.Item1, anchorPosition.Item2] = true;
+            grid[wingPosition.Item1, wingPosition.Item2] = true;
+            if (AllSpaceReachable())
+            {
+                GameObject anchorWall = GenerateSingleWall(anchorPosition);
+                GameObject wingWall = GenerateSingleWall(wingPosition);
+
+                anchorWall.transform.parent = pair.transform;
+                wingWall.transform.parent = pair.transform;
+                return pair;
+            }
+
+            grid[anchorPosition.Item1, anchorPosition.Item2] = false;
+            grid[wingPosition.Item1, wingPosition.Item2] = false;
+            triedPairs.Add((anchorPosition, wingPosition));
+        } while (possiblePositions.Count > 0);
+        return null;
+    }
+
+    /******************************************
+     * Create 1 or 2 quads in opposite corners.
+     ******************************************/
+    protected GameObject[] GenerateQuads()
+    {
+        GameObject[] quads = new GameObject[Random.Range(0, MAX_QUADS + 1)]; // Fence Count
+        List<(int, int)> startingLocations = new List<(int, int)>();
+        for (int i = 0; i < quads.Length; i++)
+            quads[i] = new GameObject("Quad");
+
+        int corner = Random.Range(0, 4);
+
+        List<(int, int)> possiblePositions;
+        for (int i = 0; i < quads.Length; i++)
+        {
+            switch (corner)
+            {
+                case 0: //Upper Left Corner
+                    possiblePositions = OpenGridPositions(2, 2, (zDimension / 2) - 1, (xDimension / 2) - 1);
+                    corner = 3;
+                    break;
+                case 1: // Upper Right Corner
+                    possiblePositions = OpenGridPositions(2, (xDimension / 2) + 1, (zDimension / 2) - 1, xDimension - 2);
+                    corner = 2;
+                    break;
+                case 2: //Lower Left Corner
+                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, 2, zDimension - 2, (xDimension / 2) - 1);
+                    corner = 1;
+                    break;
+                case 3: // Lower Right Corner
+                default:
+                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, (xDimension / 2) + 1, zDimension - 2, xDimension - 2);
+                    corner = 0;
+                    break;
+            }
+
+            int j = Random.Range(0, possiblePositions.Count);
+            (int, int) upLeftGrid = possiblePositions[j];
+            possiblePositions.RemoveAt(j);
+
+            // I assert that gridPosition is in bounds based on OpenGridPositions
+            (int, int) upRightGrid = (upLeftGrid.Item1, upLeftGrid.Item2 + 1);
+            (int, int) downLeftGrid = (upLeftGrid.Item1 + 1, upLeftGrid.Item2);
+            (int, int) downRightGrid = (upLeftGrid.Item1 + 1, upLeftGrid.Item2 + 1);
+
+            if (!grid[upRightGrid.Item1, upRightGrid.Item2] && !grid[downLeftGrid.Item1, downLeftGrid.Item2] && !grid[downRightGrid.Item1, downRightGrid.Item2])
+            {
+                grid[upLeftGrid.Item1, upLeftGrid.Item2] = true;
+                grid[upRightGrid.Item1, upRightGrid.Item2] = true;
+                grid[downLeftGrid.Item1, downLeftGrid.Item2] = true;
+                grid[downRightGrid.Item1, downRightGrid.Item2] = true;
+                if (AllSpaceReachable())
+                {
+                    GameObject quad = new GameObject("Quad");
+                    GameObject upLeftWall = GenerateSingleWall(upLeftGrid);
+                    GameObject upRightWall = GenerateSingleWall(upRightGrid);
+                    GameObject downLeftWall = GenerateSingleWall(downLeftGrid);
+                    GameObject downRightWall = GenerateSingleWall(downRightGrid);
+
+                    upLeftWall.transform.parent = quad.transform;
+                    upRightWall.transform.parent = quad.transform;
+                    downLeftWall.transform.parent = quad.transform;
+                    downRightWall.transform.parent = quad.transform;
+                    quads[i] = quad;
+                }
+                else
+                {
+                    grid[upLeftGrid.Item1, upLeftGrid.Item2] = false;
+                    grid[upRightGrid.Item1, upRightGrid.Item2] = false;
+                    grid[downLeftGrid.Item1, downLeftGrid.Item2] = false;
+                    grid[downRightGrid.Item1, downRightGrid.Item2] = false;
+                }
+            }
+        }
+        return quads;
     }
 
     /**************************************
@@ -271,20 +384,20 @@ public class Room : MonoBehaviour
                         gridDirection = (-1, 0);
                         length = Random.Range(3, (zDimension / 2) + 2);
                         break;
-                    case 1: // South Border (Fence goes north)
+                    case 1: // East Border (Fence goes west)
+                        gridStart = (Random.Range(2, zDimension - 1), 0);
+                        gridDirection = (0, 1);
+                        length = Random.Range(3, (xDimension / 2) + 2);
+                        break;
+                    case 2: // South Border (Fence goes north)
                         gridStart = (0, Random.Range(2, xDimension - 1));
                         gridDirection = (1, 0);
                         length = Random.Range(3, (zDimension / 2) + 2);
                         break;
-                    case 2: // West Border (Fence goes east)
+                    case 3: // West Border (Fence goes east)
+                    default:
                         gridStart = (Random.Range(2, zDimension - 1), xDimension - 1);
                         gridDirection = (0, -1);
-                        length = Random.Range(3, (xDimension / 2) + 2);
-                        break;
-                    case 3: // East Border (Fence goes west)
-                    default:
-                        gridStart = (Random.Range(2, zDimension - 1), 0);
-                        gridDirection = (0, 1);
                         length = Random.Range(3, (xDimension / 2) + 2);
                         break;
                 }
@@ -306,7 +419,7 @@ public class Room : MonoBehaviour
                     && !grid[nextSpaceLeft.Item1, nextSpaceLeft.Item2] && !grid[nextSpaceRight.Item1, nextSpaceRight.Item2])
                 {
                     // Set position using gridStart and gridDirection
-                    Vector3 wallPosition = GridToLocalPosition(wallGridPosition.Item1, wallGridPosition.Item2);
+                    Vector3 wallPosition = GridToVector3(wallGridPosition.Item1, wallGridPosition.Item2);
 
                     // Create wall
                     GameObject wall = Instantiate(wallPrefab);
@@ -325,7 +438,7 @@ public class Room : MonoBehaviour
     /***************************
      * GRID OPERATIONS
      ***************************/
-    protected Vector3 GridToLocalPosition(int row, int col)
+    protected Vector3 GridToVector3(int row, int col)
     {
         if (row < 0 || row >= zDimension)
             Debug.LogWarning("Out of bounds x position " + row + "! Must be in range [0, " + zDimension + ")!");
@@ -340,7 +453,7 @@ public class Room : MonoBehaviour
         return worldPosition;
     }
 
-    protected (int, int) WorldPositionToGrid(Vector3 worldPosition)
+    protected (int, int) Vector3ToGrid(Vector3 worldPosition)
     {
         int row = (int)(worldPosition.z - (zDimension / 2));
         int col = (int)(worldPosition.x + (xDimension / 2));
@@ -381,7 +494,7 @@ public class Room : MonoBehaviour
 
     protected int AdjacentWallCount(Vector3 worldPosition, bool includeBorder)
     {
-        (int, int) gridPos = WorldPositionToGrid(worldPosition);
+        (int, int) gridPos = Vector3ToGrid(worldPosition);
         return AdjacentWallCount(gridPos.Item1, gridPos.Item2, includeBorder);
     }
 
@@ -417,7 +530,7 @@ public class Room : MonoBehaviour
 
     protected int SurroundingWallCount(Vector3 worldPosition, bool includeBorder)
     {
-        (int, int) gridPos = WorldPositionToGrid(worldPosition);
+        (int, int) gridPos = Vector3ToGrid(worldPosition);
         return SurroundingWallCount(gridPos.Item1, gridPos.Item2, includeBorder);
     }
 
@@ -440,23 +553,23 @@ public class Room : MonoBehaviour
 
     protected bool PositionInBounds(Vector3 worldPosition)
     {
-        (int, int) gridPos = WorldPositionToGrid(worldPosition);
+        (int, int) gridPos = Vector3ToGrid(worldPosition);
         return PositionInBounds(gridPos.Item1, gridPos.Item2);
     }
 
-    /*********************************************************************************************
+    /****************************************************************************************************
      * Perform a BFS search to reach as many open spaces as possible through adjacent movement.
      * Return true if all spaces are reachable (equivalently, the size of the tree is the size of
      * the set of reachable spaces from the start). A parent-child relationship on the tree
      * means two spaces are adjacent. The cardinality of `seen` is the same as the cardinality
      * of the BFS tree.
      * 
-     * CORRECTNESS: All open spaces are reachable from anywhere <=> all spaces will be on tree
-     * (=>): Any open space that's not on the tree could not be reached from the start space
-     * (<=): For any two spaces, you can travel from one space to another through the
+     * CORRECTNESS: All open spaces are reachable from anywhere <=> all open spaces are on the BFS tree
+     * (=>): If an open space is not on the tree, it could not be reached from the start
+     * (<=): For any two spaces on the tree, you can travel from one space to another through the
      *       parent-child edges. Since the parent-child edges indicate adjacent spaces, all
      *       open spaces being on the tree means you can reach any space from anywhere.
-     ******************************************************************************************/
+     ***************************************************************************************************/
     protected bool AllSpaceReachable()
     {
         Queue<(int, int)> queue = new Queue<(int, int)>();
@@ -465,7 +578,7 @@ public class Room : MonoBehaviour
         List<(int, int)> spaces = OpenGridPositions();
         if (spaces.Count == 0)
             return true;
-        
+
         //PrintGrid();
 
         queue.Enqueue(spaces[0]);
@@ -540,7 +653,7 @@ public class Room : MonoBehaviour
      ******************************/
     public bool IsOpenPosition(Vector3 worldPosition)
     {
-        (int, int) gridPos = WorldPositionToGrid(worldPosition);
+        (int, int) gridPos = Vector3ToGrid(worldPosition);
         return IsOpenPosition(gridPos.Item1, gridPos.Item2);
     }
 
@@ -558,7 +671,7 @@ public class Room : MonoBehaviour
         for (int r = 0; r < zDimension; r++)
             for (int c = 0; c < xDimension; c++)
                 if (IsOpenPosition(r, c))
-                    validSpawnPositions.Add(GridToLocalPosition(r, c));
+                    validSpawnPositions.Add(GridToVector3(r, c));
         return validSpawnPositions;
     }
 
@@ -585,102 +698,6 @@ public class Room : MonoBehaviour
         return OpenGridPositions(0, 0, zDimension, xDimension);
     }
 
-    /*****************************
-     * BUILDING THE ROOM
-     *****************************/
-    //protected void CreateBorders()
-    //{
-    //    //Horizontal
-    //    for (int i = 0; i <= xDimension; i++)
-    //    {
-    //        if (entrance.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + i, topLeftCornerLocation.y, topLeftCornerLocation.z - 0.25f) &&
-    //            exit.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + i, topLeftCornerLocation.y, topLeftCornerLocation.z - 0.25f)) //make sure there's not a door there
-    //        {
-    //            borderPieces.Add(Instantiate(borderPrefab, borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + i, topLeftCornerLocation.y, topLeftCornerLocation.z - 0.25f),
-    //                Quaternion.Euler(0, -90, 0)));
-    //            borderPieces[borderPieces.Count - 1].transform.parent = gameObject.transform;
-    //        }
-
-    //        if (entrance.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + i, topLeftCornerLocation.y, topLeftCornerLocation.z + zDimension + 0.25f) &&
-    //            exit.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + i, topLeftCornerLocation.y, topLeftCornerLocation.z + zDimension + 0.25f))
-    //        {
-    //            borderPieces.Add(Instantiate(borderPrefab, borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + i, topLeftCornerLocation.y, topLeftCornerLocation.z + zDimension + 0.25f),
-    //                Quaternion.Euler(0, 90, 0)));
-    //            borderPieces[borderPieces.Count - 1].transform.parent = this.gameObject.transform;
-    //        }
-    //    }
-    //    //Vertical
-    //    for (int i = 0; i <= zDimension; i++)
-    //    {
-    //        if (entrance.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x - 0.25f, topLeftCornerLocation.y, topLeftCornerLocation.z + i) &&
-    //            exit.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x - 0.25f, topLeftCornerLocation.y, topLeftCornerLocation.z + i))
-    //        {
-    //            borderPieces.Add(Instantiate(borderPrefab, borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x - 0.25f, topLeftCornerLocation.y, topLeftCornerLocation.z + i),
-    //                Quaternion.Euler(0, 0, 0)));
-    //            borderPieces[borderPieces.Count - 1].transform.parent = this.gameObject.transform;
-    //        }
-
-    //        if (entrance.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + xDimension + 0.25f, topLeftCornerLocation.y, topLeftCornerLocation.z + i) &&
-    //            exit.transform.position != borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + xDimension + 0.25f, topLeftCornerLocation.y, topLeftCornerLocation.z + i))
-    //        {
-    //            borderPieces.Add(Instantiate(borderPrefab, borderPrefab.transform.position + new Vector3(topLeftCornerLocation.x + xDimension + 0.25f, topLeftCornerLocation.y, topLeftCornerLocation.z + i),
-    //                Quaternion.Euler(0, 180, 0)));
-    //            borderPieces[borderPieces.Count - 1].transform.parent = this.gameObject.transform;
-    //        }
-    //    }
-    //}
-
-    //protected void CorrectBadPlacements()
-    //{
-    //    if (grid != null && borderPieces != null && walls != null && chests != null)
-    //    {
-    //        //Check that each wall is in a place on the grid
-    //        for (int i = 0; i < walls.Count; i++)
-    //        {
-    //            int xPos = (int)Mathf.Round(walls[i].transform.position.x - topLeftCornerLocation.x);
-    //            int zPos = (int)Mathf.Round(topLeftCornerLocation.z - walls[i].transform.position.z);
-
-    //            if (!(xPos >= 0 && xPos < xDimension && zPos >= 0 && zPos < zDimension))
-    //            {
-    //                Destroy(walls[i]);
-    //                walls.RemoveAt(i--);
-    //            }
-    //            else if (!grid[xPos, zPos])
-    //                grid[xPos, zPos] = true;
-    //        }
-
-    //        //Check that each chest is in a place
-    //        for (int i = 0; i < chests.Count; i++)
-    //        {
-    //            int xPos = (int)Mathf.Round(chests[i].transform.position.x - topLeftCornerLocation.x);
-    //            int zPos = (int)Mathf.Round(topLeftCornerLocation.z - chests[i].transform.position.z);
-
-    //            if (!(xPos >= 0 && xPos < xDimension && zPos >= 0 && zPos < zDimension))
-    //            {
-    //                Destroy(chests[i]);
-    //                chests.RemoveAt(i--);
-    //            }
-    //            else if (!grid[xPos, zPos])
-    //                grid[xPos, zPos] = true;
-    //        }
-
-    //        //Check that each weapon pickup is in a place
-    //        for (int i = 0; i < weapons.Count; i++)
-    //        {
-    //            int xPos = (int)Mathf.Round(weapons[i].transform.position.x - topLeftCornerLocation.x);
-    //            int zPos = (int)Mathf.Round(topLeftCornerLocation.z - weapons[i].transform.position.z);
-
-    //            if (!(xPos >= 0 && xPos < xDimension && zPos >= 0 && zPos < zDimension))
-    //            {
-    //                Destroy(weapons[i]);
-    //                weapons.RemoveAt(i--);
-    //            }
-    //            else if (!grid[xPos, zPos])
-    //                grid[xPos, zPos] = true;
-    //        }
-    //    }
-    //}
-
     /***************************************
      * Adding components to the floor object
      ***************************************/
@@ -693,30 +710,63 @@ public class Room : MonoBehaviour
         //CorrectBadPlacements();
     }
 
-    public void AddEntrance(GameObject e)
-    {
-        if (e != null)
-            entrance = e;
-        entrance.transform.parent = transform;
-        entrance.transform.localPosition = new Vector3(-10, 0.75f, 0);
+    //public void AddEntrance(GameObject e)
+    //{
+    //    if (e != null)
+    //        entrance = e;
+    //    entrance.transform.parent = transform;
+    //    entrance.transform.localPosition = new Vector3(-10, 0.75f, 0);
 
-        //CorrectBadPlacements();
-    }
+    //    //CorrectBadPlacements();
+    //}
 
     public GameObject GetEntrance()
     {
         return entrance;
     }
 
-    public void AddExit(GameObject ed)
+    public void AddDoor(GameObject door)
     {
-        if (ed != null && ed.GetComponent<ExitDoor>() != null)
+        if (!door)
+            return;
+
+        door.transform.parent = transform;
+
+        int border = Random.Range(0, 4);
+        List<(int, int)> possiblePositions;
+        (int, int) doorPosition;
+        switch (border)
         {
-            //TODO: Randomize Location
-            exit = ed;
-            exit.transform.parent = transform;
-            exit.transform.localPosition = new Vector3(-10, 0.75f, 0);
-            exit.transform.rotation = Quaternion.Euler(0, 180, 0);
+            case 0: // North Border
+                possiblePositions = OpenGridPositions(0, 1, 1, xDimension - 1);
+                break;
+            case 1: // East Border
+                possiblePositions = OpenGridPositions(1, xDimension - 1, zDimension - 1, xDimension);
+                break;
+            case 2: // South Border
+                possiblePositions = OpenGridPositions(zDimension - 1, 1, zDimension, xDimension - 1);
+                break;
+            case 3: // West Border
+            default:
+                possiblePositions = OpenGridPositions(1, 0, zDimension - 1, 1);
+                break;
+        }
+        doorPosition = possiblePositions[Random.Range(0, possiblePositions.Count)];
+        grid[doorPosition.Item1, doorPosition.Item2] = true;
+
+        door.transform.localPosition = GridToVector3(doorPosition.Item1, doorPosition.Item2);
+        door.transform.rotation = Quaternion.Euler(0, 180 + (border * 90), 0);
+        door.transform.localPosition += (Vector3.up * 0.25f) + (door.transform.forward * -0.5f);
+
+        if (door.GetComponent<ExitDoor>())
+        {
+            if (!exit)
+                Destroy(exit);
+            exit = door;
+        }
+        else
+        {
+            entrance = door;
         }
     }
 

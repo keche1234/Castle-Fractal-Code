@@ -629,7 +629,7 @@ public class Twinotaurs : Boss
                 PartitionSpawn(noxPathPrefab, noxPath, venom);
                 while (t < PERILOUS_ACTIVE)
                 {
-                    int wallMask = 1 << 7;
+                    int wallMask = ~LayerMask.GetMask("Wall", "Door");
                     //int perilMask = 1 << 8;
                     if (GetMyFreezeTime() <= 0)
                     {
