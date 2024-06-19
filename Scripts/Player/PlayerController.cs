@@ -1129,12 +1129,30 @@ public class PlayerController : Character
     {
         if (playerAttack == AttackState.NotAttacking)
             return 0;
-        else if (playerAttack == AttackState.Startup)
+        if (playerAttack == AttackState.Startup)
             return 1;
-        else if (playerAttack == AttackState.Active)
+        if (playerAttack == AttackState.Active)
             return 2;
-        else //playerAttack == AttackState.Endlag
-            return 3;
+        //playerAttack == AttackState.Endlag
+        return 3;
+    }
+
+    public int GetCurrentWeaponAttackState()
+    {
+        if (currentWeaponType < 0)
+            return -1;
+
+        if (weaponTypes[currentWeaponType].IsInactive())
+            return 0;
+
+        if (weaponTypes[currentWeaponType].IsStarting())
+            return 1;
+
+        if (weaponTypes[currentWeaponType].IsAttacking())
+            return 2;
+
+        // IsEnding()
+        return 3;
     }
 
     //Unarmed strike
@@ -1302,15 +1320,15 @@ public class PlayerController : Character
     /***********************************************************************
      * Attempts to Rank Up either Health, Inventory, or Signature Fill Rate
      ***********************************************************************/
-    public void RankUp(int r)
+    public void RankUp(int attributeIndex)
     {        
-        if (ranks[r] < MAX_RANK)
+        if (ranks[attributeIndex] < MAX_RANK)
         {
-            ranks[r]++;
-            switch (r)
+            ranks[attributeIndex]++;
+            switch (attributeIndex)
             {
                 case 0:
-                    maxHealth = baseHealthCap * (1 + (0.5f * ranks[r]));
+                    maxHealth = baseHealthCap * (1 + (0.5f * ranks[attributeIndex]));
                     currentHealth = maxHealth;
 
                     miniHealthBar.SetMax(maxHealth);
@@ -1319,10 +1337,10 @@ public class PlayerController : Character
                     healthBar.SetMax(maxHealth);
                     healthBar.SetValue(currentHealth);
                     healthBar.UpdateAmountTxt(currentHealth + "/" + maxHealth);
-                    healthBar.UpdateRankTxt(ranks[r].ToString());
+                    healthBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
                 case 1:
-                    maxMP = (int)(baseMPCap * (1 + (0.5f * ranks[r])));
+                    maxMP = (int)(baseMPCap * (1 + (0.5f * ranks[attributeIndex])));
 
                     miniDurabilityBar.SetMax(maxMP);
                     inventoryBar.SetMax(maxMP);
@@ -1330,22 +1348,29 @@ public class PlayerController : Character
                     miniDurabilityBar.SetValue(currentMP);
                     inventoryBar.SetValue(currentMP);
                     inventoryBar.UpdateAmountTxt(currentMP + "/" + maxMP);
-                    inventoryBar.UpdateRankTxt(ranks[r].ToString());
+                    inventoryBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
                 case 2:
                 default:
-                    signatureBar.UpdateAmountTxt((1 + (0.2f * ranks[r])).ToString());
-                    signatureBar.UpdateRankTxt(ranks[r].ToString());
+                    signatureBar.UpdateAmountTxt((1 + (0.2f * ranks[attributeIndex])).ToString());
+                    signatureBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
             }
         }
     }
 
-    public int GetRank(int r)
+    public int GetRank(int attributeIndex)
     {
-        if (r < 0 || r >= ranks.Length)
+        if (attributeIndex < 0 || attributeIndex >= ranks.Length)
             return -1;
-        return ranks[r];
+        return ranks[attributeIndex];
+    }
+
+    public bool IsAttributeMaxRank(int attributeIndex)
+    {
+        if (attributeIndex < 0 || attributeIndex >= ranks.Length)
+            return false;
+        return ranks[attributeIndex] == MAX_RANK;
     }
 
     public int GetCurrentTotalRank()
@@ -1370,6 +1395,13 @@ public class PlayerController : Character
     public bool IsAlive()
     {
         return currentHealth >= 0;
+    }
+
+    public override void FullyRestoreHealth()
+    {
+        base.FullyRestoreHealth();
+        miniHealthBar.SetValue(currentHealth);
+        healthBar.SetValue(currentHealth);
     }
 
     public void SetSigning(bool b)

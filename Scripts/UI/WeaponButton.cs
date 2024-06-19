@@ -85,31 +85,31 @@ public class WeaponButton : MonoBehaviour
             signature.SetValue(weapon.GetSignatureGauge());
 
             //Select if activate weapon
-            if (button.GetComponent<ButtonManipulation>() != null)
+            if (button.GetComponent<ButtonColorManipulation>() != null)
             {
                 if (weaponNumber == player.GetCustomIndex())
-                    button.GetComponent<ButtonManipulation>().Select(true);
+                    button.GetComponent<ButtonColorManipulation>().Select(true);
                 else
-                    button.GetComponent<ButtonManipulation>().Select(false);
+                    button.GetComponent<ButtonColorManipulation>().Select(false);
             }
 
             //Change weapon if player is not attacking
             if (player.GetAttackState() == 0)
             {
                 button.gameObject.GetComponent<Button>().enabled = true;
-                if (button.gameObject.GetComponent<ButtonManipulation>() != null) //show enable colors
+                if (button.gameObject.GetComponent<ButtonColorManipulation>() != null) //show enable colors
                 {
-                    button.gameObject.GetComponent<ButtonManipulation>().enabled = true;
-                    button.gameObject.GetComponent<ButtonManipulation>().Activate(true);
+                    button.gameObject.GetComponent<ButtonColorManipulation>().enabled = true;
+                    button.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(true);
                 }
             }
             else
             {
                 button.gameObject.GetComponent<Button>().enabled = false;
-                if (button.gameObject.GetComponent<ButtonManipulation>() != null)
+                if (button.gameObject.GetComponent<ButtonColorManipulation>() != null)
                 {
-                    button.gameObject.GetComponent<ButtonManipulation>().Activate(false);
-                    button.gameObject.GetComponent<ButtonManipulation>().enabled = false;
+                    button.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
+                    button.gameObject.GetComponent<ButtonColorManipulation>().enabled = false;
                 }
             }
             button.GetComponent<Image>().color = filledColor;
@@ -123,7 +123,7 @@ public class WeaponButton : MonoBehaviour
                 bool changedSelected = false;
                 if (weaponNumber == 0) //beginning of the inventory
                 {
-                    upArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
+                    upArrow.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
                     upArrow.GetComponent<Image>().color = emptyColor;
                     upArrow.gameObject.GetComponent<Button>().enabled = false;
                     if (player.GetActionInputDevice("main attack") == Keyboard.current)
@@ -135,13 +135,13 @@ public class WeaponButton : MonoBehaviour
                 else
                 {
                     upArrow.gameObject.GetComponent<Button>().enabled = true;
-                    upArrow.gameObject.GetComponent<ButtonManipulation>().Activate(true);
+                    upArrow.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(true);
                     upArrow.GetComponent<Image>().color = Color.white;
                 }
 
                 if (weaponNumber == player.InventoryCount() - 1 - ((player.InventoryCount() + 1) % 2)) //last (odd inventory) or second-to-last (even inventory)
                 {
-                    downArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
+                    downArrow.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
                     downArrow.GetComponent<Image>().color = emptyColor;
                     downArrow.gameObject.GetComponent<Button>().enabled = false;
                     if (!changedSelected && player.GetActionInputDevice("main attack") == Keyboard.current)
@@ -150,7 +150,7 @@ public class WeaponButton : MonoBehaviour
                 else
                 {
                     downArrow.gameObject.GetComponent<Button>().enabled = true;
-                    downArrow.gameObject.GetComponent<ButtonManipulation>().Activate(true);
+                    downArrow.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(true);
                     downArrow.GetComponent<Image>().color = Color.white;
                 }
             }
@@ -171,12 +171,12 @@ public class WeaponButton : MonoBehaviour
             signature.gameObject.SetActive(false);
 
             button.gameObject.GetComponent<Button>().enabled = false;
-            if (button.GetComponent<ButtonManipulation>() != null) //show disable colors
+            if (button.GetComponent<ButtonColorManipulation>() != null) //show the colors for disabled button
             {
-                button.gameObject.GetComponent<ButtonManipulation>().Select(false);
+                button.gameObject.GetComponent<ButtonColorManipulation>().Select(false);
                 button.GetComponent<Image>().color = emptyColor;
-                button.gameObject.GetComponent<ButtonManipulation>().Activate(false);
-                button.gameObject.GetComponent<ButtonManipulation>().enabled = false;
+                button.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
+                button.gameObject.GetComponent<ButtonColorManipulation>().enabled = false;
             }
 
             /*********************************************************************
@@ -184,11 +184,11 @@ public class WeaponButton : MonoBehaviour
              *********************************************************************/
             if (upArrow != null && downArrow != null)
             {
-                upArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
+                upArrow.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
                 upArrow.GetComponent<Image>().color = emptyColor;
                 upArrow.gameObject.GetComponent<Button>().enabled = false;
 
-                downArrow.gameObject.GetComponent<ButtonManipulation>().Activate(false);
+                downArrow.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
                 downArrow.GetComponent<Image>().color = emptyColor;
                 downArrow.gameObject.GetComponent<Button>().enabled = false;
             }
@@ -214,9 +214,9 @@ public class WeaponButton : MonoBehaviour
     public void SetWeaponNumber(int i)
     {
         weaponNumber = i;
-        if (weaponNumber == player.GetCustomIndex() && button.GetComponent<ButtonManipulation>() != null)
+        if (weaponNumber == player.GetCustomIndex() && button.GetComponent<ButtonColorManipulation>() != null)
         {
-            button.GetComponent<ButtonManipulation>().Select(true);
+            button.GetComponent<ButtonColorManipulation>().Select(true);
         }
     }
 

@@ -250,16 +250,23 @@ public abstract class Character : MonoBehaviour
         return maxHealth;
     }
 
-    //@requires h > 0
     public void SetMaxHealth(float h)
     {
-        maxHealth = h;
-        currentHealth = h;
+        if (h >= 1)
+        {
+            maxHealth = h;
+            currentHealth = h;
+        }
     }
 
     public float GetHealthPercentage()
     {
         return currentHealth / maxHealth;
+    }
+
+    public virtual void FullyRestoreHealth()
+    {
+        currentHealth = maxHealth;
     }
 
     public float GetPower()

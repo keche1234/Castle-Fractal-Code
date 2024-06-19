@@ -37,22 +37,22 @@ public class PotionButton : MonoBehaviour
             myPotionIcon.gameObject.SetActive(true);
             myPotionIcon.sprite = potionIconSprites[potionList[potionNumber] - 1];
             button.gameObject.GetComponent<Button>().enabled = true;
-            if (button.GetComponent<ButtonManipulation>() != null) //show enable colors
+            if (button.GetComponent<ButtonColorManipulation>() != null) //show enable colors
             {
                 button.GetComponent<Image>().color = filledColor;
-                button.gameObject.GetComponent<ButtonManipulation>().Activate(true);
-                button.gameObject.GetComponent<ButtonManipulation>().enabled = true;
+                button.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(true);
+                button.gameObject.GetComponent<ButtonColorManipulation>().enabled = true;
             }
         }
         else
         {
             myPotionIcon.gameObject.SetActive(false);
-            if (button.GetComponent<ButtonManipulation>() != null) //show disable colors
+            if (button.GetComponent<ButtonColorManipulation>() != null) //show disable colors
             {
-                button.gameObject.GetComponent<ButtonManipulation>().Select(false);
+                button.gameObject.GetComponent<ButtonColorManipulation>().Select(false);
                 button.GetComponent<Image>().color = emptyColor;
-                button.gameObject.GetComponent<ButtonManipulation>().Activate(false);
-                button.gameObject.GetComponent<ButtonManipulation>().enabled = false;
+                button.gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
+                button.gameObject.GetComponent<ButtonColorManipulation>().enabled = false;
             }
             button.gameObject.GetComponent<Button>().enabled = false;
         }

@@ -73,9 +73,9 @@ public class RoomStatRow : MonoBehaviour
         {
             if (currentRoomIndex == 0)
             {
-                ButtonManipulation leftArrowManip = leftArrow.GetComponent<ButtonManipulation>();
+                ButtonColorManipulation leftArrowManip = leftArrow.GetComponent<ButtonColorManipulation>();
                 if (leftArrowManip != null)
-                    leftArrowManip.Activate(false);
+                    leftArrowManip.ActivateColorManipulation(false);
 
                 Image leftArrowImage = leftArrow.GetComponent<Image>();
                 if (leftArrowImage != null)
@@ -87,9 +87,9 @@ public class RoomStatRow : MonoBehaviour
             {
                 leftArrow.gameObject.GetComponent<Button>().enabled = true;
 
-                ButtonManipulation leftArrowManip = leftArrow.GetComponent<ButtonManipulation>();
+                ButtonColorManipulation leftArrowManip = leftArrow.GetComponent<ButtonColorManipulation>();
                 if (leftArrowManip != null)
-                    leftArrowManip.Activate(true);
+                    leftArrowManip.ActivateColorManipulation(true);
 
                 Image leftArrowImage = leftArrow.GetComponent<Image>();
                 if (leftArrowImage != null)
@@ -101,9 +101,9 @@ public class RoomStatRow : MonoBehaviour
         {
             if (currentRoomIndex == roomList.Count - 1)
             {
-                ButtonManipulation rightArrowManip = rightArrow.GetComponent<ButtonManipulation>();
+                ButtonColorManipulation rightArrowManip = rightArrow.GetComponent<ButtonColorManipulation>();
                 if (rightArrowManip != null)
-                    rightArrowManip.Activate(false);
+                    rightArrowManip.ActivateColorManipulation(false);
 
                 Image rightArrowImage = rightArrow.GetComponent<Image>();
                 if (rightArrowImage != null)
@@ -115,9 +115,9 @@ public class RoomStatRow : MonoBehaviour
             {
                 rightArrow.gameObject.GetComponent<Button>().enabled = true;
 
-                ButtonManipulation rightArrowManip = rightArrow.GetComponent<ButtonManipulation>();
+                ButtonColorManipulation rightArrowManip = rightArrow.GetComponent<ButtonColorManipulation>();
                 if (rightArrowManip != null)
-                    rightArrowManip.Activate(true);
+                    rightArrowManip.ActivateColorManipulation(true);
 
                 Image rightArrowImage = rightArrow.GetComponent<Image>();
                 if (rightArrowImage != null)
