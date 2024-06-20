@@ -43,5 +43,6 @@ public class RankUpInfoBoxUI : InfoBoxUI
 
         helpText.text = rbButton.GetHelpText();
         helpText.gameObject.SetActive(true);
+
     }
 }

@@ -2,14 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class UpgradeManager : MonoBehaviour
 {
     protected bool upgrading = false;
-    [SerializeField] protected PlayerController player;
+    protected PlayerController player;
 
     [Header("Upgrades")]
-    [SerializeField] protected Text titleMessage;
     [Tooltip("Should have Upgrade Buttons as children")]
     [SerializeField] protected GameObject upgradeHolder;
     [SerializeField] protected List<RankUpButton> upgradeButtons;
@@ -18,9 +19,11 @@ public class UpgradeManager : MonoBehaviour
 
     [Header("Visual Elements")]
     [SerializeField] protected Image blackFade;
-    protected const float PLAYER_SCALE_TIME = 0.2f;
+    [SerializeField] protected float baseButtonScale;
+    protected const float PLAYER_SCALE_TIME = 0.25f;
     protected const float BUTTON_APPEARANCE_DELAY = 0.25f;
     protected const float BUTTON_APPEARANCE_INTERVAL = 0.5f;
+    [SerializeField] protected EventSystem eventSystem;
 
     // Start is called before the first frame update
     void Start()
@@ -38,10 +41,11 @@ public class UpgradeManager : MonoBehaviour
                 Debug.LogWarning("Upgrade Holder does not contain button " + button);
         }
 
+        player = FindObjectOfType<PlayerController>();
+
         // TEMP CODE
         StartCoroutine(StartUpgradeSequence());
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -53,9 +57,14 @@ public class UpgradeManager : MonoBehaviour
     {
         upgrading = true;
         upgradeHolder.SetActive(true);
+        Cursor.visible = true;
 
         // Remove Player Control
         player.SetControllable(false);
+        player.GetComponent<Rigidbody>().velocity *= 0;
+
+        foreach (RankUpButton button in upgradeButtons)
+            button.gameObject.transform.localScale = Vector3.zero;
 
         // Wait until player is not attacking:
         yield return new WaitUntil(() => player.GetAttackState() == 0 && player.GetCurrentWeaponAttackState() <= 0);
@@ -64,6 +73,7 @@ public class UpgradeManager : MonoBehaviour
         // Shrink player, move them to room center, and regrow
         for (float t = 0; t < PLAYER_SCALE_TIME; t += Time.deltaTime)
         {
+            player.GetComponent<Rigidbody>().velocity *= 0;
             player.transform.localScale = Vector3.one * (1 - (t / PLAYER_SCALE_TIME));
             yield return null;
         }
@@ -71,9 +81,11 @@ public class UpgradeManager : MonoBehaviour
         yield return null;
 
         blackFade.enabled = true;
-        player.transform.position = new Vector3(0, player.transform.position.y, 0);
+        player.transform.position = new Vector3(0, player.transform.position.y, -4f);
+        player.transform.rotation = Quaternion.Euler(0, 180, 0);
         for (float t = 0; t < PLAYER_SCALE_TIME; t += Time.deltaTime)
         {
+            player.GetComponent<Rigidbody>().velocity *= 0;
             player.transform.localScale = Vector3.one * (t / PLAYER_SCALE_TIME);
             yield return null;
         }
@@ -89,10 +101,10 @@ public class UpgradeManager : MonoBehaviour
             upgradeButtons[i].gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
             for (float t = 0; t < BUTTON_APPEARANCE_INTERVAL; t += Time.deltaTime)
             {
-                upgradeButtons[i].gameObject.transform.localScale = Vector3.one * (t / BUTTON_APPEARANCE_INTERVAL);
+                upgradeButtons[i].gameObject.transform.localScale = Vector3.one * baseButtonScale * (t / BUTTON_APPEARANCE_INTERVAL);
                 yield return null;
             }
-            upgradeButtons[i].gameObject.transform.localScale = Vector3.one;
+            upgradeButtons[i].gameObject.transform.localScale = Vector3.one * baseButtonScale;
         }
         yield return new WaitForSeconds(BUTTON_APPEARANCE_DELAY);
 
@@ -105,7 +117,23 @@ public class UpgradeManager : MonoBehaviour
                 upgradeButtons[i].gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(true);
             }
         }
-        infoBox.gameObject.SetActive(true);
+        infoBox.transform.parent.gameObject.SetActive(true);
+        if (player.GetActionInputDevice("main attack") == Keyboard.current)
+        {
+            int i = 0;
+            while (i < upgradeButtons.Count)
+            {
+                Debug.Log(upgradeButtons[i].gameObject.GetComponent<Button>().enabled);
+                if (upgradeButtons[i].gameObject.GetComponent<Button>().enabled)
+                {
+                    Debug.Log(upgradeButtons[i]);
+                    eventSystem.SetSelectedGameObject(upgradeButtons[i].gameObject);
+                    upgradeButtons[i].GetComponent<ButtonColorManipulation>().whenHover();
+                    i = upgradeButtons.Count;
+                }
+                i++;
+            }
+        }
 
         yield return null;
     }
@@ -123,30 +151,38 @@ public class UpgradeManager : MonoBehaviour
         player.RankUp(rankUpButton.GetAttributeIndex());
         // Disable Button Components, linger for (interval + delay) * 2
         for (int i = 0; i < upgradeButtons.Count; i++)
+        {
             upgradeButtons[i].gameObject.GetComponent<Button>().enabled = false;
+            if (upgradeButtons[i] != rankUpButton)
+                upgradeButtons[i].gameObject.GetComponent<ButtonColorManipulation>().ActivateColorManipulation(false);
+        }
 
         yield return new WaitForSeconds((BUTTON_APPEARANCE_DELAY + BUTTON_APPEARANCE_INTERVAL) * 2);
+
+        // Hide Info Box, Shrink Buttons and hide them
+        infoBox.transform.parent.gameObject.SetActive(false);
+        for (float t = 0; t < BUTTON_APPEARANCE_INTERVAL; t += Time.deltaTime)
+        {
+            foreach (RankUpButton button in upgradeButtons)
+                button.gameObject.transform.localScale = Vector3.one * baseButtonScale * (1 - (t / BUTTON_APPEARANCE_INTERVAL));
+            yield return null;
+        }
+        foreach (RankUpButton button in upgradeButtons)
+            button.gameObject.transform.localScale = Vector3.zero;
 
         if (player.IsAttributeMaxRank(rankUpButton.GetAttributeIndex()))
         {
             rankUpButton.EmptyButton(); // Button color is darkened
         }
 
-        // Hide Info Box, Shrink Buttons and hide them
-        infoBox.gameObject.SetActive(false);
-        for (float t = 0; t < BUTTON_APPEARANCE_INTERVAL; t += Time.deltaTime)
-        {
-            foreach (RankUpButton button in upgradeButtons)
-                button.gameObject.transform.localScale = Vector3.one * (1 - (t / PLAYER_SCALE_TIME));
-            yield return null;
-        }
-        foreach (RankUpButton button in upgradeButtons)
-            button.gameObject.transform.localScale = Vector3.zero;
-
         // Restore player control
         player.SetControllable(true);
-
         upgradeHolder.SetActive(false);
+        Cursor.visible = false;
+        blackFade.enabled = false;
+        yield return new WaitForSeconds(0.5f);
+        // TEMP CODE
+        StartCoroutine(StartUpgradeSequence());
         yield return null;
     }
 

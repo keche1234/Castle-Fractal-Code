@@ -32,6 +32,8 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] protected bool bossWave = false;
     protected Boss boss;
     [SerializeField] protected RoomManager roomManager;
+    [SerializeField] protected UpgradeManager upgradeManager;
+    protected PlayerController player;
 
     protected bool spawned = false;
     protected bool allDefeated = false;
@@ -39,9 +41,9 @@ public class SpawnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Application.targetFrameRate = 60;
         spawnList = new List<Enemy>();
         spawnPosList = new List<Vector3>();
+        player = FindObjectOfType<PlayerController>();
     }
 
     // Update is called once per frame
@@ -161,6 +163,8 @@ public class SpawnManager : MonoBehaviour
         {
             spawned = false;
             allDefeated = true;
+            if (!player.IsPlayerMaxRank())
+                upgradeManager.StartCoroutine("StartUpgradeSequence");
         }
     }
 

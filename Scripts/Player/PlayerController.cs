@@ -20,7 +20,7 @@ public class PlayerController : Character
     private DodgeState playerDodge;
     private LifeState playerLife;
     private bool stunned;
-    private bool controllable;
+    private bool controllable = true;
     private bool signing = false;
     //private bool fixDirection; //Are you looking in one direction while moving
 
@@ -55,7 +55,7 @@ public class PlayerController : Character
     [SerializeField] protected float signatureMultiplier;
 
     [Header("Weapon Management")]
-    [SerializeField] protected int currentWeaponType;
+    protected int currentWeaponType = -1;
     [SerializeField] protected Weapon[] weaponTypes;
     [SerializeField] protected int equippedCustomWeapon; //current index
     [SerializeField] protected List<CustomWeapon> inventory;
@@ -94,7 +94,10 @@ public class PlayerController : Character
     protected int[] ranks; // Health, Inventory, Signature Multiplier
     protected int baseHealthCap;
     protected int baseMPCap;
-    protected const int MAX_RANK = 9;
+    protected const int MAX_RANK = 1;
+
+    protected UpgradeManager upgradeManager;
+    protected EventSystem eventSystem;
 
     // Start is called before the first frame update
     public override void Start()
@@ -129,7 +132,7 @@ public class PlayerController : Character
         ranks = new int[3];
 
         mobile = true;
-        controllable = true;
+        //controllable = true;
         int abilityCount = Ability.GetNames().Length;
         for (int w = 0; w < weaponTypes.Length; w++)
         {
@@ -143,6 +146,7 @@ public class PlayerController : Character
         }
 
         equippedCustomWeapon = -1;
+        currentWeaponType = -1;
         inventory = new List<CustomWeapon>();
         potions = new List<int>();
         selectedPotions = new List<bool>();
@@ -151,6 +155,9 @@ public class PlayerController : Character
 
         SetCustomWeapon(-1);
         dodgeTrail = GetComponent<TrailRenderer>();
+
+        upgradeManager = FindObjectOfType<UpgradeManager>();
+        eventSystem = FindObjectOfType<EventSystem>();
     }
 
     private void Awake()
@@ -202,11 +209,11 @@ public class PlayerController : Character
      ****************************/
     public void PlayerMainAttack(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused())
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused() && controllable)
         {
             StartCoroutine(PlayerAttackCoroutine(context.control.device));
         }
-        else if (gameManager.IsPaused() && GetActionInputDevice("main attack") == Keyboard.current)
+        else if ((gameManager.IsPaused() || upgradeManager.IsUpgrading()) && GetActionInputDevice("main attack") == Keyboard.current)
         {
             EventSystem.current.currentSelectedGameObject.GetComponent<Button>().onClick.Invoke();
         }
@@ -238,7 +245,7 @@ public class PlayerController : Character
 
     public void PlayerRoll(InputAction.CallbackContext context)
     {
-        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && !gameManager.IsPaused())
+        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && !gameManager.IsPaused() && controllable)
         {
             StartCoroutine(Dodge());
         }
@@ -246,7 +253,7 @@ public class PlayerController : Character
 
     public void PlayerSignatureAttack(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused() && controllable) //Make sure the player is alive before they try anything
         {
             if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
             {
@@ -265,7 +272,7 @@ public class PlayerController : Character
 
     public void PlayerScrollInventory(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused())
+        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused() && controllable)
         {
             //Debug.Log(weaponTypes[currentWeaponType].IsInactive());
             if (equippedCustomWeapon >= 0 && !weaponTypes[currentWeaponType].IsInactive())
@@ -305,7 +312,9 @@ public class PlayerController : Character
 
     public void PlayerDropWeapon(InputAction.CallbackContext context)
     {
-        if (inventory.Count > 0 && weaponTypes[currentWeaponType].IsInactive() && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f) && !gameManager.IsPaused())
+        if (inventory.Count > 0 && weaponTypes[currentWeaponType].IsInactive()
+            && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f)
+            && !gameManager.IsPaused() && controllable)
             StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
     }
 
@@ -325,7 +334,7 @@ public class PlayerController : Character
 
     public void PlayerPause(InputAction.CallbackContext context)
     {
-        if (!gameManager.GameIsOver())
+        if (!gameManager.GameIsOver() && !upgradeManager.IsUpgrading())
         {
             gameManager.Pause(0);
         }
@@ -403,7 +412,7 @@ public class PlayerController : Character
                     aonSignatureTimer += Time.deltaTime;
                 }
             }
-            moveInputVector = inputActions.Player.Move.ReadValue<Vector2>();
+            moveInputVector = controllable ? inputActions.Player.Move.ReadValue<Vector2>() : Vector2.zero;
         }
 
         if (invincibilityTime > 0)
@@ -1335,7 +1344,7 @@ public class PlayerController : Character
                     miniHealthBar.SetValue(currentHealth);
 
                     healthBar.SetMax(maxHealth);
-                    healthBar.SetValue(currentHealth);
+                    healthBar.SetValue(currentHealth, 0.5f, 12);
                     healthBar.UpdateAmountTxt(currentHealth + "/" + maxHealth);
                     healthBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
@@ -1352,7 +1361,7 @@ public class PlayerController : Character
                     break;
                 case 2:
                 default:
-                    signatureBar.UpdateAmountTxt((1 + (0.2f * ranks[attributeIndex])).ToString());
+                    signatureBar.UpdateAmountTxt("x" + (1 + (0.25f * ranks[attributeIndex])).ToString("0.00"));
                     signatureBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
             }
@@ -1384,6 +1393,11 @@ public class PlayerController : Character
     public int GetMaxTotalRank()
     {
         return MAX_RANK * ranks.Length;
+    }
+
+    public bool IsPlayerMaxRank()
+    {
+        return GetCurrentTotalRank() == MAX_RANK * ranks.Length;
     }
 
     public void SetLifeState(bool s)
@@ -1427,23 +1441,38 @@ public class PlayerController : Character
     //    return mouseControls["Main Attack"];
     //}
 
-    public bool SetControls(int i)
+    public bool SetControls(int control)
     {
-        if (i < 0 || i >= controlSchemes.Count)
+        if (control < 0 || control >= controlSchemes.Count)
         {
-            Debug.LogError("Control Preset " + i + " out of range!");
+            Debug.LogError("Control Preset " + control + " out of range!");
             return false;
         }
 
-        inputActions.bindingMask = InputBinding.MaskByGroup(controlSchemes[i]);
-        ControlPresetSettings preset = controlSettings[i];
+        inputActions.bindingMask = InputBinding.MaskByGroup(controlSchemes[control]);
+        ControlPresetSettings preset = controlSettings[control];
 
         signatureCombo = preset.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Combo ? true : false;
         meleeAuto = preset.GetMeleeAim() == ControlPresetSettings.MeleeAim.Auto ? true : false;
         rangedAssist = preset.GetRangedAssist();
         scrollSensitivity = preset.GetScrollSensitivity();
 
-        Debug.Log("Control Preset " + i + " activated.");
+        if (GetActionInputDevice("main attack") == Keyboard.current && (gameManager.IsPaused() || upgradeManager.IsUpgrading()))
+        {
+            Button[] buttons = FindObjectsOfType<Button>();
+            int i = 0;
+            while (i < buttons.Length)
+            {
+                if (buttons[i].enabled)
+                {
+                    eventSystem.SetSelectedGameObject(buttons[i].gameObject);
+                    i = buttons.Length;
+                }
+                i++;
+            }
+        }
+
+        Debug.Log("Control Preset " + control + " activated.");
         return true;
     }
 

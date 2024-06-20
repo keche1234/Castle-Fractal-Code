@@ -21,7 +21,7 @@ public class ButtonColorManipulation : MonoBehaviour
     [SerializeField] protected float startScale;
     [SerializeField] protected float hoverScale;
     [SerializeField] protected float clickScale;
-    private bool isSelected = false;
+    [SerializeField] private bool isSelected = false;
     private ColorBlock cb;
 
     // Start is called before the first frame update

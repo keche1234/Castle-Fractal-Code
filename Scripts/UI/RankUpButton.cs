@@ -15,8 +15,8 @@ public class RankUpButton : MonoBehaviour
     [SerializeField] protected Sprite emptyIconSprite; // If you *can't* rank up this Attribute
 
     [Header("Info Text")]
-    [SerializeField] protected Text attributeText; // Tells you the attribute being upgraded and by how much
-    [SerializeField] protected Text helpText; // Tells you what the attribute being upgraded will do
+    [SerializeField] protected string attributeText; // Tells you the attribute being upgraded and by how much
+    [SerializeField] protected string helpText; // Tells you what the attribute being upgraded will do
     [SerializeField] protected int attributeIndex;
 
     // Start is called before the first frame update
@@ -33,12 +33,12 @@ public class RankUpButton : MonoBehaviour
 
     public string GetAttributeText()
     {
-        return attributeText.text;
+        return attributeText;
     }
 
     public string GetHelpText()
     {
-        return helpText.text;
+        return helpText;
     }
 
     public int GetAttributeIndex()
@@ -56,6 +56,9 @@ public class RankUpButton : MonoBehaviour
         button.gameObject.GetComponent<Button>().enabled = false;
         button.image.color = emptyColor;
         icon.sprite = emptyIconSprite;
-        plusOne.color = emptyColor;
+        plusOne.gameObject.SetActive(false);
+
+        int i = attributeText.IndexOf("+");
+        attributeText = attributeText.Substring(0, i) + "(MAX!)";
     }
 }

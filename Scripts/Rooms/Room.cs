@@ -19,7 +19,9 @@ public class Room : MonoBehaviour
     protected List<GameObject> walls;
     protected List<GameObject> chests;
     protected GameObject entrance;
+    protected (int, int) entranceGridPosition;
     protected GameObject exit;
+    protected (int, int) exitGridPosition;
     protected List<PickupCW> weapons;
 
     [Header("Door Materials")]
@@ -124,8 +126,8 @@ public class Room : MonoBehaviour
             foreach (GameObject quad in quads)
                 walls.Add(quad);
 
-            // In a 10x20 grid, anywhere from 2 to 28 walls
-            int wallCount = (int)(Random.Range(0.01f, 0.02f * (MAX_FENCES + 1 - fences.Length + MAX_QUADS + 1 - quads.Length)) * xDimension * zDimension);
+            // In a 10x20 grid, anywhere from 0 to 14 walls
+            int wallCount = (int)(Random.Range(0, 0.01f * (MAX_FENCES + 1 - fences.Length + MAX_QUADS + 1 - quads.Length)) * xDimension * zDimension);
 
             int possibilityVector = 0b_11;
             GameObject addMe;
@@ -416,7 +418,9 @@ public class Room : MonoBehaviour
 
                 // Space isn't occupied AND it doesn't make a diagonal with a square in the forward direction
                 if (!grid[wallGridPosition.Item1, wallGridPosition.Item2] && AdjacentWallCount(nextGridPosition.Item1, nextGridPosition.Item2, true) <= 0
-                    && !grid[nextSpaceLeft.Item1, nextSpaceLeft.Item2] && !grid[nextSpaceRight.Item1, nextSpaceRight.Item2])
+                    && !grid[nextSpaceLeft.Item1, nextSpaceLeft.Item2] && !grid[nextSpaceRight.Item1, nextSpaceRight.Item2]
+                    && AdjacentWallCount(entranceGridPosition.Item1, entranceGridPosition.Item2, true) < 4
+                    && AdjacentWallCount(exitGridPosition.Item1, exitGridPosition.Item2, true) < 4)
                 {
                     // Set position using gridStart and gridDirection
                     Vector3 wallPosition = GridToVector3(wallGridPosition.Item1, wallGridPosition.Item2);
@@ -763,10 +767,12 @@ public class Room : MonoBehaviour
             if (!exit)
                 Destroy(exit);
             exit = door;
+            exitGridPosition = doorPosition;
         }
         else
         {
             entrance = door;
+            entranceGridPosition = doorPosition;
         }
     }
 

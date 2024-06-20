@@ -9,7 +9,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected PlayerController player;
     [SerializeField] protected int level; //offset of 0
     [SerializeField] protected float height;
-    protected int bossInterval = 1;
+    protected int bossInterval = 5;
     //[SerializeField] protected ExitDoor exit;
 
     //[Header("Prefabs")]
@@ -57,7 +57,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
 
     public virtual void CreateNext()
     {
-        Debug.Log(level);
+        //Debug.Log(level);
         Room next = Instantiate(emptyRoomPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0));
         next.Initialize(20, 10, this, spawnManager);
         if ((level + 1) % bossInterval == 0) //Boss Room
