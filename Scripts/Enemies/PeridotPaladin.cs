@@ -38,11 +38,7 @@ public class PeridotPaladin : Enemy
     {
         base.Start();
         state = ActionState.Waiting;
-        speed = 2f;
         rotateSpeed = 2.5f;
-        power = 4.5f;
-        currentHealth = 38;
-        maxHealth = 38;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
         armored = true;
@@ -51,18 +47,6 @@ public class PeridotPaladin : Enemy
         appearanceRate = 2;
 
         charRb = GetComponent<Rigidbody>();
-
-        //try
-        //{
-        //    spawner = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
-        //    xLimit = spawner.GetXBorder();
-        //    zLimit = spawner.GetZBorder();
-        //}
-        //catch
-        //{
-        //    xLimit = 9f;
-        //    zLimit = 4.5f;
-        //}
     }
 
     // Update is called once per frame

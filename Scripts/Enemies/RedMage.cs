@@ -20,11 +20,8 @@ public class RedMage : Enemy
     {
         base.Start();
         state = ActionState.Waiting;
-        speed = 8 / stepTime;
+        speed = BASE_SPEED / stepTime;
         rotateSpeed = 100f;
-        power = 7.5f;
-        currentHealth = 14;
-        maxHealth = 14;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
 

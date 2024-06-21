@@ -12,11 +12,7 @@ public class GreenSnake : Enemy
     {
         base.Start();
         state = ActionState.Waiting;
-        speed = 8f;
         rotateSpeed = 4f;
-        power = 1.5f;
-        currentHealth = 22;
-        maxHealth = 22;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
 

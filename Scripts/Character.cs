@@ -10,12 +10,16 @@ public abstract class Character : MonoBehaviour
     protected int level;
 
     [Header("Basic Attributes")]
-    [SerializeField] protected float currentHealth;
-    [SerializeField] protected float maxHealth;
-    [SerializeField] protected float power;
-    [SerializeField] protected int strength;
-    [SerializeField] protected int defense;
-    [SerializeField] protected float speed;
+    [SerializeField] protected float BASE_HEALTH;
+    [SerializeField] protected float BASE_POWER;
+    [SerializeField] protected float BASE_SPEED;
+    protected float currentHealth;
+    protected float maxHealth;
+    protected float power;
+    protected int strength;
+    protected int defense;
+    protected float speed;
+    
     protected bool armored;
     protected float invincibilityTime = 0;
 
@@ -73,6 +77,11 @@ public abstract class Character : MonoBehaviour
     // Start is called before the first frame update
     public virtual void Start()
     {
+        currentHealth = BASE_HEALTH;
+        maxHealth = BASE_HEALTH;
+        power = BASE_POWER;
+        speed = BASE_SPEED;
+
         buffs = new List<List<Buff>>();
         for (int i = 0; i < buffTypes.Length; i++)
             buffs.Add(new List<Buff>());
@@ -497,6 +506,16 @@ public abstract class Character : MonoBehaviour
         return;
     }
 
+    public void SetStrength(int s)
+    {
+        strength = Mathf.Max(Mathf.Min(s, 9), -9);
+    }
+
+    public void SetDefense(int s)
+    {
+        defense = Mathf.Max(Mathf.Min(s, 9), -9);
+    }
+
     public void SetSpawnManager(SpawnManager sm)
     {
         spawner = sm;
@@ -535,6 +554,25 @@ public abstract class Character : MonoBehaviour
             defenseUI.color = Color.white;
     }
 
+    public void SetHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
+    {
+        maxHealth = BASE_HEALTH * healthMod;
+        power = BASE_POWER * powerMod;
+        speed = BASE_SPEED * speedMult;
+
+        currentHealth = maxHealth;
+    }
+
+    public float GetBaseHealth()
+    {
+        return BASE_HEALTH;
+    }
+
+    public float GetBasePower()
+    {
+        return BASE_POWER;
+    }
+
     //Detects if the object is out of bounds
     protected bool IsOOB()
     {
@@ -545,15 +583,15 @@ public abstract class Character : MonoBehaviour
 
     protected void ReturnToInBounds()
     {
-        if (transform.position.x > spawner.GetXBorder())
-            transform.position = new Vector3(spawner.GetXBorder() - 0.5f, transform.position.y, transform.position.z);
-        else if (transform.position.x < -spawner.GetXBorder())
-            transform.position = new Vector3(-spawner.GetXBorder() + 0.5f, transform.position.y, transform.position.z);
+        if (transform.position.x > roomManager.GetCurrent().GetXDimension() / 2)
+            transform.position = new Vector3((roomManager.GetCurrent().GetXDimension() / 2) - 0.5f, transform.position.y, transform.position.z);
+        else if (transform.position.x < - roomManager.GetCurrent().GetXDimension() / 2)
+            transform.position = new Vector3(-(roomManager.GetCurrent().GetXDimension() / 2) + 0.5f, transform.position.y, transform.position.z);
 
-        if (transform.position.z > spawner.GetZBorder())
-            transform.position = new Vector3(transform.position.x, transform.position.y, spawner.GetZBorder() - 0.5f);
-        else if (transform.position.z < -spawner.GetZBorder())
-            transform.position = new Vector3(transform.position.x, transform.position.y, -spawner.GetZBorder() + 0.5f);
+        if (transform.position.z > roomManager.GetCurrent().GetZDimension() / 2)
+            transform.position = new Vector3(transform.position.x, transform.position.y, roomManager.GetCurrent().GetZDimension() / 2 - 0.5f);
+        else if (transform.position.z < -roomManager.GetCurrent().GetZDimension() / 2)
+            transform.position = new Vector3(transform.position.x, transform.position.y, -roomManager.GetCurrent().GetZDimension() / 2 + 0.5f);
     }
 
     /***********************************************

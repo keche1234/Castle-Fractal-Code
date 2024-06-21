@@ -15,11 +15,11 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] protected float spawnDelay;
     [SerializeField] protected float waveDelay;
 
-    [Header("Spawn Dimensions")]
-    [SerializeField] protected int spawnRangeX;
-    [SerializeField] protected int spawnRangeZ;
-    [SerializeField] protected float xBorder;
-    [SerializeField] protected float zBorder;
+    //[Header("Spawn Dimensions")]
+    //[SerializeField] protected int spawnRangeX;
+    //[SerializeField] protected int spawnRangeZ;
+    //[SerializeField] protected float xBorder;
+    //[SerializeField] protected float zBorder;
 
     [Header("Spawn Count")]
     [SerializeField] int lowRoll;
@@ -31,6 +31,27 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] protected int totalWaves;
     [SerializeField] protected bool bossWave = false;
     protected Boss boss;
+    protected int bossesDefeated;
+
+    //Enemy parameters
+    //Growth inidcates a linear increase
+    protected const float SPAWN_COUNT_FLOOR = 2;
+    protected const float SPAWN_FLOOR_GROWTH = 0.5f;
+    protected const float SPAWN_FLOOR_CAP = 10;
+
+    protected const float SPAWN_COUNT_CEIL = 2;
+    protected const float SPAWN_CEIL_GROWTH = 0.5f;
+    protected const float SPAWN_CEIL_CAP = 20;
+
+    protected const float ENEMY_ATTRIBUTE_CEIL = 1.5f;
+    protected const float ENEMY_ATTRIBUTE_GROWTH = 0.5f;
+    protected const float ENEMY_ATTRIBUTE_CAP = 0.5f;
+
+    protected const float ENEMY_HEALTHPOW_GROWTH = 0.3f;
+
+    protected List<int> waveCounts;
+
+    [Header("Managers")]
     [SerializeField] protected RoomManager roomManager;
     [SerializeField] protected UpgradeManager upgradeManager;
     protected PlayerController player;
@@ -44,6 +65,7 @@ public class SpawnManager : MonoBehaviour
         spawnList = new List<Enemy>();
         spawnPosList = new List<Vector3>();
         player = FindObjectOfType<PlayerController>();
+        bossesDefeated = 0;
     }
 
     // Update is called once per frame
@@ -64,6 +86,13 @@ public class SpawnManager : MonoBehaviour
 
         if ((totalWaves == 0 && !currentRoom.IsBossRoom()) || currentRoom.IsBreakRoom())
             allDefeated = true;
+    }
+
+    public void SetSpawnCounts(bool startSpawning = false)
+    {
+        // TODO: Calculate number using floor, ceil, and bosses defeated
+
+        // TODO: Distribute waves based on count
     }
 
     public virtual IEnumerator SpawnWave()
@@ -168,15 +197,17 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    public float GetXBorder()
-    {
-        return xBorder;
-    }
 
-    public float GetZBorder()
-    {
-        return zBorder;
-    }
+
+    //public float GetXBorder()
+    //{
+    //    return xBorder;
+    //}
+
+    //public float GetZBorder()
+    //{
+    //    return zBorder;
+    //}
 
     public void SetWaveNumber(int w)
     {

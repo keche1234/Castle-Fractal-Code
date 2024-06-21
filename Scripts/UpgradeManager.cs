@@ -42,9 +42,6 @@ public class UpgradeManager : MonoBehaviour
         }
 
         player = FindObjectOfType<PlayerController>();
-
-        // TEMP CODE
-        StartCoroutine(StartUpgradeSequence());
     }
     // Update is called once per frame
     void Update()
@@ -180,9 +177,6 @@ public class UpgradeManager : MonoBehaviour
         upgradeHolder.SetActive(false);
         Cursor.visible = false;
         blackFade.enabled = false;
-        yield return new WaitForSeconds(0.5f);
-        // TEMP CODE
-        StartCoroutine(StartUpgradeSequence());
         yield return null;
     }
 

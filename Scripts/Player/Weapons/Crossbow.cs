@@ -157,7 +157,7 @@ public class Crossbow : Weapon
 
                 Projectile arrow = Instantiate(arrowPrefab, owner.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrow.transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * -0.6f) + ((Quaternion.AngleAxis(90, transform.up) * dir) * 0.2f);
-                arrow.Setup(18, owner, true, owner.GetCustomWeapon().GetPower() * damage, -1, 1.11f, 1, true);
+                arrow.Setup(18, owner, true, owner.GetCustomWeapon().GetPower() * damage, -1, 0.5f, 1, true);
                 arrow.SetKB(0, 0, 1, 3, false);
                 arrow.transform.parent = roomManager.GetCurrent().transform;
                 delay -= 6f / 60;

@@ -77,7 +77,7 @@ public class Twinotaurs : Boss
 
     // Start is called before the first frame update
     public override void Start()
-    {
+    { 
         base.Start();
         charRb = null;
         sparkRb = spark.GetComponent<Rigidbody>();
@@ -85,13 +85,9 @@ public class Twinotaurs : Boss
 
         numAttacks = 7;
         currentAttack = Random.Range(0, 2);
-        //currentAttack = 1;
         power = 10f;
-        currentHealth = 600;
-        maxHealth = 600;
         summonCount = 3;
 
-        speed = 6f;
         rotateSpeed = Mathf.PI;
         armored = true;
 

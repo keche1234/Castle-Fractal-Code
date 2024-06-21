@@ -13,11 +13,7 @@ public class PinkPython : Enemy
     {
         base.Start();
         state = ActionState.Waiting;
-        speed = 4f;
         rotateSpeed = 4f;
-        power = 1.5f;
-        currentHealth = 22;
-        maxHealth = 22;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
 

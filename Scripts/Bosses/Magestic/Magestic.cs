@@ -66,9 +66,6 @@ public class Magestic : Boss
         base.Start();
         numAttacks = 7;
         currentAttack = 0;
-        power = 30f;
-        currentHealth = 600;
-        maxHealth = 600;
         summonCount = 5;
 
         rotateSpeed = 15f;

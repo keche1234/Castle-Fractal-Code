@@ -12,7 +12,7 @@ public class Tome : Weapon
     private float crisisMod = 1; //increases to 1.1 in Crisis (health is 30% or less)
 
     private float sigStartup = 1f; //slow down time by 50% for this (realtime) duration
-    private float sigActiveTime = 12f;
+    private float sigActiveTime = 6f;
 
     // Start is called before the first frame update
     protected override void Start()

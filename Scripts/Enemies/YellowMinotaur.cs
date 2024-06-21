@@ -18,9 +18,6 @@ public class YellowMinotaur : Enemy
         state = ActionState.Waiting;
         speed = 1.5f;
         rotateSpeed = 1.5f;
-        power = 3f;
-        currentHealth = 30;
-        maxHealth = 30;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
 

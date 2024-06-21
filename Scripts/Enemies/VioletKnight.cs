@@ -23,11 +23,7 @@ public class VioletKnight : Enemy
     {
         base.Start();
         state = ActionState.Waiting;
-        speed = 2f;
         rotateSpeed = 2.5f;
-        power = 4.5f;
-        currentHealth = 38;
-        maxHealth = 38;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
         armored = true;

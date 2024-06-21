@@ -129,11 +129,9 @@ public abstract class Boss : Enemy
 
         for (int i = 0; i < count; i++)
         {
-            newSummons[i].SetMaxHealth(newSummons[i].GetMaxHealth() * healthMult);
-            newSummons[i].SetPower(newSummons[i].GetPower() * powMult);
-            newSummons[i].SetSpeed(newSummons[i].GetSpeed() * speedMult);
-            newSummons[i].ChangeStrength(Random.Range(1, strength+1));
-            newSummons[i].ChangeDefense(Random.Range(1, defense+1));
+            newSummons[i].SetHealthPowerSpeed(healthMult, powMult, speedMult);
+            newSummons[i].SetStrength(Random.Range(1, strength+1));
+            newSummons[i].SetDefense(Random.Range(1, defense+1));
         }
 
         for (int i = 0; i < newSummons.Count; i++)

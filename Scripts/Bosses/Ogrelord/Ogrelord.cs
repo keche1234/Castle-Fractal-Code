@@ -74,12 +74,8 @@ public class Ogrelord : Boss
         base.Start();
         numAttacks = 7;
         currentAttack = 0;
-        power = 20f;
-        currentHealth = 1000;
-        maxHealth = 1000;
         summonCount = 1;
 
-        speed = 3f;
         rotateSpeed = Mathf.PI / 3;
         armored = true;
 

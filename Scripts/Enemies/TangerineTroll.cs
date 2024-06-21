@@ -28,11 +28,7 @@ public class TangerineTroll : Enemy
         miniHealthBar.gameObject.transform.parent.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, -75));
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -125));
         state = ActionState.Waiting;
-        speed = 4f;
         rotateSpeed = 2f;
-        power = 6f;
-        currentHealth = 46;
-        maxHealth = 46;
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
 
