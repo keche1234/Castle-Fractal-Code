@@ -92,9 +92,10 @@ public class PlayerController : Character
     protected TrailRenderer dodgeTrail;
 
     protected int[] ranks; // Health, Inventory, Signature Multiplier
+    protected float[] rankGrowths = { 0.5f, 0.5f, 0.25f }; // Linear
     protected int baseHealthCap;
     protected int baseMPCap;
-    protected const int MAX_RANK = 1;
+    protected const int MAX_RANK = 9;
 
     protected UpgradeManager upgradeManager;
     protected EventSystem eventSystem;
@@ -125,7 +126,7 @@ public class PlayerController : Character
         currentMP = 0;
         maxMP = baseMPCap;
         speed = 3.5f;
-        signatureMultiplier = 1f;
+        signatureMultiplier = 1;
 
         invScrollPos = 0;
 
@@ -425,7 +426,7 @@ public class PlayerController : Character
         else
             invincibilityCover.gameObject.SetActive(false);
 
-        if (!spawner.AllDefeated())
+        if (!spawnManager.AllDefeated())
             ProgressBuffTime();
         UpdateAttributeUI();
         if (transform.position.y != 0.5f)
@@ -1222,7 +1223,6 @@ public class PlayerController : Character
         if (h != null && !dodged.Contains(h))
         {
             // TODO: Stop multihit dodges
-            //Debug.Log(h);
             dodged.Add(h);
 
             int damage;
@@ -1337,7 +1337,7 @@ public class PlayerController : Character
             switch (attributeIndex)
             {
                 case 0:
-                    maxHealth = baseHealthCap * (1 + (0.5f * ranks[attributeIndex]));
+                    maxHealth = baseHealthCap * (1 + (rankGrowths[0] * ranks[attributeIndex]));
                     currentHealth = maxHealth;
 
                     miniHealthBar.SetMax(maxHealth);
@@ -1349,7 +1349,7 @@ public class PlayerController : Character
                     healthBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
                 case 1:
-                    maxMP = (int)(baseMPCap * (1 + (0.5f * ranks[attributeIndex])));
+                    maxMP = (int)(baseMPCap * (1 + (rankGrowths[1] * ranks[attributeIndex])));
 
                     miniDurabilityBar.SetMax(maxMP);
                     inventoryBar.SetMax(maxMP);
@@ -1361,7 +1361,8 @@ public class PlayerController : Character
                     break;
                 case 2:
                 default:
-                    signatureBar.UpdateAmountTxt("x" + (1 + (0.25f * ranks[attributeIndex])).ToString("0.00"));
+                    signatureMultiplier = (1 + (rankGrowths[2] * ranks[attributeIndex]));
+                    signatureBar.UpdateAmountTxt("x" + (1 + (rankGrowths[2] * ranks[attributeIndex])).ToString("0.00"));
                     signatureBar.UpdateRankTxt(ranks[attributeIndex].ToString());
                     break;
             }
@@ -1415,6 +1416,7 @@ public class PlayerController : Character
     {
         base.FullyRestoreHealth();
         miniHealthBar.SetValue(currentHealth);
+        healthBar.UpdateAmountTxt(currentHealth + "/" + maxHealth);
         healthBar.SetValue(currentHealth);
     }
 
@@ -1426,6 +1428,12 @@ public class PlayerController : Character
     public bool IsSigning()
     {
         return signing;
+    }
+
+    public void ResetCurrentWeapon()
+    {
+        if (currentWeaponType >= 0)
+            weaponTypes[currentWeaponType].InitializeTransform();
     }
 
     /*******************************************

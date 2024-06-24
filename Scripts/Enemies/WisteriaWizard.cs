@@ -44,7 +44,7 @@ public class WisteriaWizard : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             frozen = false;
         }
         else
@@ -78,7 +78,7 @@ public class WisteriaWizard : Enemy
 
         if (currentHealth <= 0)
         {
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())

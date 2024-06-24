@@ -6,8 +6,6 @@ public class PlayerRevive : MonoBehaviour
 {
     [SerializeField] protected PlayerController player;
     [SerializeField] protected RoomManager roomManager;
-    [SerializeField] protected ProtoRoomManager01 protoRoomManager1;
-    [SerializeField] protected ProtoRoomManager02 protoRoomManager2;
     [SerializeField] protected float delay;
     [SerializeField] protected bool reviving;
     // Start is called before the first frame update
@@ -25,14 +23,11 @@ public class PlayerRevive : MonoBehaviour
 
     protected IEnumerator Revive()
     {
-        if (protoRoomManager2 != null)
-            protoRoomManager2.IncrementFalls();
-
         reviving = true;
         yield return new WaitForSeconds(delay);
         player.TakeDamage(((int)player.GetCurrentHealth()) - 30, Vector3.zero);
         player.GetComponent<PlayerController>().enabled = false;
-        player.transform.position = roomManager.GetCurrent().GetEntrance().transform.position + (protoRoomManager2.GetCurrent().GetEntrance().transform.right) - new Vector3(0, 0.25f, 0);
+        player.transform.position = roomManager.GetCurrent().GetEntrance().transform.position + (roomManager.GetCurrent().GetEntrance().transform.forward) - new Vector3(0, 0.25f, 0);
         player.transform.rotation = roomManager.GetCurrent().GetEntrance().transform.rotation;
         player.gameObject.transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
 

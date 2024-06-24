@@ -65,6 +65,8 @@ public class UpgradeManager : MonoBehaviour
 
         // Wait until player is not attacking:
         yield return new WaitUntil(() => player.GetAttackState() == 0 && player.GetCurrentWeaponAttackState() <= 0);
+        player.SetControllable(false);
+        player.ResetCurrentWeapon();
 
         player.FullyRestoreHealth();
         // Shrink player, move them to room center, and regrow

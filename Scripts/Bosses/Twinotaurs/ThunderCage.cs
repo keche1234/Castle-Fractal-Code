@@ -72,7 +72,7 @@ public class ThunderCage : ScriptableObject
     {
         Transform currentTransform = totalList[currentNode].gameObject.transform;
         Transform nextTransform;
-        if (currentNode < totalList.Count - 1)
+        if (currentNode < totalList.Count - 1 && totalList[currentNode + 1].gameObject != null)
             nextTransform = totalList[currentNode + 1].gameObject.transform;
         else
             nextTransform = totalList[1].gameObject.transform;

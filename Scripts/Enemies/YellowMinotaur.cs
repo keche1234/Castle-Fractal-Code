@@ -24,18 +24,6 @@ public class YellowMinotaur : Enemy
         appearanceRate = 5;
 
         charRb = GetComponent<Rigidbody>();
-
-        //try
-        //{
-        //    spawner = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
-        //    xLimit = spawner.GetXBorder();
-        //    zLimit = spawner.GetZBorder();
-        //}
-        //catch
-        //{
-        //    xLimit = 9f;
-        //    zLimit = 4.5f;
-        //}
     }
 
     // Update is called once per frame
@@ -51,7 +39,7 @@ public class YellowMinotaur : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             rotateSpeed = 1.5f;
             frozen = false;
            
@@ -90,7 +78,7 @@ public class YellowMinotaur : Enemy
         }
         if (currentHealth <= 0)
         {
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())

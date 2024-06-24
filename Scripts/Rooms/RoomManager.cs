@@ -9,7 +9,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected PlayerController player;
     [SerializeField] protected int level; //offset of 0
     [SerializeField] protected float height;
-    protected int bossInterval = 5;
+    protected int bossInterval = 1;
     //[SerializeField] protected ExitDoor exit;
 
     //[Header("Prefabs")]
@@ -64,30 +64,9 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         {
             //Select a random boss
             next.SetBossRoom(true);
-            next.SetBossNumber(Random.Range(0, bossPrefabs.Count));
+            next.SetBossNumber(Random.Range(bossPrefabs.Count - 1, bossPrefabs.Count));
         }
         next.GenerateRoom();
-        //Vector3 topL = new Vector3(-9.5f, height, -4.5f);
-        //int length = 19;
-        //int width = 9;
-
-        //Set next
-        //next.Initialize(topL, length, width, borderPrefab, spawnManager);
-        //next.AddFloor(Instantiate(floorPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0)));
-        //next.AddEntrance(Instantiate(doorPrefab, new Vector3(-0.5f, height + 0.75f, -4.75f), Quaternion.Euler(0, -90, 0)));
-
-        // TODO: Add this to exit set up!
-        //GameObject exit = Instantiate(doorPrefab, new Vector3(-0.5f, height + 0.75f, 4.75f), Quaternion.Euler(0, 90, 0));
-        //exit.AddComponent<ExitDoor>();
-        //exit.GetComponent<ExitDoor>().SetRoomManager(this);
-        //exit.GetComponent<ExitDoor>().AddLocked(locked);
-        //exit.GetComponent<ExitDoor>().AddUnlocked(unlocked);
-        //next.AddExit(exit);
-
-        //next.CreateBorders();
-
-        //
-        //TODO: Generate environmental components (Bosses have different requirements, like no internal walls)
 
         current.SetNext(next);
     }
@@ -135,12 +114,13 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         {
             //spawn boss
             current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], bossPrefabs[current.GetBossNumber()].transform.position, Quaternion.Euler(0, 0, 0)));
+            Debug.Log("Instantiated");
             spawnManager.SetBoss(current.GetBoss());
             spawnManager.SetAllDefeated(false);
         }
         else
         {
-            spawnManager.SetWaveInfo(0, 1);
+            spawnManager.SetWaveCounts();
             spawnManager.SetBoss(null);
         }
     }

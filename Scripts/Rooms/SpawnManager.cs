@@ -6,50 +6,48 @@ public class SpawnManager : MonoBehaviour
 {
     [SerializeField] protected List<Enemy> enemyPrefabs;
     [SerializeField] protected List<Boss> bossPrefabs;
-    [SerializeField] protected List<Enemy> spawnList;
-    [SerializeField] protected List<GameObject> covers;
     [SerializeField] protected GameObject spawnCover;
+
+    protected List<Enemy> currentWaveList;
+    protected List<GameObject> covers;
     protected List<Vector3> spawnPosList;
 
     [Header("Spawn Time")]
     [SerializeField] protected float spawnDelay;
     [SerializeField] protected float waveDelay;
-
-    //[Header("Spawn Dimensions")]
-    //[SerializeField] protected int spawnRangeX;
-    //[SerializeField] protected int spawnRangeZ;
-    //[SerializeField] protected float xBorder;
-    //[SerializeField] protected float zBorder;
-
-    [Header("Spawn Count")]
-    [SerializeField] int lowRoll;
-    [SerializeField] int highRoll;
     protected Coroutine spawnCoroutine;
 
-    [Header("Game Handling")]
-    [SerializeField] protected int currentWave = 0;
-    [SerializeField] protected int totalWaves;
-    [SerializeField] protected bool bossWave = false;
+    //[Header("Spawn Count")]
+    //[SerializeField] int lowRoll;
+    //[SerializeField] int highRoll;
+
+    //[Header("Game Handling")]
+    //[SerializeField] protected int currentWaveNum = 0;
+    //protected int totalWaves;
+
+    // Boss Info
+    protected bool bossWave = false;
     protected Boss boss;
     protected int bossesDefeated;
 
     //Enemy parameters
     //Growth inidcates a linear increase
-    protected const float SPAWN_COUNT_FLOOR = 2;
+    protected const int SPAWN_COUNT_FLOOR = 2;
     protected const float SPAWN_FLOOR_GROWTH = 0.5f;
-    protected const float SPAWN_FLOOR_CAP = 10;
+    protected const int SPAWN_FLOOR_CAP = 10;
 
-    protected const float SPAWN_COUNT_CEIL = 2;
-    protected const float SPAWN_CEIL_GROWTH = 0.5f;
-    protected const float SPAWN_CEIL_CAP = 20;
+    protected const int SPAWN_COUNT_CEIL = 4;
+    protected const float SPAWN_CEIL_GROWTH = 1;
+    protected const int SPAWN_CEIL_CAP = 20;
 
     protected const float ENEMY_ATTRIBUTE_CEIL = 1.5f;
     protected const float ENEMY_ATTRIBUTE_GROWTH = 0.5f;
-    protected const float ENEMY_ATTRIBUTE_CAP = 0.5f;
+    protected const float ENEMY_ATTRIBUTE_CAP = 9;
 
     protected const float ENEMY_HEALTHPOW_GROWTH = 0.3f;
 
     protected List<int> waveCounts;
+    protected int[] waveBreaks = { 0, 7, 13, 19 }; // Tells you the floor at which to raise the number of waves
 
     [Header("Managers")]
     [SerializeField] protected RoomManager roomManager;
@@ -57,12 +55,14 @@ public class SpawnManager : MonoBehaviour
     protected PlayerController player;
 
     protected bool spawned = false;
-    protected bool allDefeated = false;
+    protected bool allDefeated = true;
 
     // Start is called before the first frame update
     void Start()
     {
-        spawnList = new List<Enemy>();
+        currentWaveList = new List<Enemy>();
+        waveCounts = new List<int>();
+
         spawnPosList = new List<Vector3>();
         player = FindObjectOfType<PlayerController>();
         bossesDefeated = 0;
@@ -72,35 +72,62 @@ public class SpawnManager : MonoBehaviour
     protected void Update()
     {
         Room currentRoom = roomManager.GetCurrent();
-        if (!bossWave && !currentRoom.IsBreakRoom() && !spawned && spawnList.Count == 0 && currentWave < totalWaves)
+
+        if (spawned)
         {
-            if (spawnCoroutine != null)
-                StopCoroutine(spawnCoroutine);
-            for (int i = covers.Count - 1; i >= 0; i--)
-            {
-                Destroy(covers[i]);
-                covers.Remove(covers[i]);
-            }
-            spawnCoroutine = StartCoroutine("SpawnWave");
+            spawnCoroutine = null;
+            spawned = false;
         }
 
-        if ((totalWaves == 0 && !currentRoom.IsBossRoom()) || currentRoom.IsBreakRoom())
-            allDefeated = true;
+        // Regular room, not everyone is defeated, not currently spawning anything
+        if (!currentRoom.IsBossRoom() && !currentRoom.IsBreakRoom() && !allDefeated && spawnCoroutine == null)
+        {
+            if (currentWaveList.Count == 0) // all enemies in wave defeated
+            {
+                if (waveCounts.Count == 0) //no more waves to spawn
+                {
+                    allDefeated = true;
+                }
+                else
+                {
+                    if (spawnCoroutine == null) //not already in the process of spawning
+                    {
+                        spawnCoroutine = StartCoroutine(SpawnWave(waveCounts[waveCounts.Count - 1]));
+                        waveCounts.RemoveAt(waveCounts.Count - 1);
+                    }
+                }
+            }
+        }
     }
 
-    public void SetSpawnCounts(bool startSpawning = false)
+    public void SetWaveCounts()
     {
-        // TODO: Calculate number using floor, ceil, and bosses defeated
+        // Calculate number using floor, ceil, and bosses defeated
+        int lowRoll = (int)Mathf.Min(SPAWN_COUNT_FLOOR + (SPAWN_FLOOR_GROWTH * bossesDefeated), SPAWN_FLOOR_CAP);
+        int highRoll = (int)Mathf.Min(SPAWN_COUNT_CEIL + (SPAWN_CEIL_GROWTH * bossesDefeated), SPAWN_CEIL_CAP);
+        int totalSpawnCount = Random.Range(lowRoll, highRoll + 1);
 
-        // TODO: Distribute waves based on count
-    }
+        // Distribute waves based on count
+        int numWaves = 0;
+        for (int i = 0; i < waveBreaks.Length; i++)
+            if (totalSpawnCount >= waveBreaks[i])
+                numWaves = i + 1;
+            else
+                i = waveBreaks.Length;
 
-    public virtual IEnumerator SpawnWave()
-    {
-        spawned = true;
-        currentWave++;
+        waveCounts = new List<int>();
+        for (int i = 0; i < numWaves; i++)
+            waveCounts.Add(totalSpawnCount / numWaves);
+        for (int i = 0; i < totalSpawnCount % numWaves; i++)
+            waveCounts[i]++;
+
         allDefeated = false;
-        int spawnCount = Random.Range(lowRoll, highRoll + 1);
+    }
+
+    public virtual IEnumerator SpawnWave(int spawnCount)
+    {
+        //currentWaveNum++;
+        //allDefeated = false;
         spawnPosList = new List<Vector3>();
         covers = new List<GameObject>();
         List<int> spawnNum = new List<int>();
@@ -136,13 +163,19 @@ public class SpawnManager : MonoBehaviour
         for (int i = 0; i < spawnPosList.Count; i++)
         {
             Destroy(covers[i]);
-            spawnList.Add((Enemy)Instantiate(enemyPrefabs[spawnNum[i]], spawnPosList[i], gameObject.transform.rotation));
-            spawnList[i].SetSpawnManager(this);
-            spawnList[i].SetRoomManager(roomManager);
-            spawnList[i].transform.parent = roomManager.GetCurrent().transform;
-            spawnList[i].ChangeStrength(Random.Range(0, 3));
-            spawnList[i].ChangeDefense(Random.Range(0, 3));
+            currentWaveList.Add(Instantiate(enemyPrefabs[spawnNum[i]], spawnPosList[i], gameObject.transform.rotation));
+
+            currentWaveList[i].SetSpawnManager(this);
+            currentWaveList[i].SetRoomManager(roomManager);
+            currentWaveList[i].transform.parent = roomManager.GetCurrent().transform;
+
+            SetEnemyMods(currentWaveList[i]);
+
+            int attributeCeil = (int)Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP);
+            currentWaveList[i].SetStrength(Random.Range(0, attributeCeil + 1));
+            currentWaveList[i].ChangeDefense(Random.Range(0, attributeCeil + 1));
         }
+        spawned = true;
         yield return null;
     }
 
@@ -180,52 +213,16 @@ public class SpawnManager : MonoBehaviour
 
     public virtual void RemoveMe(Enemy me)
     {
-        bool realEnemy = spawnList.Contains(me);
-        spawnList.Remove(me);
+        currentWaveList.Remove(me);
         Destroy(me.gameObject);
-        if (!bossWave && spawnList.Count == 0 && realEnemy)
+
+        if (bossWave && boss == me)
         {
-            spawned = false;
-            if (currentWave >= totalWaves) allDefeated = true;
-        }
-        else if (bossWave && boss == me)
-        {
-            spawned = false;
             allDefeated = true;
             if (!player.IsPlayerMaxRank())
                 upgradeManager.StartCoroutine("StartUpgradeSequence");
+            bossesDefeated++;
         }
-    }
-
-
-
-    //public float GetXBorder()
-    //{
-    //    return xBorder;
-    //}
-
-    //public float GetZBorder()
-    //{
-    //    return zBorder;
-    //}
-
-    public void SetWaveNumber(int w)
-    {
-        if (w >= 0)
-            currentWave = w;
-    }
-
-    public void SetWaveInfo(int c, int t)
-    {
-        currentWave = c;
-        totalWaves = t;
-
-        if (currentWave < totalWaves) allDefeated = false;
-    }
-
-    public void SetToWaveZero()
-    {
-        currentWave = 0;
     }
 
     public void SetBossInfo(bool b)
@@ -248,17 +245,44 @@ public class SpawnManager : MonoBehaviour
         spawned = b;
     }
 
+    /*
+     * Sets Health, Power, and Speed mods based on the number of bosses defeated
+     */
+    public void SetEnemyMods(Enemy e)
+    {
+        float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
+        e.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
+    }
+
     public void SetBoss(Boss b)
     {
+        Debug.Log(bossesDefeated);
         boss = b;
         bossWave = boss != null;
     }
 
+    public void SetBossMods()
+    {
+        float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
+        boss.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
+        Debug.Log("Set Power to " + boss.GetPower());
+
+        int attributeCeil = (int)Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP);
+        int strengthBase = Random.Range(0, 3);
+        boss.SetStrength(strengthBase + Random.Range(0, attributeCeil + 1));
+        boss.SetDefense(Random.Range(0, 3) + attributeCeil - (int)(boss.GetStrength() - strengthBase));
+    }
+
+    public Boss GetBoss()
+    {
+        return boss;
+    }
+
     public void DestroyAllEnemies()
     {
-        for (int i = spawnList.Count - 1; i >= 0; i--)
+        for (int i = currentWaveList.Count - 1; i >= 0; i--)
         {
-            RemoveMe(spawnList[i]);
+            RemoveMe(currentWaveList[i]);
         }
     }
 }

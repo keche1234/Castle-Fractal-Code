@@ -27,6 +27,8 @@ public abstract class Boss : Enemy
     public override void Start()
     {
         base.Start();
+        if (spawnManager.GetBoss() == this)
+            spawnManager.SetBossMods();
         state = ActionState.Waiting;
         armored = true;
         room = roomManager.GetCurrent();
@@ -41,14 +43,15 @@ public abstract class Boss : Enemy
         if (GetMyFreezeTime() > 0)
         {
             //GetMyFreezeTime() -= Time.deltaTime;
-            if (charRb != null)
+            if (charRb)
                 charRb.velocity *= 0;
             rotateSpeed = 0;
             frozen = true;
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            if (charRb)
+                charRb.velocity = preFreezeVelocity;
             rotateSpeed = 2.5f;
             frozen = false;
         }
@@ -76,7 +79,7 @@ public abstract class Boss : Enemy
                 {
                     Destroy(summons[i].gameObject);
                 }
-                spawner.SetAllDefeated(true);
+                spawnManager.SetAllDefeated(true);
                 Destroy(this.gameObject);
             }
         }
@@ -129,7 +132,8 @@ public abstract class Boss : Enemy
 
         for (int i = 0; i < count; i++)
         {
-            newSummons[i].SetHealthPowerSpeed(healthMult, powMult, speedMult);
+            spawnManager.SetEnemyMods(newSummons[i]);
+            newSummons[i].MultiplyHealthPowerSpeed(healthMult, powMult, speedMult);
             newSummons[i].SetStrength(Random.Range(1, strength+1));
             newSummons[i].SetDefense(Random.Range(1, defense+1));
         }

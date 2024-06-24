@@ -81,11 +81,11 @@ public abstract class Enemy : Character
         knocked = true;
         yield return null;
         charRb.velocity = kbDir.normalized * knockback * kbMod * 20;
-        preVel = charRb.velocity;
+        preFreezeVelocity = charRb.velocity;
         yield return new WaitForSeconds(0.5f);
         knocked = false;
         charRb.velocity *= 0;
-        preVel = charRb.velocity;
+        preFreezeVelocity = charRb.velocity;
         if (stunTime > stunCooldown) stunTime = stunCooldown;
         yield return null;
     }

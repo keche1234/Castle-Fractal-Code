@@ -65,7 +65,7 @@ public class PeridotPaladin : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             rotateSpeed = 2.5f;
             frozen = false;
         }
@@ -99,7 +99,7 @@ public class PeridotPaladin : Enemy
 
         if (currentHealth <= 0)
         {
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())

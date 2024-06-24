@@ -43,7 +43,7 @@ public class PinkPython : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             rotateSpeed = 4f;
             frozen = false;
             poisonGas.gameObject.GetComponent<Hitbox>().enabled = true;
@@ -91,7 +91,7 @@ public class PinkPython : Enemy
         }
         if (currentHealth <= 0)
         {
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())

@@ -68,7 +68,7 @@ public class BlueOgre : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             frozen = false;
 
             rotateSpeed = 2f;
@@ -111,7 +111,7 @@ public class BlueOgre : Enemy
 
         if (currentHealth <= 0)
         {
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())
@@ -143,7 +143,7 @@ public class BlueOgre : Enemy
 
         float speedChange = (1 + SummationBuffs(3)) * (1 + (Mathf.Max(SummationDebuffs(3), -0.5f)));
         charRb.AddForce(transform.forward.normalized * speed * speedChange * directMults[3], ForceMode.VelocityChange);
-        preVel = charRb.velocity;
+        preFreezeVelocity = charRb.velocity;
 
         float i = 0;
         while (i < (stepTime / speedChange))
@@ -153,7 +153,7 @@ public class BlueOgre : Enemy
         }
 
         charRb.velocity *= 0;
-        preVel = charRb.velocity;
+        preFreezeVelocity = charRb.velocity;
         state = ActionState.Cooldown;
 
         i = 0;

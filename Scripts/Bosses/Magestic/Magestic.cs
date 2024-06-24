@@ -127,7 +127,7 @@ public class Magestic : Boss
         {
             case 0: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(summonCount, 2, 4, 2f, 1, 1.5f, 2));
+                StartCoroutine(Summon(summonCount, 2, 4, 1, 1.5f, 1.25f, 2));
                 break;
             case 1: //Pyrostorm
                 //startup
@@ -825,8 +825,8 @@ public class Magestic : Boss
         //Debug.Log(myWands.Count + " wand(s)");
         for (int i = 0; i < myWands.Count; i++)
         {
-            Destroy(myWands[i].gameObject);
-            myWands.Remove(myWands[i]);
+            if (myWands[i] && myWands[i].gameObject)
+                Destroy(myWands[i].gameObject);
         }
         base.OnDestroy();
     }

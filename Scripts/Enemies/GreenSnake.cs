@@ -56,7 +56,7 @@ public class GreenSnake : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             rotateSpeed = 4f;
             frozen = false;
             foreach (Projectile p in projectiles)
@@ -98,7 +98,7 @@ public class GreenSnake : Enemy
 
         if (currentHealth <= 0)
         {
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())

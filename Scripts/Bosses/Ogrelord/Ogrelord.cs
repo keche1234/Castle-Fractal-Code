@@ -160,18 +160,19 @@ public class Ogrelord : Boss
             Vector3 bossLateral = new Vector3(transform.position.x, 0, transform.position.z);
             Vector3 differenceVector = bossLateral - summonLateral;
 
-            if (differenceVector.magnitude < 2.5f)
+            // If the summon is too close, push away
+            if (differenceVector.magnitude < 2f)
             {
-                s.transform.position -= differenceVector.normalized * (2.55f - differenceVector.magnitude);
+                s.transform.position -= differenceVector.normalized * (2f - differenceVector.magnitude);
                 if (s.transform.position.x >= (room.GetXDimension() / 2))
-                    s.transform.position += Vector3.right * -5.1f;
+                    s.transform.position += Vector3.right * -2.1f;
                 else if (s.transform.position.x <= (-room.GetXDimension() / 2))
-                    s.transform.position += Vector3.right * 5.1f;
+                    s.transform.position += Vector3.right * 2.1f;
 
                 if (s.transform.position.z >= (room.GetZDimension() / 2))
-                    s.transform.position += Vector3.forward * -5.1f;
+                    s.transform.position += Vector3.forward * -2.1f;
                 else if (s.transform.position.z <= (-room.GetZDimension() / 2))
-                    s.transform.position += Vector3.forward * 5.1f;
+                    s.transform.position += Vector3.forward * 2.1f;
             }
         }
     }
@@ -183,7 +184,7 @@ public class Ogrelord : Boss
         {
             case 0: //Summon
                 if (summons.Count < 7)
-                    StartCoroutine(Summon(summonCount, 4, 2, 1, 1.5f, 2, 2));
+                    StartCoroutine(Summon(summonCount, 4, 2, 1.5f, 1.25f, 1, 2));
                 break;
             case 1: //Club Combo
                 //startup
@@ -625,7 +626,7 @@ public class Ogrelord : Boss
                     while (state == ActionState.Attacking)
                     {
                         landing = t > (airTime / 2);
-                        GetComponent<Collider>().isTrigger = t < (airTime / 2);
+                        GetComponent<Collider>().isTrigger = t < airTime;
                         if (GetMyFreezeTime() <= 0)
                         {
                             charRb.velocity = Vector3.down * (stompJumpHeight / stompDescend);
@@ -811,7 +812,7 @@ public class Ogrelord : Boss
     public void OnTriggerEnter(Collider collider)
     {
         //Super Stomp
-        // TODO: Ogrelord has a chance of not continuing attack after landing
+        //Ogrelord has a chance of not continuing attack after landing
         if (currentAttack == 4 && collider.gameObject.CompareTag("Floor") && landing)
         {
             state = ActionState.Cooldown;
@@ -843,10 +844,10 @@ public class Ogrelord : Boss
             for (int i = 0; i < 4; i++)
             {
                 //Create rock, set angle, set parent to room
-                Projectile rock = Instantiate(rockPrefab, collider.gameObject.transform.position, Quaternion.LookRotation(norm));
+                Projectile rock = Instantiate(rockPrefab, collider.ClosestPoint(transform.position), Quaternion.LookRotation(norm));
                 rock.gameObject.transform.Rotate(0, -45f + (i * 22.5f), 0);
                 rock.SetSource(this);
-                rock.transform.Translate(transform.forward * 2f, Space.World);
+                rock.transform.Translate(norm, Space.World);
                 rock.transform.parent = roomManager.GetCurrent().transform;
                 rocks.Add(rock);
                 //rockCharge = 0;

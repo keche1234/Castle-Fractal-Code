@@ -38,7 +38,7 @@ public abstract class Character : MonoBehaviour
     [SerializeField] protected List<float> directMults;
 
     [Header("Game Management")]
-    [SerializeField] protected SpawnManager spawner;
+    [SerializeField] protected SpawnManager spawnManager;
     [SerializeField] protected RoomManager roomManager;
     [SerializeField] protected GameManager gameManager;
 
@@ -61,7 +61,7 @@ public abstract class Character : MonoBehaviour
     //protected static List<(string, float)> freezeTags;
     protected bool frozen;
     //protected float freezeTime;
-    protected Vector3 preVel; //velocity before timeFreeze
+    protected Vector3 preFreezeVelocity; //velocity before timeFreeze
 
     //[Header("Stun Handling")]
     protected float initialStun = 0;
@@ -81,6 +81,8 @@ public abstract class Character : MonoBehaviour
         maxHealth = BASE_HEALTH;
         power = BASE_POWER;
         speed = BASE_SPEED;
+
+        Debug.Log(this + " health set to " + currentHealth + "/" + maxHealth + " in start method");
 
         buffs = new List<List<Buff>>();
         for (int i = 0; i < buffTypes.Length; i++)
@@ -112,7 +114,7 @@ public abstract class Character : MonoBehaviour
         attributesUI.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -90));
 
-        spawner = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+        spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         roomManager = GameObject.Find("RoomManager").GetComponent<RoomManager>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         freezeManager = FindObjectOfType<FreezeManager>();
@@ -518,7 +520,7 @@ public abstract class Character : MonoBehaviour
 
     public void SetSpawnManager(SpawnManager sm)
     {
-        spawner = sm;
+        spawnManager = sm;
     }
 
     public void SetRoomManager(RoomManager rm)
@@ -528,7 +530,7 @@ public abstract class Character : MonoBehaviour
 
     public SpawnManager GetSpawnManager()
     {
-        return spawner;
+        return spawnManager;
     }
 
     public RoomManager GetRoomManager()
@@ -559,6 +561,15 @@ public abstract class Character : MonoBehaviour
         maxHealth = BASE_HEALTH * healthMod;
         power = BASE_POWER * powerMod;
         speed = BASE_SPEED * speedMult;
+
+        currentHealth = maxHealth;
+    }
+
+    public void MultiplyHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
+    {
+        maxHealth *= healthMod;
+        power *= powerMod;
+        speed *= speedMult;
 
         currentHealth = maxHealth;
     }

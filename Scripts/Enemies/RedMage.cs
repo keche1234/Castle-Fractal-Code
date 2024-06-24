@@ -57,7 +57,7 @@ public class RedMage : Enemy
         }
         else if (frozen) //this is the specific act of unfreezing
         {
-            charRb.velocity = preVel;
+            charRb.velocity = preFreezeVelocity;
             frozen = false;
         }
         else
@@ -93,7 +93,7 @@ public class RedMage : Enemy
         {
             Destroy(blastAoe);
             Destroy(maxAoe);
-            spawner.RemoveMe(this);
+            spawnManager.RemoveMe(this);
         }
 
         if (IsOOB())

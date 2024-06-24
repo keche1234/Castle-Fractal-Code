@@ -10,6 +10,8 @@ public class Twinotaurs : Boss
     public GameObject venom; //for pointing purposes
     private Rigidbody sparkRb;
     private Rigidbody venomRb;
+    private Vector3 sparkPreFreezeVel;
+    private Vector3 venomPreFreezeVel;
     protected const float AIR_TIME = 0.8f; //jump towards a wall
 
     //[Header("Status Bars UI 2")] (attached to Venom)
@@ -84,8 +86,8 @@ public class Twinotaurs : Boss
         venomRb = venom.GetComponent<Rigidbody>();
 
         numAttacks = 7;
-        currentAttack = Random.Range(0, 2);
-        power = 10f;
+        //currentAttack = Random.Range(0, 2);
+        currentAttack = 2;
         summonCount = 3;
 
         rotateSpeed = Mathf.PI;
@@ -150,6 +152,19 @@ public class Twinotaurs : Boss
     public override void Update()
     {
         base.Update();
+        if (GetMyFreezeTime() > 0)
+        {
+            //GetMyFreezeTime() -= Time.deltaTime;
+            sparkRb.velocity *= 0;
+            venomRb.velocity *= 0;
+            rotateSpeed = 0;
+            frozen = true;
+        }
+        else if (frozen) //this is the specific act of unfreezing
+        {
+            rotateSpeed = 2.5f;
+            frozen = false;
+        }
 
         for (int i = 0; i < poisonClouds.Count; i++)
             if (poisonClouds[i] == null)
@@ -251,6 +266,7 @@ public class Twinotaurs : Boss
     {
         path.Add(Instantiate(prefab, new Vector3(obj.transform.position.x, 0.05f, obj.transform.position.z), Quaternion.Euler(0, 0, 0)));
         path[path.Count - 1].SetSource(this);
+        path[path.Count - 1].transform.parent = roomManager.GetCurrent().transform;
     }
 
     protected void Syncrash()
@@ -381,7 +397,7 @@ public class Twinotaurs : Boss
                 currentAttack = 2;
                 state = ActionState.Waiting;
                 break;
-            case 1: // Golden Pounce
+            case 1: // Thunder Cage
                 state = ActionState.Startup;
 
                 List<Vector3> gasGoals = new List<Vector3>();
@@ -391,29 +407,28 @@ public class Twinotaurs : Boss
                 for (int i = 0; i < 4; i++)
                 {
                     // Set start and goals
-                    float xPos = Random.Range((room.GetXDimension() / 2) * 0.5f, (room.GetXDimension() / 2) * 0.8f);
-                    float zPos = Random.Range((room.GetZDimension() / 2) * 0.5f, (room.GetZDimension() / 2) * 0.8f);
+                    float xPos = Random.Range((room.GetXDimension() / 2) * 0.4f, (room.GetXDimension() / 2) * 0.75f);
+                    float zPos = Random.Range((room.GetZDimension() / 2) * 0.4f, (room.GetZDimension() / 2) * 0.75f);
                     pounceClouds[i].transform.position = venom.transform.position;
 
                     switch (i)
                     {
-                        case 0:
+                        case 0: // Top left corner
                             xPos *= -1;
                             pounceClouds[i].transform.position += new Vector3(-1, 1, 1);
                             break;
-                        case 1:
+                        case 1: // Top right corner
                             pounceClouds[i].transform.position += new Vector3(1, 1, 1);
                             break;
-                        case 2:
+                        case 2: // Bottom right corner
                             zPos *= -1;
                             pounceClouds[i].transform.position += new Vector3(1, 1, -1);
                             break;
-                        case 3:
+                        case 3: // Bottom left corner
+                        default:
                             xPos *= -1;
                             zPos *= -1;
                             pounceClouds[i].transform.position += new Vector3(-1, 1, -1);
-                            break;
-                        default:
                             break;
                     }
                     Vector3 goalPos = new Vector3(xPos, 1, zPos);
@@ -570,7 +585,7 @@ public class Twinotaurs : Boss
                 foreach (Cyclone c in cycloneList)
                     c.gameObject.SetActive(false);
 
-                StartCoroutine(Summon(summonCount, 3, 3, 1.5f, 2, 1, 1));
+                StartCoroutine(Summon(summonCount, 3, 3, 1.25f, 1, 1.5f, 1));
                 while (state != ActionState.Waiting) yield return null;
                 break;
             case 3: //Perilous Partition
@@ -582,6 +597,7 @@ public class Twinotaurs : Boss
                 PartitionJump(venom, 1);
                 spark.GetComponent<Collider>().isTrigger = true;
                 venom.GetComponent<Collider>().isTrigger = true;
+
                 t = 0;
                 while (t < AIR_TIME)
                 {
@@ -634,8 +650,8 @@ public class Twinotaurs : Boss
                         sparkCharge.gameObject.SetActive(true);
                         venomCharge.gameObject.SetActive(true);
 
-                        Debug.DrawRay(spark.transform.position + spark.transform.up, spark.transform.forward * 1, Color.yellow);
-                        Debug.DrawRay(venom.transform.position + venom.transform.up, venom.transform.forward * 1, Color.magenta);
+                        //Debug.DrawRay(spark.transform.position + spark.transform.up, spark.transform.forward * 1, Color.yellow);
+                        //Debug.DrawRay(venom.transform.position + venom.transform.up, venom.transform.forward * 1, Color.magenta);
 
                         //Turn if you hit a wall, spawn part of the path
                         RaycastHit sparkHit;
@@ -689,6 +705,7 @@ public class Twinotaurs : Boss
                 venom.GetComponent<Collider>().isTrigger = false;
                 sparkRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
                 venomRb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
                 yield return null;
                 currentAttack++;
                 state = ActionState.Waiting;
@@ -727,7 +744,7 @@ public class Twinotaurs : Boss
                         venomCrashIndicator.transform.position = (Vector3.up * 0.5f) + (crashPoint + venom.transform.position) / 2;
                         venomCrashIndicator.transform.localScale = new Vector3(venomCrashIndicator.transform.localScale.x, venomCrashIndicator.transform.localScale.y, (lookVector.magnitude / 2) + 2);
 
-                        centerCrashIndicator.transform.position = crashPoint;
+                        centerCrashIndicator.transform.position = crashPoint + (Vector3.up * 0.5f);
 
                         t += Time.deltaTime;
                         // Dash
