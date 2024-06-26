@@ -30,18 +30,28 @@ public class Sword : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        if (IsInactive() && owner.GetMeleeAuto())
-        {
-            Enemy target = FindClosestTarget();
-            RenderSubReticle(target ? target.gameObject : null);
-        }
-        else
-            subReticle.gameObject.SetActive(false);
+        RenderReticles(false);
+        FindAutoTarget();
+
+        //if (IsInactive() && owner.GetMeleeAuto())
+        //{
+        //    Enemy target = FindClosestTarget();
+        //    RenderSubReticle(target ? target.gameObject : null);
+        //}
+        //else if (!owner.GetMeleeAuto())
+        //{
+        //    RenderReticles(false);
+        //}
+        //else
+        //    subReticle.gameObject.SetActive(false);
     }
 
     public override IEnumerator Attack(InputDevice device)
     {
-        GameObject target = MeleeAutoAim();
+        GameObject target = autoTarget ? autoTarget.gameObject : null;;
+        owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+        RenderReticles(true);
+
         chainHitList = new List<Character>();
         state = ActionState.Startup;
         owner.SetAttackState(1);
@@ -57,8 +67,9 @@ public class Sword : Weapon
         {
             transform.RotateAround(owner.transform.position, owner.transform.up, (180 / (startupTime / rate)) * Time.deltaTime * -1);
             actionTime += Time.deltaTime;
-            LookAtTarget(target);
-            RenderSubReticle(target);
+
+            owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+            RenderReticles(true);
             yield return null;
         }
         transform.localScale *= 2 * range;
@@ -91,8 +102,8 @@ public class Sword : Weapon
                 degreesRotated += angSpeed * Time.deltaTime;
                 actionTime += Time.deltaTime;
 
-                LookAtTarget(target);
-                RenderSubReticle(target);
+                owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+                RenderReticles(true);
                 yield return null;
             }
             yield return new WaitForSeconds(1f / 60f);
@@ -115,8 +126,8 @@ public class Sword : Weapon
                     target = MeleeAutoAim();
                     while (actionTime < startupTime * 0.5f / rate)
                     {
-                        LookAtTarget(target);
-                        RenderSubReticle(target);
+                        owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+                        RenderReticles(true);
                         actionTime += Time.deltaTime;
                         yield return null;
                     }
@@ -141,10 +152,9 @@ public class Sword : Weapon
             if (chainNum % 2 == 0) angSpeed = -(degreesRotated + 27) / (cooldownTime * 0.8f / rate);
             else angSpeed = -(degreesRotated - 180) / (cooldownTime * 0.8f / rate);
 
+            owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+            RenderReticles(true);
             transform.RotateAround(owner.transform.position, owner.transform.up, angSpeed * Time.deltaTime);
-
-            LookAtTarget(target);
-            RenderSubReticle(target);
 
             actionTime += Time.deltaTime;
             yield return null;
@@ -154,7 +164,7 @@ public class Sword : Weapon
         while (actionTime <= (cooldownTime * 0.1f / rate))
         {
             LookAtTarget(target);
-            RenderSubReticle(target);
+            RenderReticles(true);
 
             actionTime += Time.deltaTime;
             yield return null;

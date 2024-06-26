@@ -168,6 +168,7 @@ public class SpawnManager : MonoBehaviour
             currentWaveList[i].SetSpawnManager(this);
             currentWaveList[i].SetRoomManager(roomManager);
             currentWaveList[i].transform.parent = roomManager.GetCurrent().transform;
+            currentWaveList[i].SetHasItem(true);
 
             SetEnemyMods(currentWaveList[i]);
 
@@ -271,6 +272,11 @@ public class SpawnManager : MonoBehaviour
         int strengthBase = Random.Range(0, 3);
         boss.SetStrength(strengthBase + Random.Range(0, attributeCeil + 1));
         boss.SetDefense(Random.Range(0, 3) + attributeCeil - (int)(boss.GetStrength() - strengthBase));
+    }
+
+    public int GetBossesDefeated()
+    {
+        return bossesDefeated;
     }
 
     public Boss GetBoss()

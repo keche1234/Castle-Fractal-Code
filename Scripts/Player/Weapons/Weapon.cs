@@ -11,7 +11,7 @@ public abstract class Weapon : MonoBehaviour
     //[SerializeField] protected int maxDurability;
     protected bool heavy; //Player cannot move and use heavy weapons at the same time
     protected bool melee;
-    protected Enemy rangedAutoTarget = null;
+    protected Enemy autoTarget = null;
 
     [Header("Player + Cam")]
     protected ActionState state;
@@ -67,87 +67,6 @@ public abstract class Weapon : MonoBehaviour
 
     }
 
-    /******************
-     * Aim Mechanics
-     ******************/
-    protected void FindRangedAutoTarget()
-    {
-        if (IsInactive())
-        {
-            // Find AutoTarget
-            if (owner.GetRangedAssist() > 0)
-            {
-                /*****************************************************
-                 * Determine what the player might be trying to aim at
-                 *****************************************************/
-                RaycastHit hit;
-                Vector3 aimVector = Vector3.zero;
-                if (owner.GetActionInputDevice("main attack") == Mouse.current)
-                {
-                    // Wherever the mouse hovers, treat that as your forward
-                    aimVector = reticle.transform.position - owner.transform.position;
-                    aimVector = new Vector3(aimVector.x, 0, aimVector.z).normalized;
-                }
-                else if (owner.GetActionInputDevice("main attack") == Keyboard.current)
-                {
-                    aimVector = owner.transform.forward;
-                }
-
-                /****************
-                 * Set the target
-                 ****************/
-                if (owner.GetRangedAssist() > ControlPresetSettings.GetMaxRangedAssist())
-                {
-                    // Overwrite the current target if the player faces an enemy
-                    if (Physics.Raycast(owner.transform.position, aimVector, out hit, Mathf.Infinity, LayerMask.GetMask("Enemy")))
-                        rangedAutoTarget = hit.collider.gameObject.GetComponent<Enemy>();
-                }
-                else
-                {
-                    float angle = ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist();
-                    Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(angle, Vector3.up) * aimVector * 30f, Color.red);
-                    Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(-angle, Vector3.up) * aimVector * 30f, Color.red);
-                    rangedAutoTarget = FindClosestTarget(aimVector, ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist());
-                }
-            }
-            else
-                rangedAutoTarget = null;
-        }
-    }
-
-    protected void RenderReticles(bool signatureCheck = false)
-    {
-        // Determine whether to render the reticle
-        if (owner.GetActionInputDevice("main attack") == Mouse.current
-            || (signatureCheck && owner.GetActionInputDevice("signature attack") == Mouse.current && owner.IsSigning()))
-        {
-            reticle.gameObject.SetActive(true);
-            float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
-            reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
-            reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
-        }
-        else
-            reticle.gameObject.SetActive(false);
-
-        RenderSubReticle(rangedAutoTarget ? rangedAutoTarget.gameObject : null);
-    }
-
-    protected void RenderSubReticle(GameObject target)
-    {
-        if (target)
-        {
-            subReticle.gameObject.SetActive(true);
-            subReticle.transform.position = new Vector3(target.transform.position.x, 0.1f, target.transform.position.z);
-
-            subReticle.transform.localScale = Vector3.one * 0.0075f;
-            if (target.gameObject.GetComponent<Boss>()) subReticle.transform.localScale *= 2.5f;
-
-            subReticle.transform.rotation = Quaternion.Euler(90, 0, 0);
-        }
-        else
-            subReticle.gameObject.SetActive(false);
-    }
-
     /************
      * Parameters
      ************/
@@ -177,17 +96,98 @@ public abstract class Weapon : MonoBehaviour
     public abstract IEnumerator Attack(InputDevice device);
     public abstract IEnumerator Signature(InputDevice device);
 
-    public Vector3 DetermineRangedAttackDirection(InputDevice device)
+   /******************
+    * Aim Mechanics
+    ******************/
+    protected void FindAutoTarget()
+    {
+        if (IsInactive())
+        {
+            // Find AutoTarget
+            if (melee && owner.GetMeleeAuto() || owner.GetRangedAssist() > 0)
+            {
+                /*****************************************************
+                 * Determine what the player might be trying to aim at
+                 *****************************************************/
+                RaycastHit hit;
+                Vector3 aimVector = Vector3.zero;
+                if (owner.GetActionInputDevice("main attack") == Mouse.current)
+                {
+                    // Wherever the mouse hovers, treat that as your forward
+                    aimVector = reticle.transform.position - owner.transform.position;
+                    aimVector = new Vector3(aimVector.x, 0, aimVector.z).normalized;
+                }
+                else if (owner.GetActionInputDevice("main attack") == Keyboard.current)
+                {
+                    aimVector = owner.transform.forward;
+                }
+
+                /****************
+                 * Set the target
+                 ****************/
+                if (owner.GetRangedAssist() > ControlPresetSettings.GetMaxRangedAssist())
+                {
+                    // Overwrite the current target if the player faces/aims at an enemy
+                    if (Physics.Raycast(owner.transform.position, aimVector, out hit, Mathf.Infinity, LayerMask.GetMask("Enemy")))
+                        autoTarget = hit.collider.gameObject.GetComponent<Enemy>();
+                }
+                else
+                {
+                    float angle = melee ? 360 : ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist();
+                    Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(angle, Vector3.up) * aimVector * 30f, Color.red);
+                    Debug.DrawRay(owner.transform.position, Quaternion.AngleAxis(-angle, Vector3.up) * aimVector * 30f, Color.red);
+                    autoTarget = FindClosestTarget(aimVector, ControlPresetSettings.GetRangeAssistBase() * owner.GetRangedAssist());
+                }
+            }
+            else
+                autoTarget = null;
+        }
+    }
+
+    protected void RenderReticles(bool signatureCheck = false)
+    {
+        // Determine whether to render the reticle
+        if (owner.GetActionInputDevice("main attack") == Mouse.current
+            || (signatureCheck && owner.GetActionInputDevice("signature attack") == Mouse.current && owner.IsSigning()))
+        {
+            reticle.gameObject.SetActive(true);
+            float depth = Mathf.Min(cam.transform.position.y - 3, new Vector3(0, cam.transform.position.y, cam.transform.position.z).magnitude);
+            reticle.transform.position = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, depth));
+            reticle.transform.rotation = Quaternion.Euler(70, 0, 0);
+        }
+        else
+            reticle.gameObject.SetActive(false);
+
+        RenderSubReticle(autoTarget ? autoTarget.gameObject : null);
+    }
+
+    protected void RenderSubReticle(GameObject target)
+    {
+        if (target)
+        {
+            subReticle.gameObject.SetActive(true);
+            subReticle.transform.position = new Vector3(target.transform.position.x, 0.1f, target.transform.position.z);
+
+            subReticle.transform.localScale = Vector3.one * 0.0075f;
+            if (target.gameObject.GetComponent<Boss>()) subReticle.transform.localScale *= 2.5f;
+
+            subReticle.transform.rotation = Quaternion.Euler(90, 0, 0);
+        }
+        else
+            subReticle.gameObject.SetActive(false);
+    }
+
+    public Vector3 DetermineAttackDirection(InputDevice device)
     {
         Vector3 worldPoint;
         Vector3 depthVec;
         float cameraDistance;
         Vector3 dir;
 
-        if (rangedAutoTarget)
+        if (autoTarget)
         {
-            dir = new Vector3(rangedAutoTarget.gameObject.transform.position.x - owner.transform.position.x, 0,
-                                rangedAutoTarget.gameObject.transform.position.z - owner.transform.position.z).normalized;
+            dir = new Vector3(autoTarget.gameObject.transform.position.x - owner.transform.position.x, 0,
+                                autoTarget.gameObject.transform.position.z - owner.transform.position.z).normalized;
         }
         else
         {

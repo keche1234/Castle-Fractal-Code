@@ -9,7 +9,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected PlayerController player;
     [SerializeField] protected int level; //offset of 0
     [SerializeField] protected float height;
-    protected int bossInterval = 1;
+    protected int bossInterval = 5;
     //[SerializeField] protected ExitDoor exit;
 
     //[Header("Prefabs")]
@@ -42,12 +42,12 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         {
             if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
             {
-                Room r = GetCurrent();
-                Vector3 weaponPos = new Vector3(Random.Range((-r.GetXDimension() + 2) / 2, (r.GetXDimension() - 2) / 2), 1, Random.Range((-r.GetZDimension() + 2) / 2, (r.GetZDimension() - 2) / 2));
-                PickupCW mercy = GenerateWeapon(Random.Range(0, 5), 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+                PickupCW mercy = GenerateWeapon(Random.Range(0, 5));
 
-                mercy.gameObject.transform.position = weaponPos;
-                mercy.gameObject.transform.parent = r.gameObject.transform;
+                List<Vector3> spaces = current.OpenWorldPositions();
+                mercy.transform.position = spaces[Random.Range(0, spaces.Count)];
+                mercy.transform.parent = current.transform;
+
                 spawnWeaponTimer = 0;
             }
             else
@@ -64,7 +64,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         {
             //Select a random boss
             next.SetBossRoom(true);
-            next.SetBossNumber(Random.Range(bossPrefabs.Count - 1, bossPrefabs.Count));
+            next.SetBossNumber(Random.Range(0, bossPrefabs.Count));
         }
         next.GenerateRoom();
 
@@ -424,12 +424,9 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
                 dur = Crossbow.GetBaseDurability();
                 break;
             case 4:
+            default:
                 pow = Tome.GetBasePower();
                 dur = Tome.GetBaseDurability();
-                break;
-            default:
-                pow = 0;
-                dur = 0;
                 break;
         }
 
@@ -442,7 +439,6 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         }
 
         weapon.Initialize(wType, pow, dur, dur, 0, myAbilities, myMods);
-
         return weapon;
     }
 }

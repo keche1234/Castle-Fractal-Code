@@ -12,6 +12,14 @@ public abstract class Enemy : Character
     [SerializeField] protected int appearanceRate;
     [SerializeField] protected int weaponDropType;
     [SerializeField] protected Potion potionDropPrefab;
+
+    protected const float POW_LOW_ROLL_BASE = 0.8f;
+    protected const float POW_HIGH_ROLL_BASE = 1.2f;
+    protected const float POW_LOW_ROLL_GROWTH = 0.2f;
+    protected const float POW_HIGH_ROLL_GROWTH = 0.3f;
+    protected int growthCap;
+    protected const float DP_LOW_ROLL = 0.67f;
+    protected const float DP_HIGH_ROLL = 1.5f;
     protected bool hasItem = false; // will only attempt an item drop if hasItem is true
 
     //[SerializeField] protected int order;
@@ -20,6 +28,7 @@ public abstract class Enemy : Character
     {
         base.Start();
         player = GameObject.Find("Player");
+        growthCap = player.GetComponent<PlayerController>().GetMaxRank() * 2;
     }
 
     // Update is called once per frame
@@ -186,10 +195,6 @@ public abstract class Enemy : Character
 
     protected void DropItem()
     {
-        // Drop a Weapon with probability
-        //  w = (2 - playerInventory%)/appearanceRate
-        // Drop a Potion only if weapon fails, with separate probability
-        //  p = (2 - (w*spawnRate))(% of player Health Lost)/((1/5)(1+Number of Potions))
         PlayerController playerInfo = player.GetComponent<PlayerController>();
         if (playerInfo != null)
         {
@@ -200,7 +205,10 @@ public abstract class Enemy : Character
             float roll = Random.Range(0, 0.9999f);
             if (roll < weaponChance)
             {
-                PickupCW weaponDrop = roomManager.GenerateWeapon(weaponDropType, 4f / 5, 5f / 4, 2f / 3, 3f / 2, true);
+                float powLowRoll = POW_LOW_ROLL_BASE + (POW_LOW_ROLL_GROWTH * Mathf.Min(playerInfo.GetRank(1), growthCap));
+                float powHighRoll = POW_HIGH_ROLL_BASE + (POW_HIGH_ROLL_GROWTH * Mathf.Min(spawnManager.GetBossesDefeated(), growthCap));
+
+                PickupCW weaponDrop = roomManager.GenerateWeapon(weaponDropType, powLowRoll, powHighRoll, DP_LOW_ROLL, DP_HIGH_ROLL, true);
                 weaponDrop.gameObject.transform.position = new Vector3(transform.position.x, 1, transform.position.z);
                 weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
             }

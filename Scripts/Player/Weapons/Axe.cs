@@ -24,19 +24,24 @@ public class Axe : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        if (IsInactive() && owner.GetMeleeAuto())
-        {
-            Enemy target = FindClosestTarget();
-            RenderSubReticle(target ? target.gameObject : null);
-        }
-        else
-            subReticle.gameObject.SetActive(false);
+        RenderReticles(true);
+        FindAutoTarget();
+
+        //if (IsInactive() && owner.GetMeleeAuto())
+        //{
+        //    Enemy target = FindClosestTarget();
+        //    RenderSubReticle(target ? target.gameObject : null);
+        //}
+        //else
+        //    subReticle.gameObject.SetActive(false);
     }
 
     public override IEnumerator Attack(InputDevice device)
     {
         //Auto Aiming
-        GameObject target = MeleeAutoAim();
+        GameObject target = autoTarget ? autoTarget.gameObject : null;
+        owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+        RenderReticles(true);
 
         //Push the axe out
         owner.SetMobile(false);
@@ -152,6 +157,10 @@ public class Axe : Weapon
         owner.OverrideInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2) + 1);
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
+
+        // Auto Aim
+        Vector3 dir = DetermineAttackDirection(device);
+        owner.gameObject.transform.rotation = Quaternion.LookRotation(dir);
 
         //Slowdown time, for dramatic effect
         float tempTime = Time.timeScale;

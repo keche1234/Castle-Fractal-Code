@@ -82,8 +82,6 @@ public abstract class Character : MonoBehaviour
         power = BASE_POWER;
         speed = BASE_SPEED;
 
-        Debug.Log(this + " health set to " + currentHealth + "/" + maxHealth + " in start method");
-
         buffs = new List<List<Buff>>();
         for (int i = 0; i < buffTypes.Length; i++)
             buffs.Add(new List<Buff>());

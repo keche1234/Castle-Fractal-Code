@@ -32,7 +32,7 @@ public class Tome : Weapon
             crisisMod = 1;
 
         RenderReticles(false);
-        FindRangedAutoTarget();
+        FindAutoTarget();
     }
 
     public override IEnumerator Attack(InputDevice device)
@@ -42,7 +42,7 @@ public class Tome : Weapon
         owner.SetAttackState(1);
 
         // Find the magnitude needed for y to be cam.transform.position.y - 1f
-        Vector3 dir = DetermineRangedAttackDirection(device);
+        Vector3 dir = DetermineAttackDirection(device);
 
         // Attack Rate, Range Up
         float rate = CalculateRate();
@@ -53,6 +53,7 @@ public class Tome : Weapon
         //Fire!
         state = ActionState.Active;
         owner.SetAttackState(2);
+
         //Create fireball
         Explosive attack = Instantiate(fireball, owner.gameObject.transform.position + dir + (Vector3.up * 0.5f), Quaternion.LookRotation(dir));
         attack.gameObject.transform.localScale *= range;

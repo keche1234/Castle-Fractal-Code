@@ -25,19 +25,24 @@ public class Spear : Weapon
     // Update is called once per frame
     protected override void Update()
     {
-        if (IsInactive() && owner.GetMeleeAuto())
-        {
-            Enemy target = FindClosestTarget();
-            RenderSubReticle(target ? target.gameObject : null);
-        }
-        else
-            subReticle.gameObject.SetActive(false);
+        RenderReticles(true);
+        FindAutoTarget();
+
+        //if (IsInactive() && owner.GetMeleeAuto())
+        //{
+        //    Enemy target = FindClosestTarget();
+        //    RenderSubReticle(target ? target.gameObject : null);
+        //}
+        //else
+        //    subReticle.gameObject.SetActive(false);
     }
 
     public override IEnumerator Attack(InputDevice device)
     {
         //Auto Aiming
-        GameObject target = MeleeAutoAim();
+        GameObject target = autoTarget ? autoTarget.gameObject : null;
+        owner.transform.rotation = Quaternion.LookRotation(DetermineAttackDirection(device));
+        RenderReticles(true);
 
         //Pull the spear in
         owner.SetMobile(false);
@@ -58,7 +63,7 @@ public class Spear : Weapon
         //Thrust!
         state = ActionState.Active;
         owner.SetAttackState(2);
-        transform.localPosition = new Vector3(0.5f, 0.2f, 1.6f) * range;
+        transform.localPosition = new Vector3(0f, 0.2f, 1.6f) * range;
         transform.localScale *= 2 * range;
 
         mainAttack[0].gameObject.SetActive(true);
@@ -122,6 +127,10 @@ public class Spear : Weapon
         owner.SetSigning(true);
         owner.SetMobile(false);
         owner.SetControllable(false);
+
+        // Auto Aim
+        Vector3 dir = DetermineAttackDirection(device);
+        owner.gameObject.transform.rotation = Quaternion.LookRotation(dir);
 
         //Slowdown time, for dramatic effect
         float tempTime = Time.timeScale;

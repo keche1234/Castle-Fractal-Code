@@ -447,8 +447,8 @@ public class PlayerController : Character
                         Vector3 travelVector = transform.forward;
 
                         // If meleeAuto and starting up or attacking, don't rotate to face movement direction
-                        if (meleeAuto && FindObjectsOfType<Enemy>().Length > 0)
-                        {
+                        //if (meleeAuto && FindObjectsOfType<Enemy>().Length > 0)
+                        //{
                             // Travel vector should be movement vector since the weapon handles the character rotation
                             if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsMelee()
                                 && (weaponTypes[currentWeaponType].IsStarting() || weaponTypes[currentWeaponType].IsAttacking()))
@@ -464,12 +464,12 @@ public class PlayerController : Character
                                 Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
                                 transform.rotation = Quaternion.LookRotation(direction);
                             }
-                        }
-                        else
-                        {
-                            Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
-                            transform.rotation = Quaternion.LookRotation(direction);
-                        }
+                        //}
+                        //else
+                        //{
+                        //    Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                        //    transform.rotation = Quaternion.LookRotation(direction);
+                        //}
 
                         // Actual movement
                         float characterSpeed = speed * Mathf.Max(-0.5f, Mathf.Min((1 + SummationBuffs(3)) * (1 + SummationDebuffs(3)), 1.99f)) * directMults[2];
@@ -1226,15 +1226,16 @@ public class PlayerController : Character
             dodged.Add(h);
 
             int damage;
+            // TODO: Experiment with value
             if (h.gameObject.GetComponent<Explosive>() != null)
             {
-                damage = (int)(h.GetSource().GetPower() * h.GetDamageMod() * 100 / 5);
+                damage = (int)(h.GetSource().GetPower() * 4);
                 Debug.Log(damage);
                 //damage = ((Enemy)h.GetSource()).SimulateDamage(((Explosive)h).GetDamageMod(), this);
             }
             else
             {
-                damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 100 / 5);
+                damage = (int)(((Enemy)h.GetSource()).GetPower() * 4);
             }
             int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
@@ -1389,6 +1390,11 @@ public class PlayerController : Character
         foreach (int rank in ranks)
             total += rank;
         return total;
+    }
+
+    public int GetMaxRank()
+    {
+        return MAX_RANK;
     }
 
     public int GetMaxTotalRank()
