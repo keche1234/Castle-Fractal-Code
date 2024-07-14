@@ -86,8 +86,7 @@ public class Twinotaurs : Boss
         venomRb = venom.GetComponent<Rigidbody>();
 
         numAttacks = 7;
-        //currentAttack = Random.Range(0, 2);
-        currentAttack = 2;
+        currentAttack = Random.Range(0, 2);
         summonCount = 3;
 
         rotateSpeed = Mathf.PI;
@@ -145,7 +144,7 @@ public class Twinotaurs : Boss
         attributesUIVenom.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         attributesUIVenom.GetComponent<UIAttach>().Setup(venom, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -140));
 
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        menuManager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
     }
 
     // Update is called once per frame

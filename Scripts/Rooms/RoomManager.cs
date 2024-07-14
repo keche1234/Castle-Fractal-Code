@@ -23,6 +23,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
 
     [Header("Game Management")]
     [SerializeField] protected SpawnManager spawnManager;
+    protected FloorScoreTimeManager scoreManager;
     [SerializeField] protected PickupCW pickupPrefab;
 
     protected const float MERCY_WEAPON_TIME = 10f;
@@ -33,6 +34,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     {
         level = 0;
         CreateNext();
+        scoreManager = FindObjectOfType<FloorScoreTimeManager>();
     }
 
     // Update is called once per frame
@@ -100,7 +102,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         current.gameObject.transform.Translate(0, -height, 0);
 
         //Game Info
-        level++;
+        scoreManager.SetFloorNum(++level);
 
         //Create the next room
         CreateNext();
@@ -117,12 +119,15 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
             Debug.Log("Instantiated");
             spawnManager.SetBoss(current.GetBoss());
             spawnManager.SetAllDefeated(false);
+            scoreManager.SetEnemyCount(15);
         }
         else
         {
             spawnManager.SetWaveCounts();
             spawnManager.SetBoss(null);
         }
+
+        scoreManager.ResetTime(false);
     }
 
     protected IEnumerator DisablePlayer(float wait)

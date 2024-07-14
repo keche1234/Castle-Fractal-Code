@@ -33,12 +33,12 @@ public class SpawnManager : MonoBehaviour
     //Enemy parameters
     //Growth inidcates a linear increase
     protected const int SPAWN_COUNT_FLOOR = 2;
-    protected const float SPAWN_FLOOR_GROWTH = 0.5f;
-    protected const int SPAWN_FLOOR_CAP = 10;
+    protected const float SPAWN_FLOOR_GROWTH = 0.25f;
+    protected const int SPAWN_FLOOR_CAP = 6;
 
     protected const int SPAWN_COUNT_CEIL = 4;
-    protected const float SPAWN_CEIL_GROWTH = 1;
-    protected const int SPAWN_CEIL_CAP = 20;
+    protected const float SPAWN_CEIL_GROWTH = 0.5f;
+    protected const int SPAWN_CEIL_CAP = 12;
 
     protected const float ENEMY_ATTRIBUTE_CEIL = 1.5f;
     protected const float ENEMY_ATTRIBUTE_GROWTH = 0.5f;
@@ -47,11 +47,12 @@ public class SpawnManager : MonoBehaviour
     protected const float ENEMY_HEALTHPOW_GROWTH = 0.3f;
 
     protected List<int> waveCounts;
-    protected int[] waveBreaks = { 0, 7, 13, 19 }; // Tells you the floor at which to raise the number of waves
+    protected int[] waveBreaks = { 0, 7 }; // Tells you the floor at which to raise the number of waves
 
     [Header("Managers")]
     [SerializeField] protected RoomManager roomManager;
     [SerializeField] protected UpgradeManager upgradeManager;
+    protected FloorScoreTimeManager scoreManager;
     protected PlayerController player;
 
     protected bool spawned = false;
@@ -65,6 +66,7 @@ public class SpawnManager : MonoBehaviour
 
         spawnPosList = new List<Vector3>();
         player = FindObjectOfType<PlayerController>();
+        scoreManager = FindObjectOfType<FloorScoreTimeManager>();
         bossesDefeated = 0;
     }
 
@@ -87,6 +89,7 @@ public class SpawnManager : MonoBehaviour
                 if (waveCounts.Count == 0) //no more waves to spawn
                 {
                     allDefeated = true;
+                    scoreManager.ApplyTimeBonus();
                 }
                 else
                 {
@@ -103,9 +106,10 @@ public class SpawnManager : MonoBehaviour
     public void SetWaveCounts()
     {
         // Calculate number using floor, ceil, and bosses defeated
-        int lowRoll = (int)Mathf.Min(SPAWN_COUNT_FLOOR + (SPAWN_FLOOR_GROWTH * bossesDefeated), SPAWN_FLOOR_CAP);
-        int highRoll = (int)Mathf.Min(SPAWN_COUNT_CEIL + (SPAWN_CEIL_GROWTH * bossesDefeated), SPAWN_CEIL_CAP);
-        int totalSpawnCount = Random.Range(lowRoll, highRoll + 1);
+        float lowRoll = Mathf.Min(SPAWN_COUNT_FLOOR + (SPAWN_FLOOR_GROWTH * bossesDefeated), SPAWN_FLOOR_CAP);
+        float highRoll = Mathf.Min(SPAWN_COUNT_CEIL + (SPAWN_CEIL_GROWTH * bossesDefeated), SPAWN_CEIL_CAP);
+        int totalSpawnCount = (int)(Random.Range(lowRoll, highRoll) + 1 - Random.Range(0.001f, 1));
+        scoreManager.SetEnemyCount(totalSpawnCount);
 
         // Distribute waves based on count
         int numWaves = 0;
@@ -140,7 +144,6 @@ public class SpawnManager : MonoBehaviour
         }
 
         List<Vector3> positions = roomManager.GetCurrent().OpenWorldPositions();
-        Debug.Log(positions.Count);
         int ogPositionCount = positions.Count;
         for (int i = 0; i < Mathf.Min(spawnCount, ogPositionCount); i++)
         {
@@ -219,11 +222,15 @@ public class SpawnManager : MonoBehaviour
 
         if (bossWave && boss == me)
         {
+            scoreManager.ApplyTimeBonus();
+            scoreManager.IncreaseScoreMultiplier();
             allDefeated = true;
             if (!player.IsPlayerMaxRank())
                 upgradeManager.StartCoroutine("StartUpgradeSequence");
             bossesDefeated++;
         }
+        else
+            scoreManager.AddToScore(me.GetPointValue());
     }
 
     public void SetBossInfo(bool b)
@@ -266,9 +273,8 @@ public class SpawnManager : MonoBehaviour
     {
         float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
         boss.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
-        Debug.Log("Set Power to " + boss.GetPower());
 
-        int attributeCeil = (int)Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP);
+        int attributeCeil = (int)(Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP) / 2) + 1;
         int strengthBase = Random.Range(0, 3);
         boss.SetStrength(strengthBase + Random.Range(0, attributeCeil + 1));
         boss.SetDefense(Random.Range(0, 3) + attributeCeil - (int)(boss.GetStrength() - strengthBase));

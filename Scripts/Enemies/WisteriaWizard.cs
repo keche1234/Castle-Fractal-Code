@@ -249,10 +249,12 @@ public class WisteriaWizard : Enemy
         }
 
         //Restore Health
-        if (enemies[lowest].GetComponent<WisteriaWizard>() == null && enemies[lowest].GetComponent<Boss>() == null) //Wisteria Wizards have reduced healing on each other and Bosses
+        if (!enemies[lowest].GetComponent<WisteriaWizard>() && !enemies[lowest].GetComponent<Boss>()) //Wisteria Wizards have reduced healing on each other and Bosses
             enemies[lowest].TakeDamage((int)(power * -4), Vector3.zero);
-        else
+        else if (enemies[lowest].GetComponent<Boss>())
             enemies[lowest].TakeDamage((int)(power * -1), Vector3.zero);
+        else
+            enemies[lowest].TakeDamage(-1, Vector3.zero);
 
         t = 0;
         while (t < 0.1f)

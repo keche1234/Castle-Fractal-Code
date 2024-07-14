@@ -210,11 +210,11 @@ public class PlayerController : Character
      ****************************/
     public void PlayerMainAttack(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused() && controllable)
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !menuManager.IsPaused() && controllable)
         {
             StartCoroutine(PlayerAttackCoroutine(context.control.device));
         }
-        else if ((gameManager.IsPaused() || upgradeManager.IsUpgrading()) && GetActionInputDevice("main attack") == Keyboard.current)
+        else if ((menuManager.IsPaused() || upgradeManager.IsUpgrading()) && GetActionInputDevice("main attack") == Keyboard.current)
         {
             EventSystem.current.currentSelectedGameObject.GetComponent<Button>().onClick.Invoke();
         }
@@ -223,7 +223,7 @@ public class PlayerController : Character
     public IEnumerator PlayerAttackCoroutine(InputDevice device)
     {
         yield return new WaitForSeconds(1f / 60);
-        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused())
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !menuManager.IsPaused())
         {
             if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
             {
@@ -246,7 +246,7 @@ public class PlayerController : Character
 
     public void PlayerRoll(InputAction.CallbackContext context)
     {
-        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && !gameManager.IsPaused() && controllable)
+        if (playerAttack == AttackState.NotAttacking && playerDodge == DodgeState.Available && !menuManager.IsPaused() && controllable)
         {
             StartCoroutine(Dodge());
         }
@@ -254,7 +254,7 @@ public class PlayerController : Character
 
     public void PlayerSignatureAttack(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !gameManager.IsPaused() && controllable) //Make sure the player is alive before they try anything
+        if (playerLife != LifeState.Dead && playerDodge != DodgeState.Dodging && !stunned && !menuManager.IsPaused() && controllable) //Make sure the player is alive before they try anything
         {
             if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsInactive())
             {
@@ -273,7 +273,7 @@ public class PlayerController : Character
 
     public void PlayerScrollInventory(InputAction.CallbackContext context)
     {
-        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused() && controllable)
+        if (playerLife != LifeState.Dead && !stunned && !menuManager.IsPaused() && controllable)
         {
             //Debug.Log(weaponTypes[currentWeaponType].IsInactive());
             if (equippedCustomWeapon >= 0 && !weaponTypes[currentWeaponType].IsInactive())
@@ -315,16 +315,16 @@ public class PlayerController : Character
     {
         if (inventory.Count > 0 && weaponTypes[currentWeaponType].IsInactive()
             && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f)
-            && !gameManager.IsPaused() && controllable)
+            && !menuManager.IsPaused() && controllable)
             StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
     }
 
     public void PlayerInventory(InputAction.CallbackContext context)
     {
-        if (!gameManager.GameIsOver())
+        if (!menuManager.GameIsOver())
         {
-            gameManager.Pause(1);
-            if (!gameManager.IsPaused())
+            menuManager.Pause(1);
+            if (!menuManager.IsPaused())
             {
                 UseAllPotions();
                 for (int i = 0; i < selectedPotions.Count; i++)
@@ -335,9 +335,9 @@ public class PlayerController : Character
 
     public void PlayerPause(InputAction.CallbackContext context)
     {
-        if (!gameManager.GameIsOver() && !upgradeManager.IsUpgrading())
+        if (!menuManager.GameIsOver() && !upgradeManager.IsUpgrading())
         {
-            gameManager.Pause(0);
+            menuManager.Pause(0);
         }
     }
 
@@ -382,7 +382,7 @@ public class PlayerController : Character
                 SetControls(8);
         }
 
-        if (playerLife != LifeState.Dead && !stunned && !gameManager.IsPaused()) //Make sure the player is alive before they try anything
+        if (playerLife != LifeState.Dead && !stunned && !menuManager.IsPaused()) //Make sure the player is alive before they try anything
         {
             /* All or Nothing Abilities*/
             CustomWeapon current = GetCustomWeapon();
@@ -420,11 +420,9 @@ public class PlayerController : Character
             invincibilityTime -= Time.deltaTime;
         else
             invincibilityTime = 0;
-        
-        if (invincibilityTime > 0)
-            invincibilityCover.gameObject.SetActive(true);
-        else
-            invincibilityCover.gameObject.SetActive(false);
+
+        invincibilityCover.gameObject.SetActive(invincibilityTime > 0);
+
 
         if (!spawnManager.AllDefeated())
             ProgressBuffTime();
@@ -449,21 +447,21 @@ public class PlayerController : Character
                         // If meleeAuto and starting up or attacking, don't rotate to face movement direction
                         //if (meleeAuto && FindObjectsOfType<Enemy>().Length > 0)
                         //{
-                            // Travel vector should be movement vector since the weapon handles the character rotation
-                            if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsMelee()
-                                && (weaponTypes[currentWeaponType].IsStarting() || weaponTypes[currentWeaponType].IsAttacking()))
-                            {
-                                travelVector = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
-                            }
-                            else if (GetAttackState() == 1 || GetAttackState() == 2)
-                            {
-                                travelVector = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
-                            }
-                            else
-                            {
-                                Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
-                                transform.rotation = Quaternion.LookRotation(direction);
-                            }
+                        // Travel vector should be movement vector since the weapon handles the character rotation
+                        if (inventory.Count > 0 && equippedCustomWeapon >= 0 && weaponTypes[currentWeaponType].IsMelee()
+                            && (weaponTypes[currentWeaponType].IsStarting() || weaponTypes[currentWeaponType].IsAttacking()))
+                        {
+                            travelVector = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                        }
+                        else if (GetAttackState() == 1 || GetAttackState() == 2)
+                        {
+                            travelVector = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                        }
+                        else
+                        {
+                            Vector3 direction = new Vector3(moveInputVector.x, 0, moveInputVector.y).normalized;
+                            transform.rotation = Quaternion.LookRotation(direction);
+                        }
                         //}
                         //else
                         //{
@@ -598,7 +596,7 @@ public class PlayerController : Character
             if (current.GetAbilities().Contains(index))
             {
                 Ability a = weaponTypes[currentWeaponType].GetComponent<HealthDrain>();
-                TakeDamage((int)Mathf.Floor((damage * ((int)a.GetModifier() << 2) * .01f * -1) - Random.Range(0.001f, 1.000f) + 1.0f), Vector3.zero);
+                TakeDamage((int)Mathf.Floor((damage * 0.2f * a.GetModifier() * -1) - Random.Range(0.001f, 1.000f) + 1.0f), Vector3.zero);
             }
 
             index = System.Array.IndexOf(Ability.GetNames(), "SignatureDrain");
@@ -607,9 +605,9 @@ public class PlayerController : Character
                 if (!signing)
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<SignatureDrain>();
-                    int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 40 : 1);
+                    int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 10 : 1);
                     //Debug.Log(percent);
-                    inventory[equippedCustomWeapon].AddSignature(Mathf.Max(0, (int)(a.GetModifier() * 4 * (percent / 5) * -Random.Range(0.001f, 1.000f) + 1.0f)));
+                    inventory[equippedCustomWeapon].AddSignature(Mathf.Max(0, (int)((a.GetModifier() * 50 * percent) - Random.Range(0.001f, 1f) + 1.0f)));
                     signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
                 }
             }
@@ -898,20 +896,20 @@ public class PlayerController : Character
 
             /********************************************
              * Sheathe Penalty:
-             *   20% Signature Loss
-             *  +30% if the weapon has "All Or Nothing D"
-             *  +50% if the weapon has "All Or Nothing S"
+             *   10% Signature Loss
+             *  +15% if the weapon has "All Or Nothing D"
+             *  +25% if the weapon has "All Or Nothing S"
              ********************************************/
             if (!IsPaused())
             {
-                float sigLoss = 0.2f;
+                float sigLoss = 0.1f;
                 int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
                 if (current.GetAbilities().Contains(place))
-                    sigLoss += 0.3f;
+                    sigLoss += 0.15f;
 
                 place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
                 if (current.GetAbilities().Contains(place))
-                    sigLoss += 0.5f;
+                    sigLoss += 0.25f;
 
                 if (equippedCustomWeapon != num)
                     current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
@@ -1220,7 +1218,7 @@ public class PlayerController : Character
     private float DodgeHelp(RaycastHit hit, List<Hitbox> dodged, float bonus)
     {
         Hitbox h = hit.collider.gameObject.GetComponent<Hitbox>();
-        if (h != null && !dodged.Contains(h))
+        if (h != null && h.GetSource() && !dodged.Contains(h))
         {
             // TODO: Stop multihit dodges
             dodged.Add(h);
@@ -1229,13 +1227,15 @@ public class PlayerController : Character
             // TODO: Experiment with value
             if (h.gameObject.GetComponent<Explosive>() != null)
             {
-                damage = (int)(h.GetSource().GetPower() * 4);
+                damage = (int)(h.GetSource().GetPower());
                 Debug.Log(damage);
                 //damage = ((Enemy)h.GetSource()).SimulateDamage(((Explosive)h).GetDamageMod(), this);
             }
             else
             {
-                damage = (int)(((Enemy)h.GetSource()).GetPower() * 4);
+                damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 10);
+                if (h.GetSource().gameObject.GetComponent<Boss>())
+                    damage *= 4;
             }
             int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
@@ -1331,7 +1331,7 @@ public class PlayerController : Character
      * Attempts to Rank Up either Health, Inventory, or Signature Fill Rate
      ***********************************************************************/
     public void RankUp(int attributeIndex)
-    {        
+    {
         if (ranks[attributeIndex] < MAX_RANK)
         {
             ranks[attributeIndex]++;
@@ -1471,7 +1471,7 @@ public class PlayerController : Character
         rangedAssist = preset.GetRangedAssist();
         scrollSensitivity = preset.GetScrollSensitivity();
 
-        if (GetActionInputDevice("main attack") == Keyboard.current && (gameManager.IsPaused() || upgradeManager.IsUpgrading()))
+        if (GetActionInputDevice("main attack") == Keyboard.current && (menuManager.IsPaused() || upgradeManager.IsUpgrading()))
         {
             Button[] buttons = FindObjectsOfType<Button>();
             int i = 0;
@@ -1539,7 +1539,7 @@ public class PlayerController : Character
 
     public bool IsPaused()
     {
-        return gameManager.IsPaused();
+        return menuManager.IsPaused();
     }
 
     private enum AttackState

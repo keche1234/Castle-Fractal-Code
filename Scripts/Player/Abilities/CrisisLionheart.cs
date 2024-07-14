@@ -94,10 +94,13 @@ public class CrisisLionheart : Ability
 
     public override void Deactivate()
     {
-        for (int i = 0; i < buffs.Count; i++)
+        Debug.Log("HEY! Figure out why " + buffs + " is sometimes null!");
+        if (buffs != null)
         {
-            user.RemoveBuff(buffs[i], attributes[i]);
-            //Object.Destroy(buffs[i]);
+            for (int i = 0; i < buffs.Count; i++)
+            {
+                user.RemoveBuff(buffs[i], attributes[i]);
+            }
         }
         triggered = false;
     }

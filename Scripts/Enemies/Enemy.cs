@@ -12,6 +12,7 @@ public abstract class Enemy : Character
     [SerializeField] protected int appearanceRate;
     [SerializeField] protected int weaponDropType;
     [SerializeField] protected Potion potionDropPrefab;
+    [SerializeField] protected int pointValue;
 
     protected const float POW_LOW_ROLL_BASE = 0.8f;
     protected const float POW_HIGH_ROLL_BASE = 1.2f;
@@ -198,12 +199,12 @@ public abstract class Enemy : Character
         PlayerController playerInfo = player.GetComponent<PlayerController>();
         if (playerInfo != null)
         {
-            float weaponChance = (1 - playerInfo.InventoryPercent()) / appearanceRate;
-            float potionChance = (1 - (weaponChance * appearanceRate)) / (1 + playerInfo.GetPotions().Count);
+            float weaponChance = 2f / appearanceRate;
+            float potionChance = 0.25f;
+            Debug.Log(weaponChance);
 
             // Roll for drop
-            float roll = Random.Range(0, 0.9999f);
-            if (roll < weaponChance)
+            if (Random.Range(0, 0.9999f) < weaponChance)
             {
                 float powLowRoll = POW_LOW_ROLL_BASE + (POW_LOW_ROLL_GROWTH * Mathf.Min(playerInfo.GetRank(1), growthCap));
                 float powHighRoll = POW_HIGH_ROLL_BASE + (POW_HIGH_ROLL_GROWTH * Mathf.Min(spawnManager.GetBossesDefeated(), growthCap));
@@ -212,7 +213,7 @@ public abstract class Enemy : Character
                 weaponDrop.gameObject.transform.position = new Vector3(transform.position.x, 1, transform.position.z);
                 weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
             }
-            else if (roll < potionChance)
+            else if (Random.Range(0, 0.9999f) < potionChance)
             {
                 List<int> potionTypeChance = new List<int>();
 
@@ -237,7 +238,7 @@ public abstract class Enemy : Character
                 foreach (int score in potionTypeChance)
                     potionScore += score;
 
-                roll = Random.Range(0, potionScore);
+                float roll = Random.Range(0, potionScore);
                 int ceil = potionTypeChance[0];
                 for (int i = 0; i < potionTypeChance.Count; i++)
                 {
@@ -245,7 +246,7 @@ public abstract class Enemy : Character
                     {
                         Potion potionDrop = Instantiate(potionDropPrefab, transform.position, Quaternion.Euler(0, 0, 0));
                         potionDrop.SetPotionAttribute(i + 1);
-                        potionDrop.gameObject.transform.parent = roomManager.transform;
+                        potionDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
                         i = potionTypeChance.Count;
                     }
                     else
@@ -253,6 +254,11 @@ public abstract class Enemy : Character
                 }
             }
         }
+    }
+
+    public int GetPointValue()
+    {
+        return pointValue;
     }
 
     //public void AssignOrder(int i)

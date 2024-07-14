@@ -58,6 +58,7 @@ public class UpgradeManager : MonoBehaviour
 
         // Remove Player Control
         player.SetControllable(false);
+        player.OverrideInvincibility(10);
         player.GetComponent<Rigidbody>().velocity *= 0;
 
         foreach (RankUpButton button in upgradeButtons)
@@ -66,7 +67,6 @@ public class UpgradeManager : MonoBehaviour
         // Wait until player is not attacking:
         yield return new WaitUntil(() => player.GetAttackState() == 0 && player.GetCurrentWeaponAttackState() <= 0);
         player.SetControllable(false);
-        player.ResetCurrentWeapon();
 
         player.FullyRestoreHealth();
         // Shrink player, move them to room center, and regrow
@@ -74,6 +74,7 @@ public class UpgradeManager : MonoBehaviour
         {
             player.GetComponent<Rigidbody>().velocity *= 0;
             player.transform.localScale = Vector3.one * (1 - (t / PLAYER_SCALE_TIME));
+            player.OverrideInvincibility(Time.deltaTime * 2);
             yield return null;
         }
         player.transform.localScale = Vector3.zero;
@@ -89,11 +90,13 @@ public class UpgradeManager : MonoBehaviour
             yield return null;
         }
         player.transform.localScale = Vector3.one;
+        player.ResetCurrentWeapon();
         yield return null;
 
         // Grow Buttons to reveal them
         for (int i = 0; i < upgradeButtons.Count; i++)
         {
+            player.OverrideInvincibility(BUTTON_APPEARANCE_DELAY * 2);
             yield return new WaitForSeconds(BUTTON_APPEARANCE_DELAY);
             upgradeButtons[i].gameObject.GetComponent<Button>().enabled = false;
             upgradeButtons[i].gameObject.GetComponent<ButtonColorManipulation>().Select(false);
@@ -134,6 +137,7 @@ public class UpgradeManager : MonoBehaviour
             }
         }
 
+        player.OverrideInvincibility(0);
         yield return null;
     }
 

@@ -40,7 +40,7 @@ public abstract class Character : MonoBehaviour
     [Header("Game Management")]
     [SerializeField] protected SpawnManager spawnManager;
     [SerializeField] protected RoomManager roomManager;
-    [SerializeField] protected GameManager gameManager;
+    [SerializeField] protected MenuManager menuManager;
 
     [Header("General States")]
     [SerializeField] protected bool invincible;
@@ -114,7 +114,7 @@ public abstract class Character : MonoBehaviour
 
         spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         roomManager = GameObject.Find("RoomManager").GetComponent<RoomManager>();
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        menuManager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
         freezeManager = FindObjectOfType<FreezeManager>();
     }
 
