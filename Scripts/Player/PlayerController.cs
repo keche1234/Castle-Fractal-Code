@@ -64,6 +64,7 @@ public class PlayerController : Character
     [SerializeField] protected PickupCW pickupPrefab; //for dropping a weapon
     [SerializeField] protected WeaponButton leftWeaponButtonUI;
     [SerializeField] protected WeaponButton rightWeaponButtonUI;
+    [SerializeField] protected InventoryShoulder inventoryShoulderUI;
 
     //[Header("All Or Nothing Timers")]
     protected float aonDurabilityTimer = 0;
@@ -386,14 +387,15 @@ public class PlayerController : Character
         {
             /* All or Nothing Abilities*/
             CustomWeapon current = GetCustomWeapon();
-            if (current != null && !signing)
+            if (current != null && !signing && !spawnManager.AllDefeated())
             {
                 int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
                 if (current.GetAbilities().Contains(place))
                 {
                     while (aonDurabilityTimer >= 2)
                     {
-                        current.DecrementDurability(-1);
+                        if (current.DecrementDurability(0) < current.GetMaxDurability())
+                            current.DecrementDurability(-1);
                         miniDurabilityBar.SetValue(inventory[equippedCustomWeapon].DecrementDurability(0));
                         aonDurabilityTimer -= 2;
                     }
@@ -784,6 +786,7 @@ public class PlayerController : Character
         currentMP += cw.GetMightPoints();
         inventoryBar.SetValue(currentMP);
         inventoryBar.UpdateAmountTxt(currentMP + "/" + maxMP);
+        inventoryShoulderUI.DrawShoulder(equippedCustomWeapon, ref inventory);
     }
 
     //Returns the equipped custom weapon
@@ -839,6 +842,7 @@ public class PlayerController : Character
         invScrollPos -= 1;
         if (equippedCustomWeapon == inventory.Count) equippedCustomWeapon--;
         SetCustomWeapon(equippedCustomWeapon);
+        inventoryShoulderUI.DrawShoulder(equippedCustomWeapon, ref inventory);
     }
 
     public void RemoveCustomWeapon(int i)
@@ -860,6 +864,7 @@ public class PlayerController : Character
         drop.gameObject.transform.parent = roomManager.GetCurrent().gameObject.transform;
 
         RemoveCustomWeapon(cw);
+        inventoryShoulderUI.DrawShoulder(equippedCustomWeapon, ref inventory);
         yield return null;
     }
 
@@ -965,6 +970,8 @@ public class PlayerController : Character
             leftWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon - 1);
             rightWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon);
         }
+
+        inventoryShoulderUI.DrawShoulder(num, ref inventory);
     }
 
     private void SwitchWeaponType(int t)

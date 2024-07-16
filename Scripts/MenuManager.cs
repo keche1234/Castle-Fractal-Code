@@ -18,15 +18,19 @@ public class MenuManager : MonoBehaviour
 
     [SerializeField] protected PlayerController player;
     [SerializeField] protected GameObject screenBars;
+    [SerializeField] protected GameObject inventoryShoulder;
 
     [Header("Event Manager")]
     [SerializeField] protected EventSystem eventSystem;
+
+    protected FloorScoreTimeManager scoreManager;
 
     // Start is called before the first frame update
     void Start()
     {
         Application.targetFrameRate = 60;
         Cursor.visible = false;
+        scoreManager = FindObjectOfType<FloorScoreTimeManager>();
     }
 
     // Update is called once per frame
@@ -64,6 +68,12 @@ public class MenuManager : MonoBehaviour
                 eventSystem.SetSelectedGameObject(buttons[0].gameObject);
             else
                 eventSystem.SetSelectedGameObject(null);
+
+            if (m > 0)
+            {
+                scoreManager.gameObject.SetActive(false);
+                inventoryShoulder.gameObject.SetActive(false);
+            }
         }
         else //unpause the game!
         {
@@ -75,6 +85,8 @@ public class MenuManager : MonoBehaviour
             eventSystem.SetSelectedGameObject(null);
             foreach (Canvas menu in pauseMenus)
                 menu.gameObject.SetActive(false);
+            scoreManager.gameObject.SetActive(true);
+            inventoryShoulder.gameObject.SetActive(true);
         }
 
         if (paused && m == 2)
