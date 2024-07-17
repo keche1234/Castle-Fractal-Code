@@ -65,6 +65,7 @@ public class PlayerController : Character
     [SerializeField] protected WeaponButton leftWeaponButtonUI;
     [SerializeField] protected WeaponButton rightWeaponButtonUI;
     [SerializeField] protected InventoryShoulder inventoryShoulderUI;
+    [SerializeField] protected WeaponStatsFlash weaponStatsFlash;
 
     //[Header("All Or Nothing Timers")]
     protected float aonDurabilityTimer = 0;
@@ -154,6 +155,9 @@ public class PlayerController : Character
         selectedPotions = new List<bool>();
         for (int i = 0; i < potionCapacity; i++)
             selectedPotions.Add(false);
+
+        weaponStatsFlash.gameObject.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
+        weaponStatsFlash.gameObject.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, 175));
 
         SetCustomWeapon(-1);
         dodgeTrail = GetComponent<TrailRenderer>();
@@ -315,7 +319,9 @@ public class PlayerController : Character
     public void PlayerDropWeapon(InputAction.CallbackContext context)
     {
         if (inventory.Count > 0 && weaponTypes[currentWeaponType].IsInactive()
-            && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 1.5f)
+            && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.forward, 2f)
+            && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), -transform.right, 1f)
+            && !Physics.Raycast(gameObject.transform.position + new Vector3(0f, 0.5f, 0f), transform.right, 1f)
             && !menuManager.IsPaused() && controllable)
             StartCoroutine(DropCustomWeapon(inventory[equippedCustomWeapon]));
     }
@@ -884,8 +890,9 @@ public class PlayerController : Character
 
     public void SetCustomWeapon(int num)
     {
-        CustomWeapon current;
+        CustomWeapon current = null;
         Weapon cType;
+
         //Disable abilities of current weapon
         if (equippedCustomWeapon >= 0 && equippedCustomWeapon < inventory.Count)
         {
@@ -920,6 +927,7 @@ public class PlayerController : Character
                     current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
             }
         }
+
         if (inventory.Count == 0) //no weapons? *megamind face*
         {
             for (int i = 0; i < weaponTypes.Length; i++)
@@ -938,6 +946,7 @@ public class PlayerController : Character
             cType = weaponTypes[currentWeaponType];
             cType.InitializeTransform();
 
+            // Activate Abilities
             for (int i = 0; i < Ability.GetNames().Length; i++)
             {
                 Ability a = (Ability)cType.gameObject.GetComponent(System.Type.GetType(Ability.GetNames()[i]));
@@ -952,6 +961,7 @@ public class PlayerController : Character
                     a.enabled = false;
                 }
             }
+
             miniDurabilityBar.SetMax(current.GetMaxDurability());
             miniDurabilityBar.SetValue(current.DecrementDurability(0));
             signatureBar.SetMax(inventory[equippedCustomWeapon].GetSignatureCap());
@@ -960,6 +970,7 @@ public class PlayerController : Character
         aonDurabilityTimer = 0;
         aonSignatureTimer = 0;
 
+        // UI Elements
         if (equippedCustomWeapon % 2 == 0)
         {
             leftWeaponButtonUI.SetWeaponNumber(equippedCustomWeapon);
@@ -972,6 +983,7 @@ public class PlayerController : Character
         }
 
         inventoryShoulderUI.DrawShoulder(num, ref inventory);
+        weaponStatsFlash.DrawWeaponStatsFlash(current);
     }
 
     private void SwitchWeaponType(int t)

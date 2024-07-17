@@ -419,4 +419,9 @@ public abstract class Weapon : MonoBehaviour
 
         return false;
     }
+
+    public void OnDisable()
+    {
+        reticle.gameObject.SetActive(false);
+    }
 }
