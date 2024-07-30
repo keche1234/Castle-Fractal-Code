@@ -219,4 +219,9 @@ public class Axe : Weapon
     {
         return 30;
     }
+
+    public static int GetSignatureCapacity()
+    {
+        return 400;
+    }
 }

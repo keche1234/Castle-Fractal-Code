@@ -30,6 +30,6 @@ public class RollRecoveryUp : Ability
     new public static void SetMinMaxMods()
     {
         minMod = 0.3f;
-        maxMod = 0.9f;
+        maxMod = 0.8f;
     }
 }

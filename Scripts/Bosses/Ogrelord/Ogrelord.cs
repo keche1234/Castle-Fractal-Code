@@ -89,7 +89,7 @@ public class Ogrelord : Boss
 
         attributesUI.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -140));
-        menuManager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
+        menuManager = GameObject.Find("MenuManager").GetComponent<GameMenuManager>();
     }
 
     // Update is called once per frame

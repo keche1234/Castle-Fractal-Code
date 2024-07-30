@@ -69,6 +69,20 @@ public class ButtonColorManipulation : MonoBehaviour
         Select(!isSelected);
     }
 
+    public void DeselectAll()
+    {
+        ButtonColorManipulation[] allButtonManips = FindObjectsOfType<ButtonColorManipulation>();
+        foreach (ButtonColorManipulation manip in allButtonManips)
+            manip.Select(false);
+    }
+
+    public void DeselectAllOthers()
+    {
+        bool temp = isSelected;
+        DeselectAll();
+        Select(temp);
+    }
+
     public void ActivateColorManipulation(bool b)
     {
         activated = b;
@@ -128,7 +142,7 @@ public class ButtonColorManipulation : MonoBehaviour
      */
     public void whenHeld()
     {
-        
+
     }
 
     /*

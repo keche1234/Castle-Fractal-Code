@@ -144,7 +144,7 @@ public class Twinotaurs : Boss
         attributesUIVenom.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         attributesUIVenom.GetComponent<UIAttach>().Setup(venom, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -140));
 
-        menuManager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
+        menuManager = GameObject.Find("MenuManager").GetComponent<GameMenuManager>();
     }
 
     // Update is called once per frame

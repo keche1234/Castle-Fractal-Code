@@ -78,7 +78,8 @@ public class PlayerController : Character
     [SerializeField] protected List<bool> selectedPotions; //-1 means nothing is selected
     [SerializeField] protected float potionDuration = 20f;
     [SerializeField] protected int potionBuffInt = 3;
-    [SerializeField] protected float potionBuffSpeedSig = 0.3f;
+    [SerializeField] protected float potionBuffSpeed = 0.3f;
+    [SerializeField] protected float potionBuffSig = 0.3f;
     [SerializeField] protected float potionBuffRegen = 0.06f;
     [SerializeField] protected float potionRegenTick = 4;
 
@@ -579,7 +580,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<StrengthDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (2 * a.GetModifier() * damage / targetMax))
+                    if (Random.Range(0, 0.9999f) < (2.5f * a.GetModifier() * damage * bossMod / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -591,7 +592,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<DefenseDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (2 * a.GetModifier() * damage * bossMod / targetMax))
+                    if (Random.Range(0, 0.9999f) < (2.5f * a.GetModifier() * damage * bossMod / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -908,20 +909,20 @@ public class PlayerController : Character
 
             /********************************************
              * Sheathe Penalty:
-             *   10% Signature Loss
-             *  +15% if the weapon has "All Or Nothing D"
-             *  +25% if the weapon has "All Or Nothing S"
+             *   20% Signature Loss
+             *  +25% if the weapon has "All Or Nothing D"
+             *  +30% if the weapon has "All Or Nothing S"
              ********************************************/
             if (!IsPaused())
             {
-                float sigLoss = 0.1f;
+                float sigLoss = 0.2f;
                 int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
                 if (current.GetAbilities().Contains(place))
-                    sigLoss += 0.15f;
+                    sigLoss += 0.25f;
 
                 place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
                 if (current.GetAbilities().Contains(place))
-                    sigLoss += 0.25f;
+                    sigLoss += 0.3f;
 
                 if (equippedCustomWeapon != num)
                     current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
@@ -1090,13 +1091,13 @@ public class PlayerController : Character
                     return true;
                 case 3: // Swift
                     buff = (Buff)ScriptableObject.CreateInstance("Buff");
-                    buff.SetBuff(potionBuffSpeedSig, potionDuration);
+                    buff.SetBuff(potionBuffSpeed, potionDuration);
                     AddBuff(buff, 3);
                     potions.RemoveAt(p);
                     return true;
                 case 4: // Skill
                     buff = (Buff)ScriptableObject.CreateInstance("Buff");
-                    buff.SetBuff(potionBuffSpeedSig, potionDuration);
+                    buff.SetBuff(potionBuffSig, potionDuration);
                     AddBuff(buff, 4);
                     potions.RemoveAt(p);
                     return true;
@@ -1259,19 +1260,19 @@ public class PlayerController : Character
             int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
             {
-                int pity = 1;
-                int index1 = System.Array.IndexOf(Ability.GetNames(), "PityCounter");
-                int index2 = System.Array.IndexOf(Ability.GetNames(), "PitySignature");
+                //int pity = 1;
+                //int index1 = System.Array.IndexOf(Ability.GetNames(), "PityCounter");
+                //int index2 = System.Array.IndexOf(Ability.GetNames(), "PitySignature");
 
                 CustomWeapon current = inventory[equippedCustomWeapon];
-                if (current.GetAbilities().Contains(index1))
-                    pity *= 2;
-                if (current.GetAbilities().Contains(index2))
-                    pity *= 2;
+                //if (current.GetAbilities().Contains(index1))
+                //    pity *= 2;
+                //if (current.GetAbilities().Contains(index2))
+                //    pity *= 2;
 
-                current.AddSignature(pts / pity);
+                current.AddSignature(pts);
                 signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
-                roomManager.GetCurrent().AddSignaturePointsGained(pts / pity);
+                roomManager.GetCurrent().AddSignaturePointsGained(pts);
             }
             return 4 * CalculateDodgeCool();
         }

@@ -37,19 +37,19 @@ public class CustomWeapon : ScriptableObject
         switch (weapon)
         {
             case 0: //Sword
-                signatureCap = 200;
+                signatureCap = Sword.GetSignatureCapacity();
                 break;
             case 1: //Axe
-                signatureCap = 400;
+                signatureCap = Axe.GetSignatureCapacity();
                 break;
             case 2: //Spear
-                signatureCap = 100;
+                signatureCap = Spear.GetSignatureCapacity();
                 break;
             case 3: //Crossbow
-                signatureCap = 300;
+                signatureCap = Crossbow.GetSignatureCapacity();
                 break;
             case 4: //Tome
-                signatureCap = 500;
+                signatureCap = Tome.GetSignatureCapacity();
                 break;
             default:
                 break;

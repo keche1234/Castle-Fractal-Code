@@ -30,6 +30,6 @@ public class AttackRateUp : Ability
     new public static void SetMinMaxMods()
     {
         minMod = 0.15f;
-        maxMod = 0.45f;
+        maxMod = 0.4f;
     }
 }

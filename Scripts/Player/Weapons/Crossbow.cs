@@ -200,4 +200,9 @@ public class Crossbow : Weapon
     {
         return 36;
     }
+
+    public static int GetSignatureCapacity()
+    {
+        return 300;
+    }
 }

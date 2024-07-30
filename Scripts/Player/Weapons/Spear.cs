@@ -203,4 +203,9 @@ public class Spear : Weapon
     {
         return 18;
     }
+
+    public static int GetSignatureCapacity()
+    {
+        return 100;
+    }
 }

@@ -90,6 +90,11 @@ public abstract class Weapon : MonoBehaviour
         return 0;
     }
 
+    public static float GetSignatureCapacity()
+    {
+        return 0;
+    }
+
     /************
      * Attacking
      ************/

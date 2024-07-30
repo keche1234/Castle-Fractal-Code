@@ -14,7 +14,7 @@ public class PitySignature : HealthDrain
         maxMod = 5;
 
         debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
-        debuff.SetBuff(modifier * -9, -1);
+        debuff.SetBuff(-5, -1);
     }
 
     // Update is called once per frame
@@ -26,7 +26,7 @@ public class PitySignature : HealthDrain
             if (triggerCondition)
             {
                 debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
-                debuff.SetBuff(-9, -1);
+                debuff.SetBuff(-5, -1);
                 user.AddDebuff(debuff, attribute);
                 triggered = true;
             }

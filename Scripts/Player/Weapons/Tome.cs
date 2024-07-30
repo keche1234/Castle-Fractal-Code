@@ -147,4 +147,9 @@ public class Tome : Weapon
     {
         return 12;
     }
+
+    public static int GetSignatureCapacity()
+    {
+        return 500;
+    }
 }

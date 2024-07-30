@@ -85,7 +85,7 @@ public class Magestic : Boss
 
         attributesUI.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         attributesUI.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(5, -140));
-        menuManager = GameObject.Find("MenuManager").GetComponent<MenuManager>();
+        menuManager = GameObject.Find("MenuManager").GetComponent<GameMenuManager>();
 
         pyroDegreesToShoot = Mathf.Abs(pyroRotateSpeed / 2) + Random.Range(99f, 144f);
         pyroActive = pyroDegreesToShoot * pyroSpiralShots / Mathf.Abs(pyroRotateSpeed);
