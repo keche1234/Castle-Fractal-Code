@@ -330,6 +330,27 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         m_RebindOverlay?.SetActive(false);
                         m_RebindStopEvent?.Invoke(this, operation);
 
+                        if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/delete")
+                        {
+                            //if (action.bindings[bindingIndex].isPartOfComposite)
+                            //{
+                            //    //TODO: Find the composite
+                            //    int lastCompositeIndex = 0;
+                            //    for (int i = 1; i < bindingIndex; i++)
+                            //    {
+                            //        if (action.bindings[i].isComposite)
+                            //        {
+                            //            lastCompositeIndex = i;
+                            //        }
+                            //    }
+                            //}
+                            //else
+                            //{
+                            action.ApplyBindingOverride(bindingIndex, "--");
+                            CleanUp();
+                            //}
+                        }
+
                         string dupe = CheckDuplicateBindings(action, bindingIndex, currentControlPreset, allCompositeParts);
                         if (dupe != "")
                         {
@@ -354,7 +375,23 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             // If it's a part binding, show the name of the part in the UI.
             var partName = default(string);
             if (action.bindings[bindingIndex].isPartOfComposite)
-                partName = $"Binding '{action.bindings[bindingIndex].name}'. ";
+            {
+                //Debug.Log(action.bindings[bindingIndex - 1].isComposite + " and " + "(" + (bindingIndex + 1 == action.bindings.Count) + " or " + "NOT-" + action.bindings[bindingIndex + 1].isPartOfComposite + ")");
+                
+                // Modifier
+                if (action.bindings[bindingIndex - 1].isComposite
+                    && (bindingIndex + 1 >= action.bindings.Count || action.bindings[bindingIndex + 1].isPartOfComposite)
+                    && (bindingIndex + 2 >= action.bindings.Count || !action.bindings[bindingIndex + 2].isPartOfComposite))
+                {
+                    partName = $"Binding '{action.name}'. ";
+                }
+                else //Part of 2D Vector
+                    partName = $"Binding '{action.bindings[bindingIndex].name}'. ";
+            }
+            else
+            {
+                partName = $"Binding '{action.name}'. ";
+            }
 
             // Bring up rebind overlay, if we have one.
             m_RebindOverlay?.SetActive(true);
@@ -386,6 +423,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             InputBinding newBinding = action.bindings[bindingIndex];
             int currentIndex = -1; //use this to prevent duplicates within composite (if remapping individually)
 
+            //Check Single Bindings
             foreach (InputBinding binding in action.actionMap.bindings)
             {
                 if (binding.action == newBinding.action) // if binding is the new binding we're checking against, ignore
@@ -405,16 +443,52 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     }
                 }
 
-                if (binding.effectivePath == newBinding.effectivePath)
+                // Make sure binding is in the same group as newBinding
+                if (binding.effectivePath == newBinding.effectivePath && binding.groups.Contains(currentGroup) && !binding.isPartOfComposite) //For Signature Moves
                 {
-                    // Make sure binding is in the same group as newBinding
-                    if (binding.groups.Contains(currentGroup))
+                    Debug.Log("Duplicate binding found: " + binding.effectivePath + " (" + binding.action + ") (" + binding.isPartOfComposite + ")");
+                    return binding.action;
+                }
+            }
+
+            // Check against composites
+            //TODO:
+            // - Iterate through actions
+            // - In each action:
+            //   - Iterate through the bindings. If the binding is a composite and part of the same group:
+            //     - If "OneModifier," check the next binding (modifier). If it matches, *that's* where the duplciate is
+            foreach (InputAction act in action.actionMap.actions)
+            {
+                if (act != action)
+                {
+                    for (int i = 0; i < act.bindings.Count; i++)
                     {
-                        Debug.Log("Duplicate binding found: " + newBinding.effectivePath + "(" + binding.action + ")");
-                        return binding.action;
+                        InputBinding actBinding = act.bindings[i];
+                        if (actBinding.isComposite)
+                        {
+                            InputBinding modifier = act.bindings[i + 1];
+                            if (modifier.effectivePath == newBinding.effectivePath && modifier.groups.Contains(currentGroup))
+                            {
+                                Debug.Log("Duplicate binding found in modifier: " + modifier.effectivePath + " (" + modifier.action + ")");
+                                return modifier.action;
+                            }
+                        }
                     }
                 }
             }
+
+            //foreach (InputBinding composite in action.actionMap.bindings)
+            //{
+            //    //
+            //    if (composite.action != newBinding.action)
+            //    {
+            //        if (composite.isComposite && composite.effectivePath == "OneModifier")
+            //        {
+            //            Debug.Log("Action " + composite.action + " is a composite of type " + composite.effectivePath + ".");
+            //            Debug.Log(composite.Matches(newBinding));
+            //        }
+            //    }
+            //}
 
             if (allCompositeParts) // check against all composite parts
             {

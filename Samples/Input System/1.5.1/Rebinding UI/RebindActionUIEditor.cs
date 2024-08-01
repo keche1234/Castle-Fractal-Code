@@ -50,12 +50,16 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 }
 
                 //EditorGUILayout.PropertyField(m_CurrentControlPresetProperty);
-                var newSelectedScheme = EditorGUILayout.Popup(m_ControlSchemeLabel, m_SelectedControlScheme, m_ControlSchemes);
-                if (newSelectedScheme != m_SelectedControlScheme)
+
+                if (m_ControlSchemes != null)
                 {
-                    var schemeId = m_ControlSchemeValues[newSelectedScheme];
-                    m_ControlPresetProperty.stringValue = schemeId;
-                    m_SelectedControlScheme = newSelectedScheme;
+                    var newSelectedScheme = EditorGUILayout.Popup(m_ControlSchemeLabel, m_SelectedControlScheme, m_ControlSchemes);
+                    if (newSelectedScheme != m_SelectedControlScheme)
+                    {
+                        var schemeId = m_ControlSchemeValues[newSelectedScheme];
+                        m_ControlPresetProperty.stringValue = schemeId;
+                        m_SelectedControlScheme = newSelectedScheme;
+                    }
                 }
 
                 var optionsOld = (InputBinding.DisplayStringOptions)m_DisplayStringOptionsProperty.intValue;
@@ -97,8 +101,17 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         {
             var actionReference = (InputActionReference)m_ActionProperty.objectReferenceValue;
             var action = actionReference?.action;
+
+            if (action == null)
+                return;
+
             InputActionAsset asset = action.actionMap?.asset;
 
+            if (asset == null)
+                return;
+
+            if (m_SelectedBindingOption < 0 || m_SelectedBindingOption >= action.bindings.Count)
+                return;
 
             string[] possibleGroups = action.bindings[m_SelectedBindingOption].groups.Split(InputBinding.Separator)
                                 .Select(x => asset.controlSchemes.FirstOrDefault(c => c.bindingGroup == x).name).ToArray();
@@ -111,7 +124,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             
             for (int i = 0; i < possibleGroups.Length; i++)
             {
-                Debug.Log(possibleGroups[i]);
+                //Debug.Log(possibleGroups[i]);
                 //Debug.Log(controlSchemes[i].bindingGroup);
                 m_ControlSchemes[i] = new GUIContent(possibleGroups[i]);
                 m_ControlSchemeValues[i] = possibleGroups[i];
