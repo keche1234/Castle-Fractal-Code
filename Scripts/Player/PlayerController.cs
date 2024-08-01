@@ -172,15 +172,21 @@ public class PlayerController : Character
         // Initialize Controls
         inputActions = new PlayerInputActions();
         controlSchemes = new List<string>();
-        controlSchemes.Add(inputActions.KeyboardMouseScheme.bindingGroup);
-        controlSchemes.Add(inputActions.KeyboardOnlyScheme.bindingGroup);
-        controlSchemes.Add(inputActions.LeftHandedScheme.bindingGroup);
-        controlSchemes.Add(inputActions.RightHandedScheme.bindingGroup);
-        controlSchemes.Add(inputActions.Custom1Scheme.bindingGroup);
-        controlSchemes.Add(inputActions.Custom2Scheme.bindingGroup);
-        controlSchemes.Add(inputActions.Custom3Scheme.bindingGroup);
-        controlSchemes.Add(inputActions.Custom4Scheme.bindingGroup);
-        controlSchemes.Add(inputActions.Custom5Scheme.bindingGroup);
+
+        for (int i = 0; i < inputActions.asset.controlSchemes.Count; i++)
+        {
+            controlSchemes.Add(inputActions.asset.controlSchemes[i].bindingGroup);
+        }
+
+        //controlSchemes.Add(inputActions._1KeyboardMouseScheme.bindingGroup);
+        //controlSchemes.Add(inputActions._2KeyboardOnlyScheme.bindingGroup);
+        //controlSchemes.Add(inputActions._3LeftHandedScheme.bindingGroup);
+        //controlSchemes.Add(inputActions._4RightHandedScheme.bindingGroup);
+        //controlSchemes.Add(inputActions._5Custom1Scheme.bindingGroup);
+        //controlSchemes.Add(inputActions._6Custom2Scheme.bindingGroup);
+        //controlSchemes.Add(inputActions._7Custom3Scheme.bindingGroup);
+        //controlSchemes.Add(inputActions._8Custom4Scheme.bindingGroup);
+        //controlSchemes.Add(inputActions._9Custom5Scheme.bindingGroup);
 
         inputActions.Player.Enable();
         inputActions.Menus.Enable();
@@ -793,7 +799,9 @@ public class PlayerController : Character
         currentMP += cw.GetMightPoints();
         inventoryBar.SetValue(currentMP);
         inventoryBar.UpdateAmountTxt(currentMP + "/" + maxMP);
-        inventoryShoulderUI.DrawShoulder(equippedCustomWeapon, ref inventory);
+        
+        if (equippedCustomWeapon >= 0 && equippedCustomWeapon < inventory.Count)
+            inventoryShoulderUI.DrawShoulder(equippedCustomWeapon, ref inventory);
     }
 
     //Returns the equipped custom weapon
@@ -1544,7 +1552,7 @@ public class PlayerController : Character
                 Debug.LogError("Please check the spelling for requested action \"" + s + "\".");
                 return null;
         }
-        return act.controls[0].device;
+        return act.controls.ToArray().Length > 0 ? act.controls[0].device : null;
     }
 
     public bool GetMeleeAuto()
