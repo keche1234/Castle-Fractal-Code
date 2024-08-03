@@ -6,11 +6,19 @@ using UnityEngine.InputSystem.Samples.RebindUI;
 
 public class ControlPresetsMainMenu : MonoBehaviour
 {
-    [SerializeField] protected List<RebindActionUI> buttons;
-    [SerializeField] protected List<ControlPresetSettings> presets;
-    [SerializeField] protected PlayerInputActions inputActions;
-    protected int currentScheme = 0;
+    //[SerializeField] protected RebindActionUI upButton;
+    //[SerializeField] protected RebindActionUI downButton;
+    //[SerializeField] protected RebindActionUI leftButton;
+    //[SerializeField] protected RebindActionUI rightButton;
+    //[SerializeField] protected RebindActionUI signatureButton;
+    //[SerializeField] protected List<RebindActionUI> buttons;
+    //[SerializeField] protected List<ControlPresetSettings> presets;
+
+    [SerializeField] protected List<ControlPresetUI> presetList;
+    protected PlayerInputActions inputActions;
+    protected int currentPresent = 0;
     protected int clipboard = -1;
+    protected List<InputAction> actions;
 
     // Start is called before the first frame update
     void Start()
@@ -24,51 +32,55 @@ public class ControlPresetsMainMenu : MonoBehaviour
         
     }
 
+    private void Awake()
+    {
+        inputActions = new PlayerInputActions();
+
+        actions = new List<InputAction>();
+        actions.Add(inputActions.Player.Move);
+        actions.Add(inputActions.Player.MainAttack);
+        actions.Add(inputActions.Player.Roll);
+        actions.Add(inputActions.Player.SignatureAttack);
+        actions.Add(inputActions.Player.ScrollInventory);
+        actions.Add(inputActions.Player.DropWeapon);
+        actions.Add(inputActions.Player.Inventory);
+        actions.Add(inputActions.Player.Pause);
+    }
+
     public void SetCurrentControlScheme(int i)
     {
-        if (i >= 0 || i < presets.Count)
-            currentScheme = i;
+        if (i >= 0 || i < presetList.Count)
+            currentPresent = i;
 
-        //TODO: For each button, change the binding and control scheme
+        foreach (ControlPresetUI preset in presetList)
+            preset.gameObject.SetActive(false);
+
+        presetList[currentPresent].gameObject.SetActive(true);
     }
 
     public void CopyControlScheme()
     {
-        clipboard = currentScheme;
+        clipboard = currentPresent;
     }
 
     public void PasteControlScheme()
     {
         if (clipboard > -1)
         {
-            string bindingToPaste = inputActions.Player.Move.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.Move.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
+            string bindingToPaste;
+            foreach (InputAction action in actions)
+            {
+                bindingToPaste = action.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
+                action.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentPresent].name);
+            }
 
-            bindingToPaste = inputActions.Player.MainAttack.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.MainAttack.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
-
-            bindingToPaste = inputActions.Player.Roll.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.Roll.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
-
-            bindingToPaste = inputActions.Player.SignatureAttack.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.SignatureAttack.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
-
-            bindingToPaste = inputActions.Player.ScrollInventory.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.ScrollInventory.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
-
-            bindingToPaste = inputActions.Player.DropWeapon.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.DropWeapon.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
-
-            bindingToPaste = inputActions.Player.Inventory.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.Inventory.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
-
-            bindingToPaste = inputActions.Player.Pause.GetBindingDisplayString(0, inputActions.controlSchemes[clipboard].name);
-            inputActions.Player.Pause.ApplyBindingOverride(bindingToPaste, inputActions.controlSchemes[currentScheme].name);
+            presetList[currentPresent].PastePresetSettings(presetList[clipboard].GetPresetSettings());
         }
     }
 
     public void ResetControlScheme()
     {
+        List<RebindActionUI> buttons = presetList[currentPresent].GetButtons();
         foreach (RebindActionUI button in buttons)
             button.ResetToDefault();
     }

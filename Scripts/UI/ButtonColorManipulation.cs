@@ -163,4 +163,34 @@ public class ButtonColorManipulation : MonoBehaviour
 
         isSelected = false;
     }
+
+    /// <summary>
+    /// Prevents the user from clicking this button, and disables button color manipulation
+    /// </summary>
+    public void LockButton()
+    {
+        ActivateColorManipulation(false);
+        GetComponent<Image>().color = isoColorImage;
+        button.enabled = false;
+    }
+
+    /// <summary>
+    /// Prevents the user from clicking this button, and disables button color manipulation
+    /// </summary>
+    public void LockButton(Color emptyColor)
+    {
+        ActivateColorManipulation(false);
+        GetComponent<Image>().color = emptyColor;
+        button.enabled = false;
+    }
+
+    /// <summary>
+    /// Allows the user to click this button, and enables button color manipulation
+    /// </summary>
+    public void UnlockButton()
+    {
+        button.enabled = true;
+        ActivateColorManipulation(true);
+        GetComponent<Image>().color = Color.white;
+    }
 }

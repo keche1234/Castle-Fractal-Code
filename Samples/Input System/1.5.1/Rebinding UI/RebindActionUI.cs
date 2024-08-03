@@ -281,8 +281,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (!ResolveActionAndBinding(out var action, out var bindingIndex))
                 return;
 
-            Debug.Log("Binding Index: " + bindingIndex);
-
             // If the binding is a composite, we need to rebind each part in turn.
             if (action.bindings[bindingIndex].isComposite)
             {
@@ -311,7 +309,9 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
             // Configure the rebind.
             m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
-                .WithExpectedControlType("axis")
+                //.WithExpectedControlType("axis")
+                //.WithExpectedControlType("mouse")
+                //.WithExpectedControlType("keyboard")
                 .WithCancelingThrough("<Keyboard>/escape")
                 .WithBindingGroup(currentControlPreset)
                 .OnCancel(
@@ -328,27 +328,11 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     {
                         action.Enable();
                         m_RebindOverlay?.SetActive(false);
-                        m_RebindStopEvent?.Invoke(this, operation);
 
                         if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/delete")
                         {
-                            //if (action.bindings[bindingIndex].isPartOfComposite)
-                            //{
-                            //    //TODO: Find the composite
-                            //    int lastCompositeIndex = 0;
-                            //    for (int i = 1; i < bindingIndex; i++)
-                            //    {
-                            //        if (action.bindings[i].isComposite)
-                            //        {
-                            //            lastCompositeIndex = i;
-                            //        }
-                            //    }
-                            //}
-                            //else
-                            //{
                             action.ApplyBindingOverride(bindingIndex, "--");
-                            CleanUp();
-                            //}
+                            CleanUp();   
                         }
 
                         string dupe = CheckDuplicateBindings(action, bindingIndex, currentControlPreset, allCompositeParts);
@@ -370,6 +354,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                             if (nextBindingIndex < action.bindings.Count && action.bindings[nextBindingIndex].isPartOfComposite)
                                 PerformInteractiveRebind(action, nextBindingIndex, true);
                         }
+                        m_RebindStopEvent?.Invoke(this, operation);
                     });
 
             // If it's a part binding, show the name of the part in the UI.
@@ -452,7 +437,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             }
 
             // Check against composites
-            //TODO:
             // - Iterate through actions
             // - In each action:
             //   - Iterate through the bindings. If the binding is a composite and part of the same group:

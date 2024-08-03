@@ -393,7 +393,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Custom 1;Custom 2;Custom 3;Custom 4;Custom 5"",
+                    ""groups"": ""Custom 1;Custom 2;Custom 3;Custom 4;Custom 5;Left-Handed;Right-Handed"",
                     ""action"": ""Scroll Inventory"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
