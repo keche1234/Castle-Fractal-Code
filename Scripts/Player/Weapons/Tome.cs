@@ -133,7 +133,7 @@ public class Tome : Weapon
         reticle.gameObject.SetActive(true);
     }
 
-    void OnDisable()
+    new void OnDisable()
     {
         reticle.gameObject.SetActive(false);
     }
@@ -148,7 +148,7 @@ public class Tome : Weapon
         return 12;
     }
 
-    public static int GetSignatureCapacity()
+    public new static int GetSignatureCapacity()
     {
         return 500;
     }

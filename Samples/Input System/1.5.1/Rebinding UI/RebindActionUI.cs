@@ -56,6 +56,18 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             }
         }
 
+        /// <summary>
+        /// A list of binding indexes that this button can share controls with
+        /// </summary>
+        public List<string> permittedBindingDuplicates
+        {
+            get => m_PermittedBindingDuplicates;
+            set
+            {
+
+            }
+        }
+
         public InputBinding.DisplayStringOptions displayStringOptions
         {
             get => m_DisplayStringOptions;
@@ -307,12 +319,14 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             //disable the action before use to prevent errors
             action.Disable();
 
+            //store old action path
+            string oldPath = action.bindings[bindingIndex].effectivePath;
+
             // Configure the rebind.
             m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
-                //.WithExpectedControlType("axis")
-                //.WithExpectedControlType("mouse")
-                //.WithExpectedControlType("keyboard")
                 .WithCancelingThrough("<Keyboard>/escape")
+                .WithControlsExcluding("<Mouse>/scroll/y")
+                //.WithExpectedControlType("axis")
                 .WithBindingGroup(currentControlPreset)
                 .OnCancel(
                     operation =>
@@ -335,19 +349,32 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                             CleanUp();   
                         }
 
-                        string dupe = CheckDuplicateBindings(action, bindingIndex, currentControlPreset, allCompositeParts);
-                        if (dupe != "")
+                        for (int i = 0; i < 10; i++)
                         {
-                            InputAction oldAction = action.actionMap.FindAction(dupe);
-                            oldAction.ApplyBindingOverride("--", currentControlPreset);
+                            if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/" + i.ToString()
+                                || action.bindings[bindingIndex].effectivePath == "<Keyboard>/numpad" + i.ToString())
+                            {
+                                action.ApplyBindingOverride(bindingIndex, oldPath);
+                                PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
+                                return;
+                            }
+                        }
+
+                        (string, int) dupe = CheckDuplicateBindings(action, bindingIndex, currentControlPreset, allCompositeParts);
+                        if (dupe.Item1 != "")
+                        {
+                            InputAction oldAction = action.actionMap.FindAction(dupe.Item1);
+                            if (dupe.Item2 > -1)
+                                oldAction.ApplyBindingOverride(dupe.Item2, "--");
+                            else
+                                oldAction.ApplyBindingOverride("--");
                             CleanUp();
                         }
 
                         UpdateBindingDisplay();
                         CleanUp();
 
-                        // If there's more composite parts we should bind, initiate a rebind
-                        // for the next part.
+                        // If there's more composite parts we should bind, initiate a rebind for the next part.
                         if (allCompositeParts)
                         {
                             var nextBindingIndex = bindingIndex + 1;
@@ -403,15 +430,14 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         /// Checks if any other actions are mapped to the same button as the `action` `bindingIndex` pair in this control scheme,
         /// And returns the action that is causing conflict
         ///</summary>
-        private string CheckDuplicateBindings(InputAction action, int bindingIndex, string currentGroup, bool allCompositeParts = false)
+        private (string, int) CheckDuplicateBindings(InputAction action, int bindingIndex, string currentGroup, bool allCompositeParts = false)
         {
             InputBinding newBinding = action.bindings[bindingIndex];
             int currentIndex = -1; //use this to prevent duplicates within composite (if remapping individually)
 
-            //Check Single Bindings
             foreach (InputBinding binding in action.actionMap.bindings)
             {
-                if (binding.action == newBinding.action) // if binding is the new binding we're checking against, ignore
+                if (binding.action == newBinding.action) // if binding is the new binding we're checking against:
                 {
                     currentIndex++;
                     if (binding.isPartOfComposite && currentIndex != bindingIndex) // Need to check against other buttons in composite
@@ -419,74 +445,47 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         if (binding.effectivePath == newBinding.effectivePath && binding.groups.Contains(currentGroup))
                         {
                             Debug.Log("Duplicate binding found in composite: " + newBinding.effectivePath);
-                            return binding.action;
+                            return (binding.action, currentIndex);
                         }
                     }
-                    else
+                    else // Single binding, or same part of composite
                     {
                         continue;
                     }
                 }
 
-                // Make sure binding is in the same group as newBinding
-                if (binding.effectivePath == newBinding.effectivePath && binding.groups.Contains(currentGroup) && !binding.isPartOfComposite) //For Signature Moves
-                {
-                    Debug.Log("Duplicate binding found: " + binding.effectivePath + " (" + binding.action + ") (" + binding.isPartOfComposite + ")");
-                    return binding.action;
-                }
-            }
+                // Make sure binding is in the same group as newBinding (TODO: Composites get funky)
+                //TODO: Allow main attack to share binding with Signature's binding if in Combo
 
-            // Check against composites
-            // - Iterate through actions
-            // - In each action:
-            //   - Iterate through the bindings. If the binding is a composite and part of the same group:
-            //     - If "OneModifier," check the next binding (modifier). If it matches, *that's* where the duplciate is
-            foreach (InputAction act in action.actionMap.actions)
-            {
-                if (act != action)
+                if (binding.effectivePath == newBinding.effectivePath && binding.groups.Contains(currentGroup)) //For Signature Moves
                 {
-                    for (int i = 0; i < act.bindings.Count; i++)
+                    if (!permittedBindingDuplicates.Contains(binding.id.ToString()))
                     {
-                        InputBinding actBinding = act.bindings[i];
-                        if (actBinding.isComposite)
-                        {
-                            InputBinding modifier = act.bindings[i + 1];
-                            if (modifier.effectivePath == newBinding.effectivePath && modifier.groups.Contains(currentGroup))
-                            {
-                                Debug.Log("Duplicate binding found in modifier: " + modifier.effectivePath + " (" + modifier.action + ")");
-                                return modifier.action;
-                            }
-                        }
+                        Debug.Log("Duplicate binding found: " + binding.effectivePath + " (" + binding.action + ")");
+                        int mapIndex = action.actionMap.GetBindingIndex(binding);
+                        InputAction oldAction = action.actionMap.FindAction(action.actionMap.bindings[mapIndex].action);
+                        return (binding.action, oldAction.GetBindingIndex(binding));
+                    }
+                    else
+                    {
+                        Debug.Log("Duplicate binding found but ALLOWED: " + binding.effectivePath + " (" + binding.action + ")");
                     }
                 }
             }
 
-            //foreach (InputBinding composite in action.actionMap.bindings)
-            //{
-            //    //
-            //    if (composite.action != newBinding.action)
-            //    {
-            //        if (composite.isComposite && composite.effectivePath == "OneModifier")
-            //        {
-            //            Debug.Log("Action " + composite.action + " is a composite of type " + composite.effectivePath + ".");
-            //            Debug.Log(composite.Matches(newBinding));
-            //        }
-            //    }
-            //}
-
-            if (allCompositeParts) // check against all composite parts
+            if (allCompositeParts) // check against all composite parts if rebinding composite as a whole
             {
                 for (int i = 1; i < bindingIndex; i++)
                 {
                     if (action.bindings[i].effectivePath == newBinding.overridePath && action.bindings[i].groups.Contains(currentGroup))
                     {
                         Debug.Log("Duplicate binding found: " + newBinding.overridePath);
-                        return action.bindings[i].action;
+                        return (action.bindings[i].action, i);
                     }
                 }
             }
 
-            return "";
+            return ("", -1);
         }
 
         protected void OnEnable()
@@ -549,6 +548,10 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         [SerializeField]
         private string m_BindingId;
+
+        [Tooltip("Bindings that, if you set this action to the same control, will permit duplicates. This permission is one way.")]
+        [SerializeField]
+        private List<string> m_PermittedBindingDuplicates;
 
         [SerializeField]
         private InputBinding.DisplayStringOptions m_DisplayStringOptions;

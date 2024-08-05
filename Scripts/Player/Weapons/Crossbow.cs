@@ -186,7 +186,7 @@ public class Crossbow : Weapon
         reticle.gameObject.SetActive(true);
     }
 
-    void OnDisable()
+    new void OnDisable()
     {
         reticle.gameObject.SetActive(false);
     }
@@ -201,7 +201,7 @@ public class Crossbow : Weapon
         return 36;
     }
 
-    public static int GetSignatureCapacity()
+    public new static int GetSignatureCapacity()
     {
         return 300;
     }

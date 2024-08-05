@@ -11,6 +11,10 @@ public class ControlPresetUI : MonoBehaviour
     [Range(0, 8)]
     [SerializeField] protected int controlSchemeIndex;
     [SerializeField] protected ControlPresetSettings settings;
+    [SerializeField] protected bool isDefaultPreset;
+    protected ControlPresetSettings.MeleeAim defaultMeleeAim;
+    protected (ControlPresetSettings.RangedAim, int) defaultRangedAim;
+    protected ControlPresetSettings.SignatureActivation defaultSignatureActivation;
 
     [Header("Action Buttons")]
     [SerializeField] protected List<RebindActionUI> buttons;
@@ -35,6 +39,9 @@ public class ControlPresetUI : MonoBehaviour
     private void Awake()
     {
         inputActions = new PlayerInputActions();
+        defaultMeleeAim = settings.GetMeleeAim();
+        defaultRangedAim = (settings.GetRangedAim(), settings.GetRangedAssist());
+        defaultSignatureActivation= settings.GetSignatureActivationMode();
     }
 
     // Start is called before the first frame update
@@ -59,6 +66,11 @@ public class ControlPresetUI : MonoBehaviour
         return inputActions.controlSchemes[controlSchemeIndex].name;
     }
 
+    public bool IsDefaultPreset()
+    {
+        return isDefaultPreset;
+    }
+
     /*****************************
      * CONTROL SETTINGS FUNCTIONS
      *****************************/
@@ -67,10 +79,74 @@ public class ControlPresetUI : MonoBehaviour
         return settings;
     }
 
+    public string GetBindingPathForAction(string actionName, int actionIndex = 0)
+    {
+        foreach (RebindActionUI button in buttons)
+        {
+            InputAction action = button.actionReference.action;
+            if (action.name == actionName)
+            {
+                int startIndex = action.GetBindingIndex(GetControlSchemeName());
+                if (startIndex + actionIndex < 0 || startIndex + actionIndex >= action.bindings.Count)
+                {
+                    Debug.LogError("Action Index of " + actionIndex + " takes you out of range of the bindings!");
+                    return "";
+                }
+
+                if (!action.bindings[startIndex + actionIndex].groups.Contains(GetControlSchemeName()))
+                    Debug.LogWarning("You are accessing a binding beyond the control scheme of this ControlPresetUI object.");
+
+                return action.bindings[startIndex + actionIndex].effectivePath;
+            }
+        }
+        Debug.LogError("No action named " + actionName + " found!");
+        return "";
+    }
+
+    public void OverrideBindingPathForAction(string actionName, string newPath, int actionIndex = 0)
+    {
+        foreach (RebindActionUI button in buttons)
+        {
+            InputAction action = button.actionReference.action;
+            if (action.name == actionName)
+            {
+                int startIndex = action.GetBindingIndex(GetControlSchemeName());
+
+                if (startIndex + actionIndex < 0 || startIndex + actionIndex >= action.bindings.Count)
+                {
+                    Debug.LogError("Action Index of " + actionIndex + " takes you out of range of the bindings!");
+                    return;
+                }
+
+                if (!action.bindings[startIndex + actionIndex].groups.Contains(GetControlSchemeName()))
+                    Debug.LogWarning("You are accessing a binding beyond the control scheme of this ControlPresetUI object.");
+
+                action.ApplyBindingOverride(startIndex + actionIndex, newPath);
+                return;
+            }
+        }
+    }
+
+    public bool SignatureIsComposite(bool returnOnFail)
+    {
+        foreach (RebindActionUI button in buttons)
+        {
+            InputAction action = button.actionReference.action;
+            if (action.name == "Signature Attack")
+            {
+                int startIndex = action.GetBindingIndex(GetControlSchemeName());
+                return action.bindings[startIndex].isPartOfComposite;
+            }
+        }
+        Debug.LogError("Could not find Signature Attack button in Control Preset " + this);
+        return returnOnFail;
+    }
+
     public void PastePresetSettings(ControlPresetSettings source)
     {
         settings.SetMeleeAim(source.GetMeleeAim());
         meleeAimText.text = settings.GetMeleeAimString();
+        CheckMeleeArrows();
 
         settings.SetRangedAim(source.GetRangedAim(), source.GetRangedAssist());
         rangedAimText.text = settings.GetRangedAimString();
@@ -79,6 +155,22 @@ public class ControlPresetUI : MonoBehaviour
         settings.SetSignatureActivationMode(source.GetSignatureActivationMode());
         signatureActivationText.text = settings.GetSigActivationString();
         UpdateSignatureActivation();
+        CheckSignatureArrows();
+    }
+
+    public void ResetSettingsToDefault()
+    {
+        settings.SetMeleeAim(defaultMeleeAim);
+        meleeAimText.text = settings.GetMeleeAimString();
+        CheckMeleeArrows();
+
+        settings.SetRangedAim(defaultRangedAim.Item1, defaultRangedAim.Item2);
+        rangedAimText.text = settings.GetRangedAimString();
+        CheckRangeAssist();
+
+        settings.SetSignatureActivationMode(defaultSignatureActivation);
+        signatureActivationText.text = settings.GetSigActivationString();
+        CheckSignatureArrows();
     }
 
     /*******************************/
@@ -101,8 +193,22 @@ public class ControlPresetUI : MonoBehaviour
         meleeRight.UnlockButton();
     }
 
-    /*******************************/
+    protected void CheckMeleeArrows()
+    {
+        switch (settings.GetMeleeAim())
+        {
+            case ControlPresetSettings.MeleeAim.Manual:
+                meleeLeft.LockButton();
+                meleeRight.UnlockButton();
+                break;
+            default:
+                meleeLeft.UnlockButton();
+                meleeRight.LockButton();
+                break;
+        }
+    }
 
+    /*******************************/
     public void IncrementRangedAim()
     {
         settings.IncrementRangedAim();
@@ -139,7 +245,6 @@ public class ControlPresetUI : MonoBehaviour
     }
 
     /*******************************/
-
     public void IncrementSignatureActivation()
     {
         settings.IncrementSignatureActivation();
@@ -158,11 +263,6 @@ public class ControlPresetUI : MonoBehaviour
         sigLeft.LockButton();
         sigRight.UnlockButton();
     }
-
-    //public void UpdateSignatureActivation()
-    //{
-    //    //TODO: Use the buttons tied to signature and main attack to adjust
-    //}
 
     public void UpdateSignatureActivation()
     {
@@ -185,107 +285,60 @@ public class ControlPresetUI : MonoBehaviour
                     signatureButton = button;
             }
 
-            for (int i = 0; i < signatureButton.actionReference.action.bindings.Count; i++)
-            {
-                Debug.Log(i + ") " + signatureButton.actionReference.action.bindings[i]);
-            }
-            Debug.Log("**************");
-
             if (signatureButton != null)
             {
                 InputAction sigAction = signatureButton.actionReference.action;
-                int startIndex = sigAction.GetBindingIndex(controlSchemeName);
+                int startIndex = sigAction.GetBindingIndex(InputBinding.MaskByGroup(controlSchemeName));
+
                 if (settings.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Simple)
                 {
-                    Debug.Log("Starting (" + startIndex + "): " + sigAction.bindings[startIndex].effectivePath + " + " + sigAction.bindings[startIndex + 1].effectivePath);
-                    if (sigAction.bindings[startIndex].effectivePath != "") // There's a "true" composite here
+                    //Debug.Log("Starting (" + startIndex + "): " + sigAction.bindings[startIndex].effectivePath + " + " + sigAction.bindings[startIndex + 1].effectivePath);
+                    if (sigAction.bindings[startIndex].effectivePath != "") // There's a "true" composite here (just changed from Combo)
                     {
-                        Debug.Log("Make a new \"composite\" that's really just a button press.");
-
-                        //TODO: Figure out how to apply override only to specific control scheme!
-                        sigAction.ApplyBindingOverride(startIndex + 1, sigAction.bindings[startIndex].effectivePath);
+                        string newOverride = sigAction.bindings[startIndex].effectivePath;
                         sigAction.ApplyBindingOverride(startIndex, "");
+                        sigAction.ApplyBindingOverride(startIndex + 1, newOverride);
                         signatureButton.bindingId = sigAction.bindings[startIndex + 1].id.ToString();
 
-                        Debug.Log("New path: " + sigAction.bindings[startIndex].overridePath + " + " + sigAction.bindings[startIndex + 1].overridePath);
+                        if (attackButton != null)
+                            attackButton.permittedBindingDuplicates.Remove(sigAction.bindings[startIndex + 1].id.ToString());
                     }
                 }
                 else
                 {
                     if (attackButton != null)
                     {
-                        InputAction mainAction = attackButton.actionReference.action;
-                        if (sigAction.bindings[startIndex].effectivePath == "") //Changing from simple
-                        {
-                            //TODO: Figure out how to apply override only to specific control scheme!
+                        InputAction attackAction = attackButton.actionReference.action;
+                        int attackIndex = attackAction.GetBindingIndex(InputBinding.MaskByGroup(controlSchemeName));
 
-                            Debug.Log("Changing from simple to combo (" + startIndex + "). Path is " + sigAction.bindings[startIndex + 1].effectivePath);
-                            sigAction.ApplyBindingOverride(startIndex, sigAction.bindings[startIndex + 1].effectivePath);
-                            sigAction.ApplyBindingOverride(startIndex + 1, mainAction.bindings[mainAction.GetBindingIndex(controlSchemeName)].effectivePath);
+                        string attackPath = attackAction.bindings[attackIndex].effectivePath;
+                        if (sigAction.bindings[startIndex].effectivePath == "") //Changing from simple to combo (there's an "incomplete" composite here)
+                        {
+                            string signaturePath = sigAction.bindings[startIndex + 1].effectivePath;
+                            sigAction.ApplyBindingOverride(startIndex, signaturePath);
+                            sigAction.ApplyBindingOverride(startIndex + 1, attackPath);
                             signatureButton.bindingId = sigAction.bindings[startIndex].id.ToString();
-                            Debug.Log("New path: " + sigAction.bindings[startIndex].overridePath + " + " + sigAction.bindings[startIndex + 1].overridePath);
-                        }
-                        else // Already combo
-                        {
-                            //TODO: Figure out how to apply override only to specific control scheme!
 
-                            Debug.Log("Already combo (" + startIndex + ").");
-                            sigAction.ApplyBindingOverride(startIndex, sigAction.bindings[startIndex].effectivePath);
-                            sigAction.ApplyBindingOverride(startIndex + 1, mainAction.bindings[mainAction.GetBindingIndex(controlSchemeName)].effectivePath);
-                            Debug.Log("New path: " + sigAction.bindings[startIndex].overridePath + " + " + sigAction.bindings[startIndex + 1].overridePath);
+                            attackButton.permittedBindingDuplicates.Add(sigAction.bindings[startIndex + 1].id.ToString());
                         }
                     }
                 }
             }
+        }
+    }
 
-            //InputAction temp = new InputAction();
-
-            //if (settings.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Simple)
-            //{
-            //    int startIndex = signatureAttack.GetBindingIndex(controlSchemeName);
-            //    //if (signatureAttack.bindings[startIndex].overridePath != null)
-            //    //    Debug.Log("Starting (Override): " + signatureAttack.bindings[startIndex].overridePath + " + " + signatureAttack.bindings[startIndex + 1].overridePath);
-            //    //else
-            //        Debug.Log("Starting (" + startIndex + "): " + signatureAttack.bindings[startIndex].effectivePath + " + " + signatureAttack.bindings[startIndex + 1].effectivePath + "(" + signatureAttack.bindings[startIndex].id + ")");
-            //    if (signatureAttack.bindings[startIndex].overridePath != "")
-            //    {
-            //        Debug.Log("Make a new \"composite\" that's really just a button press.");
-            //        //if (signatureAttack.bindings[startIndex].overridePath != null)
-            //        //{
-            //        //    Debug.Log("Overridden!");
-            //        //    signatureAttack.ApplyBindingOverride(startIndex + 1, signatureAttack.bindings[startIndex].overridePath);
-            //        //}
-            //        //else
-            //            signatureAttack.ApplyBindingOverride(startIndex + 1, signatureAttack.bindings[startIndex].effectivePath);
-            //        signatureAttack.ApplyBindingOverride(startIndex, "");
-            //        Debug.Log("New path: " + signatureAttack.bindings[startIndex].overridePath + " + " + signatureAttack.bindings[startIndex + 1].overridePath);
-            //    }
-            //}
-            //else
-            //{
-
-            //    if (signatureAttack.bindings[signatureAttack.GetBindingIndex(controlSchemeName)].isPartOfComposite)
-            //    {
-            //        //Update the Composite
-            //        //Debug.Log("Update the composite");
-            //        temp.AddCompositeBinding("OneModifier")
-            //            .With("Binding", inputActions.Player.MainAttack.bindings[mainAttack.GetBindingIndex(controlSchemeName)].effectivePath)
-            //            .With("Modifier", signatureAttack.bindings[signatureAttack.GetBindingIndex(controlSchemeName) + 1].effectivePath);
-            //    }
-            //    else
-            //    {
-            //        //Make a composite
-            //        //Debug.Log("Make a new composite");
-            //        temp.AddCompositeBinding("OneModifier")
-            //            .With("Modifier", signatureAttack.bindings[signatureAttack.GetBindingIndex(controlSchemeName)].effectivePath)
-            //            .With("Binding", inputActions.Player.MainAttack.bindings[mainAttack.GetBindingIndex(controlSchemeName)].effectivePath);
-            //    }
-            //    signatureAttack.ChangeBinding(signatureAttack.GetBindingIndex(controlSchemeName))
-            //        .WithGroup(controlSchemeName)
-            //        .WithPath(temp.bindings[0].effectivePath);
-            //}
-
-            //Debug.Log(signatureAttack.bindings[signatureAttack.GetBindingIndex(controlSchemeName)]);
+    protected void CheckSignatureArrows()
+    {
+        switch (settings.GetSignatureActivationMode())
+        {
+            case ControlPresetSettings.SignatureActivation.Simple:
+                sigLeft.LockButton();
+                sigRight.UnlockButton();
+                break;
+            default:
+                sigLeft.UnlockButton();
+                sigRight.LockButton();
+                break;
         }
     }
 }

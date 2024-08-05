@@ -20,6 +20,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             m_BindingIdProperty = serializedObject.FindProperty("m_BindingId");
             m_ActionLabelProperty = serializedObject.FindProperty("m_ActionLabel");
             m_BindingTextProperty = serializedObject.FindProperty("m_BindingText");
+            m_PermittedBindingDuplicatesProperty = serializedObject.FindProperty("m_PermittedBindingDuplicates");
             m_RebindOverlayProperty = serializedObject.FindProperty("m_RebindOverlay");
             m_RebindTextProperty = serializedObject.FindProperty("m_RebindText");
             m_UpdateBindingUIEventProperty = serializedObject.FindProperty("m_UpdateBindingUIEvent");
@@ -66,6 +67,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 var optionsNew = (InputBinding.DisplayStringOptions)EditorGUILayout.EnumFlagsField(m_DisplayOptionsLabel, optionsOld);
                 if (optionsOld != optionsNew)
                     m_DisplayStringOptionsProperty.intValue = (int)optionsNew;
+
+                EditorGUILayout.PropertyField(m_PermittedBindingDuplicatesProperty);
             }
 
             // UI section.
@@ -215,6 +218,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         private SerializedProperty m_ControlPresetProperty;
         private SerializedProperty m_ActionProperty;
         private SerializedProperty m_BindingIdProperty;
+        private SerializedProperty m_PermittedBindingDuplicatesProperty;
         private SerializedProperty m_ActionLabelProperty;
         private SerializedProperty m_BindingTextProperty;
         private SerializedProperty m_RebindOverlayProperty;

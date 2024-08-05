@@ -275,7 +275,7 @@ public class Sword : Weapon
         return 24;
     }
 
-    public static int GetSignatureCapacity()
+    public new static int GetSignatureCapacity()
     {
         return 200;
     }

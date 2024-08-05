@@ -65,10 +65,16 @@ public class ControlPresetSettings : MonoBehaviour
         return "AUTO";
     }
 
-    public void SetRangedAim(RangedAim mode, int assist = 3)
+    public void SetRangedAim(RangedAim mode, int assist = 5)
     {
         rangedAim = mode;
-        rangedAssist = assist;
+
+        if (rangedAim == RangedAim.Assisted)
+            rangedAssist = assist;
+        else if (rangedAim == RangedAim.Manual)
+            rangedAssist = 1;
+        else
+            rangedAssist = MAX_RANGE_ASSIST_LEVEL;
     }
 
     public RangedAim GetRangedAim()
