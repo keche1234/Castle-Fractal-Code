@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
 
@@ -16,25 +17,26 @@ public class ControlPresetsMainMenu : MonoBehaviour
     //[SerializeField] protected List<ControlPresetSettings> presets;
 
     [SerializeField] protected List<ControlPresetUI> presetList;
+    [SerializeField] protected TMP_InputField presetNameBox;
     [SerializeField] protected ButtonColorManipulation copyButton;
     [SerializeField] protected ButtonColorManipulation pasteButton;
     [SerializeField] protected ButtonColorManipulation resetButton;
     [SerializeField] protected MessageRotate clipboardText;
     protected PlayerInputActions inputActions;
-    protected int currentPresent = 0;
+    protected int currentPreset = 0;
     protected int clipboardNumber = -1;
     protected List<InputAction> actions;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void Awake()
@@ -55,17 +57,20 @@ public class ControlPresetsMainMenu : MonoBehaviour
     public void SetCurrentControlScheme(int i)
     {
         if (i >= 0 || i < presetList.Count)
-            currentPresent = i;
+            currentPreset = i;
 
         foreach (ControlPresetUI preset in presetList)
             preset.gameObject.SetActive(false);
 
-        presetList[currentPresent].gameObject.SetActive(true);
+        presetList[currentPreset].gameObject.SetActive(true);
+        DrawNameOverrideBox();
 
-        if (presetList[currentPresent].IsDefaultPreset())
+        if (presetList[currentPreset].IsDefaultPreset())
         {
             pasteButton.LockButton();
             resetButton.LockButton();
+            presetNameBox.interactable = false;
+
         }
         else
         {
@@ -75,13 +80,14 @@ public class ControlPresetsMainMenu : MonoBehaviour
                 pasteButton.LockButton();
 
             resetButton.UnlockButton();
+            presetNameBox.interactable = true;
         }
     }
 
     public void CopyControlScheme()
     {
-        clipboardNumber = currentPresent;
-        if (!presetList[currentPresent].IsDefaultPreset())
+        clipboardNumber = currentPreset;
+        if (!presetList[currentPreset].IsDefaultPreset())
             pasteButton.UnlockButton();
         else
             pasteButton.LockButton();
@@ -97,7 +103,7 @@ public class ControlPresetsMainMenu : MonoBehaviour
         if (clipboardNumber > -1)
         {
             ControlPresetSettings clipboardSettings = presetList[clipboardNumber].GetPresetSettings();
-            presetList[currentPresent].PastePresetSettings(clipboardSettings);
+            presetList[currentPreset].PastePresetSettings(clipboardSettings);
 
             string pathToPaste;
             for (int i = 0; i < actions.Count; i++)
@@ -108,7 +114,7 @@ public class ControlPresetsMainMenu : MonoBehaviour
                         for (int j = 0; j < 4; j++)
                         {
                             pathToPaste = presetList[clipboardNumber].GetBindingPathForAction("Move", j);
-                            presetList[currentPresent].OverrideBindingPathForAction("Move", pathToPaste, j);
+                            presetList[currentPreset].OverrideBindingPathForAction("Move", pathToPaste, j);
                         }
                         break;
                     case "Signature Attack":
@@ -132,18 +138,18 @@ public class ControlPresetsMainMenu : MonoBehaviour
                         Debug.Log(copyIndex + " and " + pasteIndex);
 
                         pathToPaste = presetList[clipboardNumber].GetBindingPathForAction("Signature Attack", copyIndex);
-                        presetList[currentPresent].OverrideBindingPathForAction("Signature Attack", pathToPaste, pasteIndex);
+                        presetList[currentPreset].OverrideBindingPathForAction("Signature Attack", pathToPaste, pasteIndex);
                         break;
                     case "Scroll Inventory":
                         for (int j = 0; j < 2; j++)
                         {
                             pathToPaste = presetList[clipboardNumber].GetBindingPathForAction("Scroll Inventory", j);
-                            presetList[currentPresent].OverrideBindingPathForAction("Scroll Inventory", pathToPaste, j);
+                            presetList[currentPreset].OverrideBindingPathForAction("Scroll Inventory", pathToPaste, j);
                         }
                         break;
                     default:
                         pathToPaste = presetList[clipboardNumber].GetBindingPathForAction(actions[i].name, 0);
-                        presetList[currentPresent].OverrideBindingPathForAction(actions[i].name, pathToPaste, 0);
+                        presetList[currentPreset].OverrideBindingPathForAction(actions[i].name, pathToPaste, 0);
                         break;
                 }
             }
@@ -152,10 +158,22 @@ public class ControlPresetsMainMenu : MonoBehaviour
 
     public void ResetControlScheme()
     {
-        List<RebindActionUI> buttons = presetList[currentPresent].GetButtons();
+        List<RebindActionUI> buttons = presetList[currentPreset].GetButtons();
         foreach (RebindActionUI button in buttons)
             button.ResetToDefault();
-        presetList[currentPresent].ResetSettingsToDefault();
+        presetList[currentPreset].ResetSettingsToDefault();
+        presetList[currentPreset].ApplyNameOverride(null);
+        DrawNameOverrideBox();
+    }
+
+    public void DrawNameOverrideBox()
+    {
+        presetNameBox.text = presetList[currentPreset].GetNameOverride();
+    }
+
+    public void ApplyNameOverrideBox()
+    {
+        presetList[currentPreset].ApplyNameOverride(presetNameBox.text);
     }
 
     public void ClearClipboard()

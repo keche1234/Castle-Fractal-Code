@@ -346,7 +346,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/delete")
                         {
                             action.ApplyBindingOverride(bindingIndex, "--");
-                            CleanUp();   
+                            CleanUp();
                         }
 
                         for (int i = 0; i < 10; i++)
@@ -389,7 +389,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (action.bindings[bindingIndex].isPartOfComposite)
             {
                 //Debug.Log(action.bindings[bindingIndex - 1].isComposite + " and " + "(" + (bindingIndex + 1 == action.bindings.Count) + " or " + "NOT-" + action.bindings[bindingIndex + 1].isPartOfComposite + ")");
-                
+
                 // Modifier
                 if (action.bindings[bindingIndex - 1].isComposite
                     && (bindingIndex + 1 >= action.bindings.Count || action.bindings[bindingIndex + 1].isPartOfComposite)
@@ -573,6 +573,12 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         [SerializeField]
         private Text m_RebindText;
 
+        [Tooltip("Optional bool field which allows you to OVERRIDE the action label with your own text")]
+        public bool m_OverRideActionLabel;
+
+        [Tooltip("What text should be displayed for the action label?")]
+        [SerializeField] private List<string> m_ActionLabelStrings;
+
         [Tooltip("Event that is triggered when the way the binding is display should be updated. This allows displaying "
             + "bindings in custom ways, e.g. using images instead of text.")]
         [SerializeField]
@@ -608,7 +614,25 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (m_ActionLabel != null)
             {
                 var action = m_Action?.action;
-                m_ActionLabel.text = action != null ? action.name : string.Empty;
+                m_ActionLabel.text = "";
+
+                if (m_OverRideActionLabel && m_ActionLabelStrings != null)
+                {
+                    if (m_ActionLabelStrings.Count >= 1)
+                    {
+                        m_ActionLabel.text += m_ActionLabelStrings[0];
+                        for (int i = 1; i < m_ActionLabelStrings.Count; i++)
+                            m_ActionLabel.text += "\n" + m_ActionLabelStrings[i];
+                    }
+                }
+                else
+                {
+                    if (m_ActionLabel)
+                        m_ActionLabel.text = action != null ? action.name : string.Empty;
+                    m_ActionLabelStrings = null;
+                }
+
+                //m_ActionLabel.text = action != null ? action.name : string.Empty;
             }
         }
 

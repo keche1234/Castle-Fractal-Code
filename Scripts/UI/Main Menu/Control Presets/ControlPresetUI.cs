@@ -33,8 +33,8 @@ public class ControlPresetUI : MonoBehaviour
     [SerializeField] protected ButtonColorManipulation sigLeft;
     [SerializeField] protected ButtonColorManipulation sigRight;
 
-    [Header("Signature Activation Buttons")]
-    [SerializeField] protected PlayerInputActions inputActions;
+    protected string nameOverride;
+    protected PlayerInputActions inputActions;
 
     private void Awake()
     {
@@ -69,6 +69,18 @@ public class ControlPresetUI : MonoBehaviour
     public bool IsDefaultPreset()
     {
         return isDefaultPreset;
+    }
+
+    public string GetNameOverride()
+    {
+        if (isDefaultPreset || nameOverride == null)
+            return inputActions.controlSchemes[controlSchemeIndex].name;
+        return nameOverride;
+    }
+
+    public void ApplyNameOverride(string text)
+    {
+        nameOverride = text;
     }
 
     /*****************************
