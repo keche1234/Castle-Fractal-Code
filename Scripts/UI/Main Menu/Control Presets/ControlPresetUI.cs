@@ -353,4 +353,45 @@ public class ControlPresetUI : MonoBehaviour
                 break;
         }
     }
+
+    private void OnEnable()
+    {
+        if (!isDefaultPreset)
+        {
+            string loadSettings = PlayerPrefs.GetString("Preset " + controlSchemeIndex.ToString());
+            if (!string.IsNullOrEmpty(loadSettings))
+                JsonUtility.FromJsonOverwrite(loadSettings, settings);
+
+            string loadName = PlayerPrefs.GetString("Preset Name Override " + controlSchemeIndex.ToString());
+            if (!string.IsNullOrEmpty(loadName))
+            {
+                Wrapper<string> wrapperToRetrieve = new Wrapper<string>(null);
+                JsonUtility.FromJsonOverwrite(loadName, wrapperToRetrieve);
+                if (!string.IsNullOrEmpty(wrapperToRetrieve.value))
+                    nameOverride = wrapperToRetrieve.value;
+            }
+
+            meleeAimText.text = settings.GetMeleeAimString();
+            CheckMeleeArrows();
+
+            rangedAimText.text = settings.GetRangedAimString();
+            CheckRangeAssist();
+
+            signatureActivationText.text = settings.GetSigActivationString();
+            UpdateSignatureActivation();
+            CheckSignatureArrows();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (!isDefaultPreset)
+        {
+            string newSettings = JsonUtility.ToJson(settings);
+            PlayerPrefs.SetString("Preset " + controlSchemeIndex.ToString(), newSettings);
+
+            string newName = JsonUtility.ToJson(new Wrapper<string>(nameOverride));
+            PlayerPrefs.SetString("Preset Name Override " + controlSchemeIndex.ToString(), newName);
+        }
+    }
 }

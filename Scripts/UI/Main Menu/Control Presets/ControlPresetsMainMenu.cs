@@ -18,10 +18,16 @@ public class ControlPresetsMainMenu : MonoBehaviour
 
     [SerializeField] protected List<ControlPresetUI> presetList;
     [SerializeField] protected TMP_InputField presetNameBox;
+
+    [Header("Edit Options")]
     [SerializeField] protected ButtonColorManipulation copyButton;
     [SerializeField] protected ButtonColorManipulation pasteButton;
     [SerializeField] protected ButtonColorManipulation resetButton;
     [SerializeField] protected MessageRotate clipboardText;
+
+    [Header("First Preset Button")]
+    [SerializeField] protected Button firstPresetButton;
+
     protected PlayerInputActions inputActions;
     protected int currentPreset = 0;
     protected int clipboardNumber = -1;
@@ -169,16 +175,35 @@ public class ControlPresetsMainMenu : MonoBehaviour
     public void DrawNameOverrideBox()
     {
         presetNameBox.text = presetList[currentPreset].GetNameOverride();
+        UpdatePlaceholderName();
     }
 
     public void ApplyNameOverrideBox()
     {
         presetList[currentPreset].ApplyNameOverride(presetNameBox.text);
+        if (string.IsNullOrEmpty(presetNameBox.text))
+            presetNameBox.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = inputActions.controlSchemes[currentPreset].name;
+    }
+
+    public void UpdatePlaceholderName()
+    {
+        if (string.IsNullOrEmpty(presetNameBox.text))
+            presetNameBox.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = inputActions.controlSchemes[currentPreset].name;
     }
 
     public void ClearClipboard()
     {
         clipboardNumber = -1;
+    }
+
+    private void OnEnable()
+    {
+        firstPresetButton.onClick.Invoke();
+    }
+
+    private void OnDisable()
+    {
+        ClearClipboard();
     }
 
     //TODO: Load From Json

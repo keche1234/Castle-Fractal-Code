@@ -111,7 +111,9 @@ public class GameMenuManager : MonoBehaviour
     public void EndRun()
     {
         Application.Quit();
-        UnityEditor.EditorApplication.isPlaying = false; //TEMP CODE
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
     /*

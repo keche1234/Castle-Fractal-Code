@@ -24,6 +24,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             m_BindingIdProperty = serializedObject.FindProperty("m_BindingId");
             m_ActionLabelProperty = serializedObject.FindProperty("m_ActionLabel");
             m_BindingTextProperty = serializedObject.FindProperty("m_BindingText");
+            m_OtherActionsProperty = serializedObject.FindProperty("m_OtherActions");
+            m_OtherBindingsProperty = serializedObject.FindProperty("m_OtherBindings");
             m_PermittedBindingDuplicatesProperty = serializedObject.FindProperty("m_PermittedBindingDuplicates");
             m_RebindOverlayProperty = serializedObject.FindProperty("m_RebindOverlay");
             m_RebindTextProperty = serializedObject.FindProperty("m_RebindText");
@@ -73,7 +75,14 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 var optionsNew = (InputBinding.DisplayStringOptions)EditorGUILayout.EnumFlagsField(m_DisplayOptionsLabel, optionsOld);
                 if (optionsOld != optionsNew)
                     m_DisplayStringOptionsProperty.intValue = (int)optionsNew;
+            }
 
+            // Other bindings section.
+            EditorGUILayout.LabelField(m_OtherBindingsLabel, Styles.boldLabel);
+            using (new EditorGUI.IndentLevelScope())
+            {
+                EditorGUILayout.PropertyField(m_OtherActionsProperty);
+                EditorGUILayout.PropertyField(m_OtherBindingsProperty);
                 EditorGUILayout.PropertyField(m_PermittedBindingDuplicatesProperty);
             }
 
@@ -234,6 +243,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         private SerializedProperty m_ControlPresetProperty;
         private SerializedProperty m_ActionProperty;
         private SerializedProperty m_BindingIdProperty;
+        private SerializedProperty m_OtherActionsProperty;
+        private SerializedProperty m_OtherBindingsProperty;
         private SerializedProperty m_PermittedBindingDuplicatesProperty;
         private SerializedProperty m_ActionLabelProperty;
         private SerializedProperty m_BindingTextProperty;
@@ -248,16 +259,20 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         private GUIContent m_ControlSchemeLabel = new GUIContent("Control Scheme");
         private GUIContent m_BindingLabel = new GUIContent("Binding");
+        private GUIContent m_OtherBindingsLabel = new GUIContent("Other Bindings");
         private GUIContent m_DisplayOptionsLabel = new GUIContent("Display Options");
         private GUIContent m_UILabel = new GUIContent("UI");
         private GUIContent m_CustomizeUILabel = new GUIContent("Customize UI");
         private GUIContent m_EventsLabel = new GUIContent("Events");
         private GUIContent[] m_BindingOptions;
+        private GUIContent[] m_OtherBindingOptions;
         private GUIContent[] m_ControlSchemes;
         private string[] m_ControlSchemeValues;
         private int m_SelectedControlScheme;
         private string[] m_BindingOptionValues;
+        private string[] m_OtherBindingOptionValues;
         private int m_SelectedBindingOption;
+        private int m_SelectedOtherBindingOption;
 
         private static class Styles
         {

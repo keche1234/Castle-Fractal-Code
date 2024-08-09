@@ -56,6 +56,30 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             }
         }
 
+        ///<summary>
+        /// A list of actions you can change with this one
+        /// </summary>
+        public List<InputActionReference> otherActions
+        {
+            get => m_OtherActions;
+            set
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// A list of bindings that will also change with this one
+        /// </summary>
+        public List<string> otherBindings
+        {
+            get => m_OtherBindings;
+            set
+            {
+
+            }
+        }
+
         /// <summary>
         /// A list of binding indexes that this button can share controls with
         /// </summary>
@@ -343,12 +367,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         action.Enable();
                         m_RebindOverlay?.SetActive(false);
 
-                        if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/delete")
-                        {
-                            action.ApplyBindingOverride(bindingIndex, "--");
-                            CleanUp();
-                        }
-
                         for (int i = 0; i < 10; i++)
                         {
                             if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/" + i.ToString()
@@ -360,6 +378,12 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                             }
                         }
 
+                        if (action.bindings[bindingIndex].effectivePath == "<Keyboard>/delete")
+                        {
+                            action.ApplyBindingOverride(bindingIndex, "--");
+                            CleanUp();
+                        }
+
                         (string, int) dupe = CheckDuplicateBindings(action, bindingIndex, currentControlPreset, allCompositeParts);
                         if (dupe.Item1 != "")
                         {
@@ -369,6 +393,27 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                             else
                                 oldAction.ApplyBindingOverride("--");
                             CleanUp();
+                        }
+
+                        //Rebind other bindings tied to this
+
+                        int elementCount = Mathf.Min(otherActions.Count, otherBindings.Count);
+                        if (otherActions.Count - otherBindings.Count != 0)
+                            Debug.LogError("Lists " + otherActions + " and " + otherBindings + " must be parallel! (Counts: " + otherActions.Count + " vs " + otherBindings + ")");
+
+                        for (int i = 0; i < otherActions.Count; i++)
+                        {
+                            InputAction otherAction = otherActions[i].action;
+
+                            if (string.IsNullOrEmpty(otherBindings[i]))
+                                continue;
+
+                            int otherBindingIndex = otherAction.bindings.IndexOf(x => x.id == new Guid(otherBindings[i]));
+
+                            if (otherBindingIndex != -1)
+                                otherAction.ApplyBindingOverride(otherBindingIndex, action.bindings[bindingIndex].effectivePath);
+                            else
+                                Debug.LogError($"Cannot find binding with ID '{otherBindingIndex}' on '{otherAction}'", this);
                         }
 
                         UpdateBindingDisplay();
@@ -548,6 +593,18 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         [SerializeField]
         private string m_BindingId;
+
+        [Tooltip("Reference to other actions that will be rebound.")]
+        [SerializeField]
+        private List<InputActionReference> m_OtherActions;
+
+        [Tooltip("Parallel to `Other Actions` list.")]
+        [SerializeField]
+        private List<string> m_OtherBindings;
+
+        //[Tooltip("Bindings that are also remapped")]
+        //[SerializeField]
+        //private List<string> m_OtherBindings;
 
         [Tooltip("Bindings that, if you set this action to the same control, will permit duplicates. This permission is one way.")]
         [SerializeField]

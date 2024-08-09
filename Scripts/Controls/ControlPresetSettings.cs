@@ -9,7 +9,7 @@ public class ControlPresetSettings : MonoBehaviour
     protected const float MIN_SCROLL_SENSITIVITY = 0f;
     protected const float MAX_SCROLL_SENSITIVITY = 2f;
 
-    [Header("Other settings")]
+    [Header("Settings")]
     [SerializeField] protected MeleeAim meleeAim;
     [SerializeField] protected RangedAim rangedAim;
     [SerializeField] protected SignatureActivation sigActivation; //Changing this changes the signature activation between Button <-> Button + Attack

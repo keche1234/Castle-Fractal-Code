@@ -1721,7 +1721,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse",
+                    "groups": "",
                     "action": "Left Click",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1732,7 +1732,7 @@
                     "path": "<Mouse>/scroll",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard-Mouse",
                     "action": "ScrollWheel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1798,7 +1798,73 @@
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Left-Handed;Right-Handed",
+                    "groups": "Left-Handed",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e6e5b59a-27d8-4fa8-9525-480fceab3a79",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Right-Handed",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "94a221e7-64a6-402c-a8cc-03405dffe893",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 1",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d16a0c76-aa30-437d-8fee-62a59a859e3e",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 2",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "708ae6c6-caf5-48a4-b0fd-0b6a9ab8ca2d",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 3",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "96ae0534-cee2-4d8b-9941-40dea9234564",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 4",
+                    "action": "Submit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e0daac39-4552-4efe-9835-134a4efcb1c4",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 5",
                     "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1837,6 +1903,61 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "b4dae6a5-5776-4afa-b7a5-f4155fa94397",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 1",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b34ed73b-6703-418d-b4ff-688f76f3cd91",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 2",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a9e54089-ccf4-40d9-9292-3f47cec2fe8b",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 3",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b1c1a697-c217-424b-94c3-e1e7f7bae8f0",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 4",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fa93b935-5f24-4a74-bb7c-6dfdce2ff056",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 5",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "WASD",
                     "id": "d8d90a55-e638-443b-899e-eb51ab512e00",
                     "path": "2DVector",
@@ -1853,7 +1974,7 @@
                     "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
+                    "groups": "Keyboard-Mouse",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1864,7 +1985,7 @@
                     "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
+                    "groups": "Keyboard-Mouse",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1875,7 +1996,7 @@
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
+                    "groups": "Keyboard-Mouse",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1886,7 +2007,117 @@
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse;Keyboard-Only;Left-Handed",
+                    "groups": "Keyboard-Mouse",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "WASD",
+                    "id": "b701160e-0efb-4a89-a20e-7cca39e8167d",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "1e7a4e56-4694-48c1-865b-055e657f5bc7",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard-Only",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "ba92ae2c-33b8-4c00-9051-7b95fbba2347",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard-Only",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "d03f7462-afaa-4eae-9bdd-23f809043107",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard-Only",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "ee2e3b0f-bf1d-4fc2-b4f6-fac9a8e7efaa",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard-Only",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "WASD",
+                    "id": "15cb8b1a-e61f-42b6-8ccf-1891e2463d08",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "041bf09b-1ec7-4d4f-80ed-8031a0b89d11",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Left-Handed",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "c70b1d29-4e03-40d8-b324-a7cc54a4c9e4",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Left-Handed",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "4920ed3c-3c2c-459e-8a04-aa48ce535a9c",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Left-Handed",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "2f7b4512-bc15-4534-bac9-b5eff8cb11fe",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Left-Handed",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1947,6 +2178,281 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "Custom Dpad 1",
+                    "id": "9239f0ee-c5a0-4070-bf75-e8ad2a48d015",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "d5548a15-90f5-47d0-9596-229be02bd39c",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 1",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "fb8eeb43-ddee-4d1b-9481-007505b9ca6e",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 1",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "a9589374-ea17-463c-8175-5b6d2b799a88",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 1",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "7411c4af-5843-4e65-bb87-99926092c96f",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 1",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Custom Dpad 2",
+                    "id": "30232cd2-6dbb-42bb-b77b-d8db9d7d91ec",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "2f688188-d0ab-4af7-a0e6-9984d3a150c0",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 2",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "58b4518e-d56f-433c-af2e-05a6e978ac97",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 2",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "f99e012e-8a8a-43dc-bd3e-32a680059086",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 2",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "d7e44546-02fd-409e-beea-f640bcfd2bc3",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 2",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Custom Dpad 3",
+                    "id": "24569d87-422c-46b9-b4d9-153f2a1c160d",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "ace6a5a1-71e6-4aa0-aa17-6338b073e3c6",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 3",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "96a97aaa-6927-4174-a869-02b9f75617a5",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 3",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "3c43bc58-9581-4177-bc21-77ce6e5b955b",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 3",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "9c0bb0aa-d258-44c4-9f27-1cd6602eb8bb",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 3",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Custom Dpad 4",
+                    "id": "05e97d63-1804-45c5-a382-0c8eb8930c77",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "5fd3b6ca-a0ce-4ed3-9dea-759c36fb3173",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 4",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "5c987d30-7367-46ee-9322-fd6deacb46d9",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 4",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "ed09028b-5503-4439-ac79-a2be24d5e6d5",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 4",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "1bae33a7-a6a6-4219-8395-562c7bb541a4",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 4",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Custom Dpad 5",
+                    "id": "b1dd2be8-a96b-4759-85da-4091908ce08d",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "05c6af99-a758-418e-b439-4aaf23ce8ecb",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 5",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "41117845-62a7-4c6f-a3a2-5624b94f59f2",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 5",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "26cf3b0f-3fcf-470a-9521-79d4cade2bf2",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 5",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "d7f0e2fa-b7f4-4a60-8504-ecd322c67310",
+                    "path": "--",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Custom 5",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "2c09a0cb-fc1c-41a4-9ce3-e41ea66ec97b",
                     "path": "<Mouse>/position",
@@ -1963,7 +2469,7 @@
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse",
+                    "groups": "",
                     "action": "Right Click",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1974,7 +2480,7 @@
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard-Mouse",
+                    "groups": "",
                     "action": "Middle Click",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -2005,6 +2511,11 @@
             "devices": [
                 {
                     "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Mouse>",
                     "isOptional": false,
                     "isOR": false
                 }
