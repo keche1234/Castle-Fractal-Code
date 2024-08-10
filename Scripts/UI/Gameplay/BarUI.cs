@@ -57,6 +57,11 @@ public class BarUI : MonoBehaviour
         }
     }
 
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(gameObject.transform.parent);
+    //}
+
     /*
      * value, delay for the roll, and roll speed
      */

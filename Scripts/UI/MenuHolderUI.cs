@@ -23,4 +23,9 @@ public class MenuHolderUI : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
+
+    public void TransitionScene(string scene)
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(scene);
+    }
 }

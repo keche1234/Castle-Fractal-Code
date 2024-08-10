@@ -49,6 +49,11 @@ public class UpgradeManager : MonoBehaviour
         
     }
 
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
+
     // To be called by SpawnManager
     public IEnumerator StartUpgradeSequence()
     {

@@ -12,6 +12,11 @@ public class FreezeManager : MonoBehaviour
         freezeTags = new Dictionary<string, float>();
     }
 
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
+
     // Update is called once per frame
     void Update()
     {

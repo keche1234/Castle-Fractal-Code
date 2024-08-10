@@ -9,7 +9,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected PlayerController player;
     [SerializeField] protected int level; //offset of 0
     [SerializeField] protected float height;
-    protected int bossInterval = 5;
+    protected int bossInterval = 1;
     //[SerializeField] protected ExitDoor exit;
 
     //[Header("Prefabs")]
@@ -34,20 +34,43 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     {
         level = 0;
         CreateNext();
+
+        int weaponType1 = Random.Range(0, 5);
+        int weaponType2;
+        do
+        {
+            weaponType2 = Random.Range(0, 5);
+        }
+        while (weaponType1 == weaponType2);
+
+        PickupCW startingWeapon1 = GenerateWeapon(weaponType1, 1, 1, 1, 1, true);
+        PickupCW startingWeapon2 = GenerateWeapon(weaponType2, 1, 1, 1, 1, true);
+
+        startingWeapon1.transform.position = new Vector3(0, 1, current.GetZDimension() / 4);
+        startingWeapon2.transform.position = new Vector3(0, 1, -current.GetZDimension() / 3);
+
+        startingWeapon1.transform.parent = current.transform;
+        startingWeapon2.transform.parent = current.transform;
+
         scoreManager = FindObjectOfType<FloorScoreTimeManager>();
     }
+
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
 
     // Update is called once per frame
     protected void Update()
     {
         if (player.InventoryCount() == 0 && FindObjectsOfType(System.Type.GetType("PickupCW")).Length == 0)
         {
-            if (spawnWeaponTimer >= MERCY_WEAPON_TIME)
+            if (spawnWeaponTimer >= MERCY_WEAPON_TIME && !current.IsBreakRoom())
             {
                 PickupCW mercy = GenerateWeapon(Random.Range(0, 5));
 
                 List<Vector3> spaces = current.OpenWorldPositions();
-                mercy.transform.position = spaces[Random.Range(0, spaces.Count)];
+                mercy.transform.position = spaces[Random.Range(0, spaces.Count)] + (Vector3.up * 0.5f);
                 mercy.transform.parent = current.transform;
 
                 spawnWeaponTimer = 0;

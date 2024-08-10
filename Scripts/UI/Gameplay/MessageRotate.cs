@@ -69,11 +69,13 @@ public class MessageRotate : MonoBehaviour
     public void RunRotation()
     {
         running = true;
+        messageText.gameObject.SetActive(true);
         //fade = startFade;
     }
 
     public void StopRotation()
     {
         running = false;
+        messageText.gameObject.SetActive(false);
     }
 }

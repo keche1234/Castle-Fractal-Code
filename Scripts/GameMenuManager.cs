@@ -39,6 +39,11 @@ public class GameMenuManager : MonoBehaviour
         
     }
 
+    //private void Awake()
+    //{
+    //    RestartRun();
+    //}
+
     /*
      * Generic Pause function
      */
@@ -58,8 +63,8 @@ public class GameMenuManager : MonoBehaviour
             prevTimeScale = Time.timeScale;
             Time.timeScale = 0;
 
-            //show menu i
-            blackFade.enabled = true;
+            //show menu m
+            blackFade.gameObject.SetActive(true);
             Cursor.visible = true;
             pauseMenus[m].gameObject.SetActive(true);
 
@@ -80,7 +85,7 @@ public class GameMenuManager : MonoBehaviour
             Time.timeScale = prevTimeScale;
 
             //hide menus
-            blackFade.enabled = false;
+            blackFade.gameObject.SetActive(false);
             Cursor.visible = false;
             eventSystem.SetSelectedGameObject(null);
             foreach (Canvas menu in pauseMenus)
@@ -110,10 +115,11 @@ public class GameMenuManager : MonoBehaviour
      */
     public void EndRun()
     {
-        Application.Quit();
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        //Application.Quit();
+        //Pause();
+        Time.timeScale = 1;
+        Cursor.visible = true;
+        UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("MainMenu");
     }
 
     /*

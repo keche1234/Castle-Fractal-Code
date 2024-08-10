@@ -199,8 +199,8 @@ public abstract class Enemy : Character
         PlayerController playerInfo = player.GetComponent<PlayerController>();
         if (playerInfo != null)
         {
-            float weaponChance = 2f / appearanceRate;
-            float potionChance = 0.25f;
+            float weaponChance = 1f / appearanceRate;
+            float potionChance = 0.5f;
             Debug.Log(weaponChance);
 
             // Roll for drop

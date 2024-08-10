@@ -29,6 +29,11 @@ public class FloorScoreTimeManager : MonoBehaviour
         
     }
 
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
+
     // Update is called once per frame
     void Update()
     {

@@ -40,6 +40,11 @@ public class BuffGroupUI : MonoBehaviour
         DrawBuffs();
     }
 
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
+
     /*
      * Each type of buff and debuff is represented by an icon with its symbol,
      * with a sum that flashes

@@ -536,6 +536,8 @@ public class Ogrelord : Boss
                         if (GetMyFreezeTime() <= 0)
                         {
                             t += Time.deltaTime;
+                            if (t > airTime)
+                                state = ActionState.Cooldown;
                         }
                         yield return null;
                     }
@@ -572,7 +574,7 @@ public class Ogrelord : Boss
                     state = ActionState.Startup;
                     charRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
                     charRb.useGravity = false;
-                    GetComponent<Collider>().isTrigger = true;
+
                     // Set up warnings
                     landingWarning.transform.parent.gameObject.SetActive(true);
                     landingWarning.transform.localScale = new Vector3(0, 1, 0);
@@ -582,6 +584,7 @@ public class Ogrelord : Boss
                         w.transform.localScale = new Vector3(w.transform.localScale.x, 1, 0);
                     }
 
+                    //jump up
                     t = 0;
                     while (t < (stompStart - (i * 0.2f)))
                     {
@@ -589,7 +592,11 @@ public class Ogrelord : Boss
                         {
                             if (t < stompJumpTime)
                             {
-                                Vector3 jumpVector = new Vector3(player.transform.position.x - transform.position.x, 0, player.transform.position.z - transform.position.z);
+                                int xLimit = (roomManager.GetCurrent().GetXDimension() / 2) - 1;
+                                int zLimit = (roomManager.GetCurrent().GetZDimension() / 2) - 1;
+
+                                Vector3 jumpVector = new Vector3(Mathf.Max(Mathf.Min(player.transform.position.x, xLimit), -xLimit) - transform.position.x, 0,
+                                                                 Mathf.Max(Mathf.Min(player.transform.position.z, zLimit), -zLimit) - transform.position.z);
                                 jumpVector /= stompJumpTime;
                                 jumpVector += new Vector3(0, stompJumpHeight / stompJumpTime, 0);
 
@@ -616,6 +623,8 @@ public class Ogrelord : Boss
                         }
                         yield return null;
                     }
+
+                    GetComponent<Collider>().isTrigger = true;
 
                     state = ActionState.Attacking;
                     bodyBox.gameObject.SetActive(true);

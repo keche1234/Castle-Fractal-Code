@@ -214,7 +214,7 @@ public class PlayerController : Character
         inputActions.Player.ScrollInventory.performed -= PlayerScrollInventory;
         inputActions.Player.DropWeapon.performed -= PlayerDropWeapon;
         inputActions.Player.Inventory.performed -= PlayerInventory;
-        inputActions.Player.Pause.performed += PlayerPause;
+        inputActions.Player.Pause.performed -= PlayerPause;
     }
 
     /****************************
@@ -541,7 +541,7 @@ public class PlayerController : Character
             int place = System.Array.IndexOf(Ability.GetNames(), "LuckyStrike");
             if (current.GetAbilities().Contains(place))
             {
-                float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1.5f - (targetHP / targetMax));
+                float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1 - (targetHP / targetMax));
                 if (Random.Range(0, 0.99f) < chance)
                     damage = (int)(target.GetMaxHealth() * 2);
             }
@@ -661,7 +661,7 @@ public class PlayerController : Character
                     int place = System.Array.IndexOf(Ability.GetNames(), "QuickDodge");
                     if (current.GetAbilities().Contains(place))
                     {
-                        float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1.5f - (currentHealth / maxHealth));
+                        float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1f - (currentHealth / maxHealth));
                         if (Random.Range(0, 0.99f) < chance)
                         {
                             OverrideInvincibility(0.5f);
@@ -1380,10 +1380,7 @@ public class PlayerController : Character
                 case 1:
                     maxMP = (int)(baseMPCap * (1 + (rankGrowths[1] * ranks[attributeIndex])));
 
-                    miniDurabilityBar.SetMax(maxMP);
                     inventoryBar.SetMax(maxMP);
-
-                    miniDurabilityBar.SetValue(currentMP);
                     inventoryBar.SetValue(currentMP);
                     inventoryBar.UpdateAmountTxt(currentMP + "/" + maxMP);
                     inventoryBar.UpdateRankTxt(ranks[attributeIndex].ToString());

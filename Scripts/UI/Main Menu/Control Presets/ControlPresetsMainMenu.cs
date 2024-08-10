@@ -194,6 +194,7 @@ public class ControlPresetsMainMenu : MonoBehaviour
     public void ClearClipboard()
     {
         clipboardNumber = -1;
+        clipboardText.StopRotation();
     }
 
     private void OnEnable()

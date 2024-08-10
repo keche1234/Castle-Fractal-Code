@@ -118,6 +118,11 @@ public abstract class Character : MonoBehaviour
         freezeManager = FindObjectOfType<FreezeManager>();
     }
 
+    //protected void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
+
     //void OnEnable()
     //{
     //    EventManager.OnFreeze += FreezeSelf;

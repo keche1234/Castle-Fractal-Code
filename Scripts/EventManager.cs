@@ -23,4 +23,9 @@ public class EventManager : MonoBehaviour
         //    Character.GetFreezeDurs().RemoveAll(_ => true);
         //}
     }
+
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
 }

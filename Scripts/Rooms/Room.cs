@@ -72,6 +72,11 @@ public class Room : MonoBehaviour
         //if (!corrected) Correct();
     }
 
+    //private void Awake()
+    //{
+    //    DontDestroyOnLoad(this);
+    //}
+
     public void Initialize(int x, int z, RoomManager rm, SpawnManager sm)
     {
         xDimension = x;
