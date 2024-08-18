@@ -9,7 +9,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     [SerializeField] protected PlayerController player;
     [SerializeField] protected int level; //offset of 0
     [SerializeField] protected float height;
-    protected int bossInterval = 1;
+    protected int bossInterval = 5;
     //[SerializeField] protected ExitDoor exit;
 
     //[Header("Prefabs")]

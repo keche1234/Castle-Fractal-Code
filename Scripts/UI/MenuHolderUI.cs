@@ -20,6 +20,7 @@ public class MenuHolderUI : MonoBehaviour
     {
         Application.Quit();
 #if UNITY_EDITOR
+        PlayerPrefs.DeleteKey("Leaderboard");
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }

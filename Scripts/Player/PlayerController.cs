@@ -44,7 +44,7 @@ public class PlayerController : Character
     //protected Dictionary<string, List<KeyCode>> myControls;
     //protected Dictionary<string, List<int>> mouseControls;
 
-    //[Header("Control Settings")]
+    [Header("Control Settings")]
     [SerializeField] protected bool signatureCombo;
     [SerializeField] protected bool meleeAuto;
     [SerializeField] protected float rangedAssist;
@@ -102,6 +102,9 @@ public class PlayerController : Character
 
     protected UpgradeManager upgradeManager;
     protected EventSystem eventSystem;
+
+    [Header("Game Ender")]
+    [SerializeField] protected GameEnder gameEnder;
 
     // Start is called before the first frame update
     public override void Start()
@@ -335,7 +338,7 @@ public class PlayerController : Character
 
     public void PlayerInventory(InputAction.CallbackContext context)
     {
-        if (!menuManager.GameIsOver())
+        if (!menuManager.GameIsOver() && playerLife == LifeState.Alive)
         {
             menuManager.Pause(1);
             if (!menuManager.IsPaused())
@@ -349,7 +352,7 @@ public class PlayerController : Character
 
     public void PlayerPause(InputAction.CallbackContext context)
     {
-        if (!menuManager.GameIsOver() && !upgradeManager.IsUpgrading())
+        if (!menuManager.GameIsOver() && !upgradeManager.IsUpgrading() && playerLife == LifeState.Alive)
         {
             menuManager.Pause(0);
         }
@@ -363,9 +366,13 @@ public class PlayerController : Character
             playerLife = LifeState.Dead;
             playerAttack = AttackState.NotAttacking;
             playerRb.velocity *= 0;
-            weaponTypes[currentWeaponType].SetActivity(false);
-            weaponTypes[currentWeaponType].gameObject.SetActive(false);
-            gameObject.transform.localScale *= .99f * Time.timeScale;
+            if (currentWeaponType >= 0 && currentWeaponType < weaponTypes.Length)
+            {
+                weaponTypes[currentWeaponType].SetActivity(false);
+                weaponTypes[currentWeaponType].gameObject.SetActive(false);
+            }
+
+            //gameObject.transform.localScale *= .99f * Time.timeScale;
         }
         else
         {
@@ -729,7 +736,15 @@ public class PlayerController : Character
         }
 
         if (currentHealth <= 0)
+        {
             currentHealth = 0;
+            if (playerLife == LifeState.Alive)
+            {
+                gameEnder.gameObject.SetActive(true);
+                gameEnder.BeginGameOverSequence();
+                menuManager.SetGameOver(true);
+            }
+        }
         else if (currentHealth > maxHealth)
             currentHealth = maxHealth;
 
@@ -744,7 +759,8 @@ public class PlayerController : Character
         stunned = true;
         mobile = false;
         playerAttack = AttackState.NotAttacking;
-        weaponTypes[currentWeaponType].Abort();
+        if (currentWeaponType >= 0 && currentWeaponType < weaponTypes.Length)
+            weaponTypes[currentWeaponType].Abort();
 
         float t = 0;
         while (t < stunTime)
@@ -921,8 +937,8 @@ public class PlayerController : Character
              *  +25% if the weapon has "All Or Nothing D"
              *  +30% if the weapon has "All Or Nothing S"
              ********************************************/
-            if (!IsPaused())
-            {
+            //if (!IsPaused())
+            //{
                 float sigLoss = 0.2f;
                 int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
                 if (current.GetAbilities().Contains(place))
@@ -934,7 +950,7 @@ public class PlayerController : Character
 
                 if (equippedCustomWeapon != num)
                     current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
-            }
+            //}
         }
 
         if (inventory.Count == 0) //no weapons? *megamind face*

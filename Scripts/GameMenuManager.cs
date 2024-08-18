@@ -119,6 +119,7 @@ public class GameMenuManager : MonoBehaviour
         //Pause();
         Time.timeScale = 1;
         Cursor.visible = true;
+        PlayerPrefs.Save();
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("MainMenu");
     }
 
@@ -144,5 +145,10 @@ public class GameMenuManager : MonoBehaviour
     public bool GameIsOver()
     {
         return gameOver;
+    }
+
+    public void SetGameOver(bool b)
+    {
+        gameOver = b;
     }
 }

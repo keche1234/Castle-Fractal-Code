@@ -12,6 +12,7 @@ public class Hitbox : MonoBehaviour
     [SerializeField] protected float knockbackMod;
     [SerializeField] protected bool fixedKB;
     [SerializeField] protected bool triggerInvincibility = true; //default
+    [SerializeField] protected bool goesThroughWalls = false;
 
     [Header("Connections")]
     [SerializeField] protected List<Character> connected;
@@ -21,6 +22,7 @@ public class Hitbox : MonoBehaviour
     [SerializeField] protected string targetTag;
     [SerializeField] protected float myPow;
     [SerializeField] protected bool preserved; //preserve your own damage
+
 
     // Start is called before the first frame update
     void Start()
@@ -92,6 +94,25 @@ public class Hitbox : MonoBehaviour
         fixedKB = f;
     }
 
+    //public void OnTriggerEnter(Collider targetCollider)
+    //{
+    //    if (targetCollider.gameObject.CompareTag("Wall"))
+    //    {
+    //        previousActive = gameObject.activeSelf;
+    //        gameObject.SetActive(false);
+    //        return;
+    //    }
+    //}
+
+    //public void OnTriggerExit(Collider targetCollider)
+    //{
+    //    if (targetCollider.gameObject.CompareTag("Wall"))
+    //    {
+    //        gameObject.SetActive(previousActive);
+    //        return;
+    //    }
+    //}
+
     public virtual void OnTriggerStay(Collider targetCollider)
     {
         Character c = targetCollider.gameObject.GetComponent<Character>();
@@ -112,6 +133,7 @@ public class Hitbox : MonoBehaviour
             d = (new Vector3(d.x, 0, d.z)).normalized;
         }
 
+
         if (targetCollider.gameObject.CompareTag(targetTag) && !AlreadyConnected(c) && c != null && c.enabled)
         {
             if (c != null)
@@ -119,6 +141,19 @@ public class Hitbox : MonoBehaviour
                 AddConnected(c);
                 if (!c.GetHitByList().Contains(source))
                 {
+                    if (!goesThroughWalls)
+                    {
+                        // spherecast from contact point to source
+                        RaycastHit hit;
+                        Vector3 sphereCastAim = source.transform.position - targetCollider.transform.position;
+                        Debug.DrawRay(targetCollider.transform.position, sphereCastAim, Color.red, 3);
+
+                        if (Physics.SphereCast(new Ray(targetCollider.transform.position - (sphereCastAim.normalized * 0.5f), sphereCastAim.normalized), 0.5f, out hit, sphereCastAim.magnitude, LayerMask.GetMask("Wall"), QueryTriggerInteraction.Collide))
+                        {
+                            return;
+                        }
+                    }
+
                     c.AddToHitByList(source);
                     source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
                 }
@@ -133,6 +168,19 @@ public class Hitbox : MonoBehaviour
                 {
                     if (!p.GetHitByList().Contains(source))
                     {
+                        if (!goesThroughWalls)
+                        {
+                            // spherecast from contact point to source
+                            RaycastHit hit;
+                            Vector3 sphereCastAim = source.transform.position - targetCollider.transform.position;
+                            Debug.DrawRay(targetCollider.transform.position, sphereCastAim, Color.red, 3);
+
+                            if (Physics.SphereCast(new Ray(targetCollider.transform.position - (sphereCastAim.normalized * 0.5f), sphereCastAim.normalized), 0.5f, out hit, sphereCastAim.magnitude, LayerMask.GetMask("Wall"), QueryTriggerInteraction.Collide))
+                            {
+                                return;
+                            }
+                        }
+
                         p.AddToHitByList(source);
                         source.DealDamage(damageMod, targetCollider.gameObject.transform.parent.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
                     }

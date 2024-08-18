@@ -264,7 +264,6 @@ public class SpawnManager : MonoBehaviour
 
     public void SetBoss(Boss b)
     {
-        Debug.Log(bossesDefeated);
         boss = b;
         bossWave = boss != null;
     }
