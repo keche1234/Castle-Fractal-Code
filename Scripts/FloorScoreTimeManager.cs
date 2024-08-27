@@ -49,7 +49,7 @@ public class FloorScoreTimeManager : MonoBehaviour
 
         if (displayScore < trueScore)
         {
-            Debug.Log(trueScore);
+            //Debug.Log(trueScore);
             displayScore += Mathf.Max(1, (int)(DISPLAY_ROLL_SPEED * Time.unscaledDeltaTime * (timerPaused ? 0.1f : 1)));
             displayScore = Mathf.Min(displayScore, trueScore);
             scoreText.text = string.Format("{0:D6}", displayScore);

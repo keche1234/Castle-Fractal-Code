@@ -225,7 +225,7 @@ public class SpawnManager : MonoBehaviour
             scoreManager.ApplyTimeBonus();
             scoreManager.IncreaseScoreMultiplier();
             allDefeated = true;
-            if (!player.IsPlayerMaxRank())
+            if (!player.IsPlayerMaxRank() && player.IsAlive())
                 upgradeManager.StartCoroutine("StartUpgradeSequence");
             bossesDefeated++;
         }
@@ -259,6 +259,7 @@ public class SpawnManager : MonoBehaviour
     public void SetEnemyMods(Enemy e)
     {
         float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
+        Debug.Log("Mod: " + healthPowMod);
         e.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
     }
 
@@ -271,6 +272,7 @@ public class SpawnManager : MonoBehaviour
     public void SetBossMods()
     {
         float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
+        Debug.Log("HealthPowMod is " + healthPowMod);
         boss.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
 
         int attributeCeil = (int)(Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP) / 2) + 1;

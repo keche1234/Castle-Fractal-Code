@@ -114,12 +114,14 @@ public class BarUI : MonoBehaviour
 
     public void UpdateAmountTxt(string str)
     {
-        amount.text = str;
+        if (amount != null)
+            amount.text = str;
     }
 
     public void UpdateRankTxt(string str)
     {
-        rank.text = str;
+        if (rank != null)
+            rank.text = str;
     }
 
     public void SetFillColor(Color col)

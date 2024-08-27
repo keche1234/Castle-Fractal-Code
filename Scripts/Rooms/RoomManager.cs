@@ -139,7 +139,6 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         {
             //spawn boss
             current.SetBoss(Instantiate(bossPrefabs[current.GetBossNumber()], bossPrefabs[current.GetBossNumber()].transform.position, Quaternion.Euler(0, 0, 0)));
-            Debug.Log("Instantiated");
             spawnManager.SetBoss(current.GetBoss());
             spawnManager.SetAllDefeated(false);
             scoreManager.SetEnemyCount(15);

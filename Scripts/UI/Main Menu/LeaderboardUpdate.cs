@@ -9,6 +9,22 @@ public class LeaderboardUpdate : MonoBehaviour
 
     private void Awake()
     {
+        UpdateLeaderboard();
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void UpdateLeaderboard()
+    {
         Leaderboard leaderboard = new Leaderboard();
         string scoreJSON = PlayerPrefs.GetString("Leaderboard");
 
@@ -16,9 +32,9 @@ public class LeaderboardUpdate : MonoBehaviour
         {
             int emptyScore = 0;
             JsonUtility.FromJsonOverwrite(scoreJSON, leaderboard);
-            if (leaderboard.thirdPlace > 0)
+            if (leaderboard.firstPlace > 0)
             {
-                scoreTexts[2].text = string.Format("{0:D6} pts.", leaderboard.thirdPlace);
+                scoreTexts[0].text = string.Format("{0:D6} pts.", leaderboard.firstPlace);
                 emptyScore++;
 
                 if (leaderboard.secondPlace > 0)
@@ -26,9 +42,9 @@ public class LeaderboardUpdate : MonoBehaviour
                     scoreTexts[1].text = string.Format("{0:D6} pts.", leaderboard.secondPlace);
                     emptyScore++;
 
-                    if (leaderboard.firstPlace > 0)
+                    if (leaderboard.thirdPlace > 0)
                     {
-                        scoreTexts[0].text = string.Format("{0:D6} pts.", leaderboard.firstPlace);
+                        scoreTexts[2].text = string.Format("{0:D6} pts.", leaderboard.thirdPlace);
                         emptyScore++;
                     }
                 }
@@ -44,16 +60,5 @@ public class LeaderboardUpdate : MonoBehaviour
         }
 
         PlayerPrefs.SetString("Leaderboard", JsonUtility.ToJson(leaderboard));
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

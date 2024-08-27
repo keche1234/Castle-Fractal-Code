@@ -409,6 +409,7 @@ public class Twinotaurs : Boss
                     float xPos = Random.Range((room.GetXDimension() / 2) * 0.4f, (room.GetXDimension() / 2) * 0.75f);
                     float zPos = Random.Range((room.GetZDimension() / 2) * 0.4f, (room.GetZDimension() / 2) * 0.75f);
                     pounceClouds[i].transform.position = venom.transform.position;
+                    pounceClouds[i].transform.parent = roomManager.GetCurrent().transform;
 
                     switch (i)
                     {
@@ -912,6 +913,7 @@ public class Twinotaurs : Boss
         base.TakeDamage(damage, kbDir, triggerInvinc, kbMod, fixKB);
         miniHealthBarVenom.SetMax(maxHealth);
         miniHealthBarVenom.SetValue(currentHealth);
+        miniHealthBarVenom.UpdateAmountTxt(currentHealth.ToString("0"));
     }
 
     //Override UI Updaters

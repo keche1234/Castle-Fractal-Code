@@ -117,10 +117,10 @@ public class GameMenuManager : MonoBehaviour
     {
         //Application.Quit();
         //Pause();
-        Time.timeScale = 1;
         Cursor.visible = true;
         PlayerPrefs.Save();
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("MainMenu");
+        Time.timeScale = 1;
     }
 
     /*

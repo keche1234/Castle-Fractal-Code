@@ -507,8 +507,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     if (!permittedBindingDuplicates.Contains(binding.id.ToString()))
                     {
                         Debug.Log("Duplicate binding found: " + binding.effectivePath + " (" + binding.action + ")");
-                        int mapIndex = action.actionMap.GetBindingIndex(binding);
-                        InputAction oldAction = action.actionMap.FindAction(action.actionMap.bindings[mapIndex].action);
+                        InputAction oldAction = action.actionMap.FindAction(binding.action);
+
                         return (binding.action, oldAction.GetBindingIndex(binding));
                     }
                     else

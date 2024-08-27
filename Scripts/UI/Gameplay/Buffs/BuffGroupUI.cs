@@ -76,7 +76,7 @@ public class BuffGroupUI : MonoBehaviour
                 myIcons[iconIndex].SetIcon(allDebuffs[i - 1]);
 
                 if (i == System.Array.IndexOf(Character.debuffTypes, "Strength") || i == System.Array.IndexOf(Character.debuffTypes, "Defense"))
-                    myIcons[iconIndex].SetValue(debuffVals[i]);
+                    myIcons[iconIndex].SetValue(Mathf.Max(-9, debuffVals[i]));
                 else if (i == System.Array.IndexOf(Character.debuffTypes, "Speed") || i == System.Array.IndexOf(Character.debuffTypes, "Signature Gain"))
                     myIcons[iconIndex].SetValue(PercentToRomanNumeral(debuffVals[i]));
                 else
@@ -111,7 +111,7 @@ public class BuffGroupUI : MonoBehaviour
                 myIcons[iconIndex].SetIcon(allBuffs[i - 1]);
 
                 if (i == System.Array.IndexOf(Character.buffTypes, "Strength") || i == System.Array.IndexOf(Character.buffTypes, "Defense"))
-                    myIcons[iconIndex].SetValue(buffVals[i]);
+                    myIcons[iconIndex].SetValue(Mathf.Min(9, buffVals[i]));
                 else if (i == System.Array.IndexOf(Character.buffTypes, "Speed") || i == System.Array.IndexOf(Character.buffTypes, "Signature Gain"))
                     myIcons[iconIndex].SetValue(PercentToRomanNumeral(buffVals[i]));
                 else

@@ -182,7 +182,10 @@ public class ControlPresetsMainMenu : MonoBehaviour
     {
         presetList[currentPreset].ApplyNameOverride(presetNameBox.text);
         if (string.IsNullOrEmpty(presetNameBox.text))
+        {
             presetNameBox.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = inputActions.controlSchemes[currentPreset].name;
+            presetList[currentPreset].ApplyNameOverride(inputActions.controlSchemes[currentPreset].name);
+        }
     }
 
     public void UpdatePlaceholderName()

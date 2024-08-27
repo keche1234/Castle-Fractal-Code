@@ -25,6 +25,12 @@ public class MenuHolderUI : MonoBehaviour
 #endif
     }
 
+    public void ResetScores()
+    {
+        PlayerPrefs.DeleteKey("Leaderboard");
+        OpenMenu(menus[0]);
+    }
+
     public void TransitionScene(string scene)
     {
         UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(scene);

@@ -559,7 +559,7 @@ public abstract class Character : MonoBehaviour
             defenseUI.color = Color.white;
     }
 
-    public void SetHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
+    public virtual void SetHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
     {
         maxHealth = BASE_HEALTH * healthMod;
         power = BASE_POWER * powerMod;
@@ -568,7 +568,7 @@ public abstract class Character : MonoBehaviour
         currentHealth = maxHealth;
     }
 
-    public void MultiplyHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
+    public virtual void MultiplyHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
     {
         maxHealth *= healthMod;
         power *= powerMod;

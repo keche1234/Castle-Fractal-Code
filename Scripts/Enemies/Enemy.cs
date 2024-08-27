@@ -28,6 +28,7 @@ public abstract class Enemy : Character
     public override void Start()
     {
         base.Start();
+
         player = GameObject.Find("Player");
         growthCap = player.GetComponent<PlayerController>().GetMaxRank() * 2;
     }
@@ -84,6 +85,7 @@ public abstract class Enemy : Character
 
         miniHealthBar.SetMax(maxHealth);
         miniHealthBar.SetValue(currentHealth);
+        miniHealthBar.UpdateAmountTxt(currentHealth.ToString("0"));
     }
 
     public override IEnumerator TakeKnockback(float knockback, Vector3 kbDir, float kbMod = 0)
@@ -254,6 +256,18 @@ public abstract class Enemy : Character
                 }
             }
         }
+    }
+
+    public override void SetHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
+    {
+        base.SetHealthPowerSpeed(healthMod, powerMod, speedMult);
+        miniHealthBar.UpdateAmountTxt(currentHealth.ToString("0"));
+    }
+
+    public override void MultiplyHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
+    {
+        base.MultiplyHealthPowerSpeed(healthMod, powerMod, speedMult);
+        miniHealthBar.UpdateAmountTxt(currentHealth.ToString("0"));
     }
 
     public int GetPointValue()

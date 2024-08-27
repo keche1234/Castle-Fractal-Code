@@ -193,6 +193,8 @@ public class PlayerController : Character
 
         inputActions.Player.Enable();
         inputActions.Menus.Enable();
+
+        inputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString("rebinds"));
         SetControls(0);
     }
 
@@ -732,7 +734,10 @@ public class PlayerController : Character
         }
         else
         {
-            currentHealth -= damage;
+            if (GetHealthPercentage() >= 0.3f && (currentHealth - damage) <= 0) // Guts
+                currentHealth = maxHealth * 0.3f;
+            else
+                currentHealth -= damage * (IsInCrisis() ? 0.8f : 1);
         }
 
         if (currentHealth <= 0)
@@ -743,6 +748,7 @@ public class PlayerController : Character
                 gameEnder.gameObject.SetActive(true);
                 gameEnder.BeginGameOverSequence();
                 menuManager.SetGameOver(true);
+                playerLife = LifeState.Dead;
             }
         }
         else if (currentHealth > maxHealth)
@@ -815,7 +821,7 @@ public class PlayerController : Character
         currentMP += cw.GetMightPoints();
         inventoryBar.SetValue(currentMP);
         inventoryBar.UpdateAmountTxt(currentMP + "/" + maxMP);
-        
+
         if (equippedCustomWeapon >= 0 && equippedCustomWeapon < inventory.Count)
             inventoryShoulderUI.DrawShoulder(equippedCustomWeapon, ref inventory);
     }
@@ -939,17 +945,17 @@ public class PlayerController : Character
              ********************************************/
             //if (!IsPaused())
             //{
-                float sigLoss = 0.2f;
-                int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
-                if (current.GetAbilities().Contains(place))
-                    sigLoss += 0.25f;
+            float sigLoss = 0.2f;
+            int place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingD");
+            if (current.GetAbilities().Contains(place))
+                sigLoss += 0.25f;
 
-                place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
-                if (current.GetAbilities().Contains(place))
-                    sigLoss += 0.3f;
+            place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
+            if (current.GetAbilities().Contains(place))
+                sigLoss += 0.3f;
 
-                if (equippedCustomWeapon != num)
-                    current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
+            if (equippedCustomWeapon != num)
+                current.AddSignature((int)(-current.GetSignatureGauge() * sigLoss));
             //}
         }
 
@@ -1279,7 +1285,7 @@ public class PlayerController : Character
             {
                 damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 10);
                 if (h.GetSource().gameObject.GetComponent<Boss>())
-                    damage *= 4;
+                    damage *= 2;
             }
             int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
@@ -1503,14 +1509,20 @@ public class PlayerController : Character
             Debug.LogError("Control Preset " + control + " out of range!");
             return false;
         }
-
         inputActions.bindingMask = InputBinding.MaskByGroup(controlSchemes[control]);
-        ControlPresetSettings preset = controlSettings[control];
+        ControlPresetSettings settings = controlSettings[control];
 
-        signatureCombo = preset.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Combo ? true : false;
-        meleeAuto = preset.GetMeleeAim() == ControlPresetSettings.MeleeAim.Auto ? true : false;
-        rangedAssist = preset.GetRangedAssist();
-        scrollSensitivity = preset.GetScrollSensitivity();
+        if (control > 3)
+        {
+            string loadSettings = PlayerPrefs.GetString("Preset " + control.ToString());
+            if (!string.IsNullOrEmpty(loadSettings))
+                JsonUtility.FromJsonOverwrite(loadSettings, settings);
+        }
+
+        signatureCombo = settings.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Combo ? true : false;
+        meleeAuto = settings.GetMeleeAim() == ControlPresetSettings.MeleeAim.Auto ? true : false;
+        rangedAssist = settings.GetRangedAssist();
+        scrollSensitivity = settings.GetScrollSensitivity();
 
         if (GetActionInputDevice("main attack") == Keyboard.current && (menuManager.IsPaused() || upgradeManager.IsUpgrading()))
         {

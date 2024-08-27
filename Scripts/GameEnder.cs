@@ -74,8 +74,8 @@ public class GameEnder : MonoBehaviour
          * Stun player for a bit
          ***********************/
         float t = 0;
-        float playerInvincibleTimer = player.GetInvincibility();
-        while (t < Mathf.Max(GAME_OVER_DELAY, playerInvincibleTimer))
+        player.OverrideInvincibility(0);
+        while (t < GAME_OVER_DELAY)
         {
             player.transform.Rotate(0, PLAYER_ROTATE_SPEED * Time.unscaledDeltaTime, 0);
             t += Time.unscaledDeltaTime;
@@ -147,13 +147,13 @@ public class GameEnder : MonoBehaviour
         else // There are no scores saved on the leaderboard
         {
             leaderboard.AddToLeaderboard(currentScore);
-            Debug.Log(currentScore);
-            scoreTexts[0].text = string.Format("{0:D6} pts.", currentScore);
+            scoreTexts[0].text = currentScore > 0 ? string.Format("{0:D6} pts.", currentScore) : "------ pts.";
             for (int i = 1; i < 3; i++)
                 scoreTexts[i].text = "------ pts.";
             scoreTexts[3].text = currentScore > 0 ? "High Score!" : "------ pts.";
         }
         PlayerPrefs.SetString("Leaderboard", JsonUtility.ToJson(leaderboard));
+        PlayerPrefs.Save();
         yield return null;
 
         /******************

@@ -131,8 +131,8 @@ public class Room : MonoBehaviour
             foreach (GameObject quad in quads)
                 walls.Add(quad);
 
-            // In a 10x20 grid, anywhere from 0 to 14 walls
-            int wallCount = (int)(Random.Range(0, 0.01f * (MAX_FENCES + 1 - fences.Length + MAX_QUADS + 1 - quads.Length)) * xDimension * zDimension);
+            // In a 10x20 grid, anywhere from 0 to 7 walls
+            int wallCount = (int)(Random.Range(0, 0.005f * (MAX_FENCES + 1 - fences.Length + MAX_QUADS + 1 - quads.Length)) * xDimension * zDimension);
 
             int possibilityVector = 0b_11;
             GameObject addMe;
