@@ -620,7 +620,8 @@ public class PlayerController : Character
             if (current.GetAbilities().Contains(index))
             {
                 Ability a = weaponTypes[currentWeaponType].GetComponent<HealthDrain>();
-                TakeDamage((int)Mathf.Floor((damage * 0.2f * a.GetModifier() * -1) - Random.Range(0.001f, 1.000f) + 1.0f), Vector3.zero);
+                int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 10 : 1);
+                TakeDamage((int)Mathf.Floor((a.GetModifier() * percent * -1 / 30f) - Random.Range(0.001f, 1.000f) + 1.0f), Vector3.zero);
             }
 
             index = System.Array.IndexOf(Ability.GetNames(), "SignatureDrain");
@@ -630,8 +631,7 @@ public class PlayerController : Character
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<SignatureDrain>();
                     int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 10 : 1);
-                    //Debug.Log(percent);
-                    inventory[equippedCustomWeapon].AddSignature(Mathf.Max(0, (int)((a.GetModifier() * 50 * percent) - Random.Range(0.001f, 1f) + 1.0f)));
+                    inventory[equippedCustomWeapon].AddSignature(Mathf.Max(0, (int)((a.GetModifier() * percent) - Random.Range(0.001f, 1f) + 1.0f)));
                     signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
                 }
             }
@@ -660,6 +660,7 @@ public class PlayerController : Character
 
     public override void TakeDamage(int damage, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool fixKB = false)
     {
+        float myPercent = GetHealthPercentage();
         if (damage > 0) // Taking damage (NOT healing)
         {
             if (invincibilityTime <= 0)
@@ -673,6 +674,7 @@ public class PlayerController : Character
                         float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1f - (currentHealth / maxHealth));
                         if (Random.Range(0, 0.99f) < chance)
                         {
+                            // Successful Dodge!
                             OverrideInvincibility(0.5f);
                             return;
                         }
@@ -685,6 +687,7 @@ public class PlayerController : Character
                         Enemy[] allEnemies = GameObject.FindObjectsOfType<Enemy>();
                         foreach (Enemy e in allEnemies)
                         {
+                            // Counter enemies
                             e.TakeDamage(Mathf.Max(1, (int)Mathf.Floor((0.4f * a.GetModifier() * damage) - Random.Range(0.001f, 1.000f) + 1.0f)), Vector3.zero);
                         }
                     }
@@ -692,6 +695,7 @@ public class PlayerController : Character
                     place = System.Array.IndexOf(Ability.GetNames(), "PitySignature");
                     if (current.GetAbilities().Contains(place))
                     {
+                        // Gain Signature
                         Ability a = weaponTypes[currentWeaponType].GetComponent<PitySignature>();
                         int perc = (int)(damage * 100 / maxHealth);
                         GetCustomWeapon().AddSignature((int)Mathf.Max(0, a.GetModifier() * 0.4f * perc - Random.Range(0.001f, 1.000f) + 1));
@@ -713,13 +717,11 @@ public class PlayerController : Character
                     }
                 }
                 // The Quick Dodge failed
-
                 if (playerDodge == DodgeState.Dodging)
                     playerDodge = DodgeState.Fail; //this means the coroutine is running, so it will set the dodge state back to cool or available when necessary.
 
                 dodgeTrail.time = 0;
                 dodgeTrail.emitting = false;
-                currentHealth -= damage;
                 roomManager.GetCurrent().AddDamageTaken(damage);
 
                 if (triggerInvinc)
@@ -730,18 +732,23 @@ public class PlayerController : Character
                     if (fixKB) StartCoroutine(TakeKnockback(1, kbDir, kbMod));
                     else StartCoroutine(TakeKnockback(damage / maxHealth, kbDir, kbMod));
                 }
+
+                Debug.Log("Taking " + damage + " damage with this attack.");
+
+                if (GetHealthPercentage() >= 0.3f && (currentHealth - damage) <= 0) // Guts (if above 30% health, can't be KO'd)
+                    currentHealth = Mathf.FloorToInt(maxHealth * 0.3f);
+                else
+                    currentHealth -= Mathf.Max(Mathf.FloorToInt(damage * (IsInCrisis() ? 0.8f : 1)), 1);
             }
         }
         else
         {
-            if (GetHealthPercentage() >= 0.3f && (currentHealth - damage) <= 0) // Guts
-                currentHealth = maxHealth * 0.3f;
-            else
-                currentHealth -= damage * (IsInCrisis() ? 0.8f : 1);
+            currentHealth -= damage;
         }
 
         if (currentHealth <= 0)
         {
+            Debug.Log("Died at " + (myPercent * 100) + "%");
             currentHealth = 0;
             if (playerLife == LifeState.Alive)
             {
@@ -1268,9 +1275,8 @@ public class PlayerController : Character
     private float DodgeHelp(RaycastHit hit, List<Hitbox> dodged, float bonus)
     {
         Hitbox h = hit.collider.gameObject.GetComponent<Hitbox>();
-        if (h != null && h.GetSource() && !dodged.Contains(h))
+        if (h != null && h.gameObject && h.GetSource() && h.GetSource().gameObject.GetComponent<Enemy>() && !dodged.Contains(h))
         {
-            // TODO: Stop multihit dodges
             dodged.Add(h);
 
             int damage;
@@ -1279,7 +1285,6 @@ public class PlayerController : Character
             {
                 damage = (int)(h.GetSource().GetPower());
                 Debug.Log(damage);
-                //damage = ((Enemy)h.GetSource()).SimulateDamage(((Explosive)h).GetDamageMod(), this);
             }
             else
             {
@@ -1287,7 +1292,7 @@ public class PlayerController : Character
                 if (h.GetSource().gameObject.GetComponent<Boss>())
                     damage *= 2;
             }
-            int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
+            int pts = (int)(damage * signatureMultiplier * 1.5f * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
             {
                 //int pity = 1;

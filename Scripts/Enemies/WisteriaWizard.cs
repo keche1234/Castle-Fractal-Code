@@ -202,7 +202,7 @@ public class WisteriaWizard : Enemy
 
         float healChargeVar = Random.Range(0.8f, 1.25f);
 
-        int lowest = 0;
+        int lowest;
         Enemy[] enemies;
 
         float t = 0;
@@ -278,6 +278,13 @@ public class WisteriaWizard : Enemy
     protected override IEnumerator Attack()
     {
         yield return null;
+    }
+
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        blastAoe.SetActive(false);
+        maxAoe.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider collider)

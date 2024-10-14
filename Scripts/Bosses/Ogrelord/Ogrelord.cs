@@ -184,7 +184,7 @@ public class Ogrelord : Boss
         {
             case 0: //Summon
                 if (summons.Count < 7)
-                    StartCoroutine(Summon(summonCount, 4, 2, 1.5f, 1.25f, 1, 2));
+                    StartCoroutine(Summon(summonCount, 4, 2, 1, 1, 1, 2));
                 break;
             case 1: //Club Combo
                 //startup
@@ -448,7 +448,7 @@ public class Ogrelord : Boss
 
                 //First Jump
                 state = ActionState.Attacking;
-                bodyBox.gameObject.SetActive(true);
+                bodyBox.gameObject.SetActive(false);
 
                 //Determine destination and set speed
                 Vector3 xDir = (new Vector3(transform.position.x - player.transform.position.x, 0, 0)).normalized;
@@ -485,7 +485,8 @@ public class Ogrelord : Boss
                     PushSummonsBackStomp();
 
                     landing = t > (airTime / 2);
-                    GetComponent<Collider>().isTrigger = t < (airTime / 2);
+                    GetComponent<Collider>().isTrigger = !landing;
+                    bodyBox.gameObject.SetActive(landing);
                     if (GetMyFreezeTime() <= 0)
                     {
                         t += Time.deltaTime;
@@ -519,11 +520,12 @@ public class Ogrelord : Boss
                     location = tempLoc;
 
                     state = ActionState.Attacking;
-                    bodyBox.gameObject.SetActive(true);
+                    bodyBox.gameObject.SetActive(false);
 
                     //Determine destination and set speed
                     float z = location * ((roomManager.GetCurrent().GetZDimension() / 2) - 2f);
-                    charRb.AddForce(new Vector3(0, Physics.gravity.magnitude * airTime * 0.5f, (z - transform.position.z) / airTime), ForceMode.VelocityChange);
+                    xDist = (((roomManager.GetCurrent().GetXDimension() * 0.5f) - 1) * xDir.x) - transform.position.x;
+                    charRb.AddForce(new Vector3(xDist / airTime, Physics.gravity.magnitude * airTime * 0.5f, (z - transform.position.z) / airTime), ForceMode.VelocityChange);
 
                     //Wait for state to be cooldown (I landed)
                     t = 0;
@@ -533,6 +535,7 @@ public class Ogrelord : Boss
                         PushSummonsBackStomp();
 
                         landing = t > (airTime / 2);
+                        bodyBox.gameObject.SetActive(landing);
                         if (GetMyFreezeTime() <= 0)
                         {
                             t += Time.deltaTime;
@@ -588,6 +591,7 @@ public class Ogrelord : Boss
                     t = 0;
                     while (t < (stompStart - (i * 0.2f)))
                     {
+                        bodyBox.gameObject.SetActive(false);
                         if (GetMyFreezeTime() <= 0)
                         {
                             if (t < stompJumpTime)

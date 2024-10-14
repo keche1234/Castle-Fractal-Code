@@ -186,6 +186,11 @@ public class GreenSnake : Enemy
         yield return null;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+    }
+
     public override void Reset(bool zeroSpeed)
     {
         //StopAllCoroutines();

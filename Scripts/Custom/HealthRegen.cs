@@ -33,8 +33,8 @@ public class HealthRegen : Buff
 
     public void Heal()
     {
-        float heal = Mathf.Max((mod * owner.GetMaxHealth()) - Random.Range(0.001f, 1f) + 1, 1);
-        owner.TakeDamage(-(int)heal, Vector3.zero);
+        float heal = (mod * owner.GetMaxHealth()) - Random.Range(0.001f, 1f) + 1;
+        owner.TakeDamage(-Mathf.Max((int)heal, 1), Vector3.zero);
     }
 
     public override void SetBuff(float val, float time)

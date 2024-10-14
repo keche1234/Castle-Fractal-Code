@@ -12,12 +12,13 @@ public class Hitbox : MonoBehaviour
     [SerializeField] protected float knockbackMod;
     [SerializeField] protected bool fixedKB;
     [SerializeField] protected bool triggerInvincibility = true; //default
-    [SerializeField] protected bool goesThroughWalls = false;
+    //[SerializeField] protected bool goesThroughWalls = false;
 
     [Header("Connections")]
     [SerializeField] protected List<Character> connected;
     [SerializeField] protected List<float> connectedTimer;
     [SerializeField] protected float clearTime;
+    [SerializeField] protected List<Hitbox> linkedHitboxes;
 
     [SerializeField] protected string targetTag;
     [SerializeField] protected float myPow;
@@ -141,18 +142,18 @@ public class Hitbox : MonoBehaviour
                 AddConnected(c);
                 if (!c.GetHitByList().Contains(source))
                 {
-                    if (!goesThroughWalls)
-                    {
-                        // spherecast from contact point to source
-                        RaycastHit hit;
-                        Vector3 sphereCastAim = source.transform.position - targetCollider.transform.position;
-                        Debug.DrawRay(targetCollider.transform.position, sphereCastAim, Color.red, 3);
+                    //if (!goesThroughWalls)
+                    //{
+                    //    // spherecast from contact point to source
+                    //    RaycastHit hit;
+                    //    Vector3 sphereCastAim = source.transform.position - targetCollider.transform.position;
+                    //    Debug.DrawRay(targetCollider.transform.position, sphereCastAim, Color.red, 3);
 
-                        if (Physics.SphereCast(new Ray(targetCollider.transform.position - (sphereCastAim.normalized * 0.5f), sphereCastAim.normalized), 0.5f, out hit, sphereCastAim.magnitude, LayerMask.GetMask("Wall"), QueryTriggerInteraction.Collide))
-                        {
-                            return;
-                        }
-                    }
+                    //    if (Physics.SphereCast(new Ray(targetCollider.transform.position - (sphereCastAim.normalized * 0.5f), sphereCastAim.normalized), 0.5f, out hit, sphereCastAim.magnitude, LayerMask.GetMask("Wall"), QueryTriggerInteraction.Collide))
+                    //    {
+                    //        return;
+                    //    }
+                    //}
 
                     c.AddToHitByList(source);
                     source.DealDamage(damageMod, targetCollider.gameObject.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
@@ -168,18 +169,18 @@ public class Hitbox : MonoBehaviour
                 {
                     if (!p.GetHitByList().Contains(source))
                     {
-                        if (!goesThroughWalls)
-                        {
-                            // spherecast from contact point to source
-                            RaycastHit hit;
-                            Vector3 sphereCastAim = source.transform.position - targetCollider.transform.position;
-                            Debug.DrawRay(targetCollider.transform.position, sphereCastAim, Color.red, 3);
+                        //if (!goesThroughWalls)
+                        //{
+                        //    // spherecast from contact point to source
+                        //    RaycastHit hit;
+                        //    Vector3 sphereCastAim = source.transform.position - targetCollider.transform.position;
+                        //    Debug.DrawRay(targetCollider.transform.position, sphereCastAim, Color.red, 3);
 
-                            if (Physics.SphereCast(new Ray(targetCollider.transform.position - (sphereCastAim.normalized * 0.5f), sphereCastAim.normalized), 0.5f, out hit, sphereCastAim.magnitude, LayerMask.GetMask("Wall"), QueryTriggerInteraction.Collide))
-                            {
-                                return;
-                            }
-                        }
+                        //    if (Physics.SphereCast(new Ray(targetCollider.transform.position - (sphereCastAim.normalized * 0.5f), sphereCastAim.normalized), 0.5f, out hit, sphereCastAim.magnitude, LayerMask.GetMask("Wall"), QueryTriggerInteraction.Collide))
+                        //    {
+                        //        return;
+                        //    }
+                        //}
 
                         p.AddToHitByList(source);
                         source.DealDamage(damageMod, targetCollider.gameObject.transform.parent.GetComponent<Character>(), myPow, d, triggerInvincibility, knockbackMod, preserved, fixedKB);
@@ -212,6 +213,9 @@ public class Hitbox : MonoBehaviour
     {
         connected.Add(c);
         connectedTimer.Add(clearTime);
+        foreach (Hitbox h in linkedHitboxes)
+            if (h && h.gameObject)
+                h.AddConnected(c);
     }
 
     public List<Character> GetConnected()
@@ -220,5 +224,16 @@ public class Hitbox : MonoBehaviour
         foreach (Character c in connected)
             res.Add(c);
         return res;
+    }
+
+    public void SetHitboxLinks(Hitbox link)
+    {
+        linkedHitboxes = new List<Hitbox>();
+        linkedHitboxes.Add(link);
+    }
+
+    public void SetHitboxLinks(List<Hitbox> links)
+    {
+        linkedHitboxes = new List<Hitbox>(links);
     }
 }

@@ -257,6 +257,14 @@ public class RedMage : Enemy
         yield return null;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        attack.gameObject.SetActive(false);
+        blastAoe.SetActive(false);
+        maxAoe.SetActive(false);
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
         if (collider.gameObject.CompareTag("Wall") && state == ActionState.Moving)

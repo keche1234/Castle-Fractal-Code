@@ -238,6 +238,12 @@ public class TangerineTroll : Enemy
         yield return null;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        transform.position = new Vector3(transform.position.x, 1.0f, transform.position.z);
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
         if (collider.gameObject.CompareTag("Floor") && state == ActionState.Attacking)

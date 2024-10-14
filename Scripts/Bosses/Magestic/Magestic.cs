@@ -127,7 +127,7 @@ public class Magestic : Boss
         {
             case 0: //Summon
                 state = ActionState.Startup;
-                StartCoroutine(Summon(summonCount, 2, 4, 1, 1.5f, 1.25f, 2));
+                StartCoroutine(Summon(summonCount, 2, 4, 1, 1, 1, 2));
                 break;
             case 1: //Pyrostorm
                 //startup

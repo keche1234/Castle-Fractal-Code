@@ -153,6 +153,16 @@ public class YellowMinotaur : Enemy
         state = ActionState.Waiting;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        foreach (Hitbox a in attack)
+        {
+            a.ClearConnected();
+            a.gameObject.SetActive(false);
+        }
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
         if ((collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door") || collider.gameObject.CompareTag("Enemy")) && state == ActionState.Attacking)

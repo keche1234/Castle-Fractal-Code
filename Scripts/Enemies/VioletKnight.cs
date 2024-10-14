@@ -202,6 +202,12 @@ public class VioletKnight : Enemy
         state = ActionState.Waiting;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        attack.gameObject.SetActive(false);
+    }
+
     public override void Reset(bool zeroSpeed)
     {
         //StopAllCoroutines();

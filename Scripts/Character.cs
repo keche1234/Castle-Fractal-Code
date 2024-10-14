@@ -13,8 +13,8 @@ public abstract class Character : MonoBehaviour
     [SerializeField] protected float BASE_HEALTH;
     [SerializeField] protected float BASE_POWER;
     [SerializeField] protected float BASE_SPEED;
-    protected float currentHealth;
-    protected float maxHealth;
+    [SerializeField] protected float currentHealth;
+    [SerializeField] protected float maxHealth;
     protected float power;
     protected int strength;
     protected int defense;
@@ -561,20 +561,31 @@ public abstract class Character : MonoBehaviour
 
     public virtual void SetHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
     {
-        maxHealth = BASE_HEALTH * healthMod;
+        maxHealth = Mathf.Round(BASE_HEALTH * healthMod);
         power = BASE_POWER * powerMod;
         speed = BASE_SPEED * speedMult;
 
         currentHealth = maxHealth;
+
+        miniHealthBar.SetMax(maxHealth);
+        miniHealthBar.SetValue(currentHealth);
     }
 
     public virtual void MultiplyHealthPowerSpeed(float healthMod, float powerMod, float speedMult)
     {
         maxHealth *= healthMod;
+        maxHealth = Mathf.Round(maxHealth);
         power *= powerMod;
         speed *= speedMult;
 
         currentHealth = maxHealth;
+        miniHealthBar.SetMax(maxHealth);
+        miniHealthBar.SetValue(currentHealth);
+    }
+
+    public virtual void ResetHealthPowerSpeed()
+    {
+        SetHealthPowerSpeed(1, 1, 1);
     }
 
     public float GetBaseHealth()

@@ -180,6 +180,12 @@ public class PinkPython : Enemy
         yield return null;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        poisonGas.gameObject.SetActive(false);
+    }
+
     public override void Reset(bool zeroSpeed)
     {
         //StopAllCoroutines();

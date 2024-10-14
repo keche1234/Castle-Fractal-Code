@@ -165,7 +165,6 @@ public class SpawnManager : MonoBehaviour
 
         for (int i = 0; i < spawnPosList.Count; i++)
         {
-            Destroy(covers[i]);
             currentWaveList.Add(Instantiate(enemyPrefabs[spawnNum[i]], spawnPosList[i], gameObject.transform.rotation));
 
             currentWaveList[i].SetSpawnManager(this);
@@ -178,6 +177,13 @@ public class SpawnManager : MonoBehaviour
             int attributeCeil = (int)Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP);
             currentWaveList[i].SetStrength(Random.Range(0, attributeCeil + 1));
             currentWaveList[i].ChangeDefense(Random.Range(0, attributeCeil + 1));
+        }
+        yield return null;
+
+        for (int i = 0; i < spawnPosList.Count; i++)
+        {
+            Destroy(covers[i]);
+            SetEnemyMods(currentWaveList[i]);
         }
         spawned = true;
         yield return null;
@@ -259,7 +265,6 @@ public class SpawnManager : MonoBehaviour
     public void SetEnemyMods(Enemy e)
     {
         float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
-        Debug.Log("Mod: " + healthPowMod);
         e.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
     }
 
@@ -272,7 +277,6 @@ public class SpawnManager : MonoBehaviour
     public void SetBossMods()
     {
         float healthPowMod = 1 + (ENEMY_HEALTHPOW_GROWTH * bossesDefeated);
-        Debug.Log("HealthPowMod is " + healthPowMod);
         boss.SetHealthPowerSpeed(healthPowMod, healthPowMod, 1);
 
         int attributeCeil = (int)(Mathf.Min(ENEMY_ATTRIBUTE_CEIL + (ENEMY_ATTRIBUTE_GROWTH * bossesDefeated), ENEMY_ATTRIBUTE_CAP) / 2) + 1;

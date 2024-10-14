@@ -63,6 +63,7 @@ public abstract class Enemy : Character
 
     public override void TakeDamage(int damage, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool fixKB = false)
     {
+        Debug.Log("Max is: " + maxHealth);
         if (!invincible || damage < 0) //if invicible => damage is negative (healing)
         {
             currentHealth -= damage;
@@ -227,8 +228,8 @@ public abstract class Enemy : Character
                 int stunChance = 15 + Mathf.Max(0, (int)(0.6f - playerInfo.GetHealthPercentage()));
                 potionTypeChance.Add(stunChance);
 
-                // Saving: 5, +5 (when not Healthy), +15 in Crisis
-                int savingChance = 5;
+                // Saving: 15, +5 (when not Healthy), +15 in Crisis
+                int savingChance = 15;
                 if (!playerInfo.IsHealthy())
                     savingChance += 5;
                 if (!playerInfo.IsInCrisis())

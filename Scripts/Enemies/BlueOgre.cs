@@ -281,6 +281,12 @@ public class BlueOgre : Enemy
         state = ActionState.Waiting;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        Reset(true);
+    }
+
     public override void Reset(bool zeroSpeed)
     {
         //StopAllCoroutines();

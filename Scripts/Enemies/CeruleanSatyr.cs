@@ -166,6 +166,16 @@ public class CeruleanSatyr : Enemy
         state = ActionState.Waiting;
     }
 
+    public override void StunMe(float t)
+    {
+        base.StunMe(t);
+        foreach (Hitbox a in attack)
+        {
+            a.ClearConnected();
+            a.gameObject.SetActive(false);
+        }
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
         if ((collider.gameObject.CompareTag("Wall") || collider.gameObject.CompareTag("Door")) && state == ActionState.Attacking)
