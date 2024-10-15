@@ -13,8 +13,10 @@ public abstract class Character : MonoBehaviour
     [SerializeField] protected float BASE_HEALTH;
     [SerializeField] protected float BASE_POWER;
     [SerializeField] protected float BASE_SPEED;
-    [SerializeField] protected float currentHealth;
-    [SerializeField] protected float maxHealth;
+    protected const float HEALTHY_RANGE = 0.7f;
+    protected const float CRISIS_RANGE = 0.3f;
+    protected float currentHealth;
+    protected float maxHealth;
     protected float power;
     protected int strength;
     protected int defense;
@@ -315,11 +317,11 @@ public abstract class Character : MonoBehaviour
 
     public bool IsHealthy()
     {
-        return currentHealth / maxHealth >= 0.7f;
+        return currentHealth / maxHealth >= HEALTHY_RANGE;
     }
     public bool IsInCrisis()
     {
-        return currentHealth / maxHealth <= 0.3f;
+        return currentHealth / maxHealth <= CRISIS_RANGE;
     }
 
     public List<List<Buff>> GetBuffs()

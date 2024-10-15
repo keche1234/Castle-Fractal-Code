@@ -15,6 +15,7 @@ public class GameMenuManager : MonoBehaviour
     [SerializeField] protected List<Canvas> pauseMenus; //0 is continue/quit, 1 is inventory
     [SerializeField] protected int lastMenu = 0;
     [SerializeField] protected bool gameOver = false;
+    protected bool canPause = true;
 
     [SerializeField] protected PlayerController player;
     [SerializeField] protected GameObject screenBars;
@@ -57,47 +58,50 @@ public class GameMenuManager : MonoBehaviour
      */
     public void Pause(int m)
     {
-        paused = !paused;
-        if (paused) //pause the game!
+        if (canPause)
         {
-            prevTimeScale = Time.timeScale;
-            Time.timeScale = 0;
-
-            //show menu m
-            blackFade.gameObject.SetActive(true);
-            Cursor.visible = true;
-            pauseMenus[m].gameObject.SetActive(true);
-
-            Button[] buttons = pauseMenus[m].GetComponentsInChildren<Button>(true);
-            if (player.GetActionInputDevice("main attack") == Keyboard.current)
-                eventSystem.SetSelectedGameObject(buttons[0].gameObject);
-            else
-                eventSystem.SetSelectedGameObject(null);
-
-            if (m > 0)
+            paused = !paused;
+            if (paused) //pause the game!
             {
-                scoreManager.gameObject.SetActive(false);
-                inventoryShoulder.gameObject.SetActive(false);
+                prevTimeScale = Time.timeScale;
+                Time.timeScale = 0;
+
+                //show menu m
+                blackFade.gameObject.SetActive(true);
+                Cursor.visible = true;
+                pauseMenus[m].gameObject.SetActive(true);
+
+                Button[] buttons = pauseMenus[m].GetComponentsInChildren<Button>(true);
+                if (player.GetActionInputDevice("main attack") == Keyboard.current)
+                    eventSystem.SetSelectedGameObject(buttons[0].gameObject);
+                else
+                    eventSystem.SetSelectedGameObject(null);
+
+                if (m > 0)
+                {
+                    scoreManager.gameObject.SetActive(false);
+                    inventoryShoulder.gameObject.SetActive(false);
+                }
             }
-        }
-        else //unpause the game!
-        {
-            Time.timeScale = prevTimeScale;
+            else //unpause the game!
+            {
+                Time.timeScale = prevTimeScale;
 
-            //hide menus
-            blackFade.gameObject.SetActive(false);
-            Cursor.visible = false;
-            eventSystem.SetSelectedGameObject(null);
-            foreach (Canvas menu in pauseMenus)
-                menu.gameObject.SetActive(false);
-            scoreManager.gameObject.SetActive(true);
-            inventoryShoulder.gameObject.SetActive(true);
-        }
+                //hide menus
+                blackFade.gameObject.SetActive(false);
+                Cursor.visible = false;
+                eventSystem.SetSelectedGameObject(null);
+                foreach (Canvas menu in pauseMenus)
+                    menu.gameObject.SetActive(false);
+                scoreManager.gameObject.SetActive(true);
+                inventoryShoulder.gameObject.SetActive(true);
+            }
 
-        if (paused && m == 2)
-        {
-            gameOver = true;
-            screenBars.SetActive(false);
+            if (paused && m == 2)
+            {
+                gameOver = true;
+                screenBars.SetActive(false);
+            }
         }
     }
 
@@ -150,5 +154,10 @@ public class GameMenuManager : MonoBehaviour
     public void SetGameOver(bool b)
     {
         gameOver = b;
+    }
+
+    public void SetPausability(bool b)
+    {
+        canPause = b;
     }
 }

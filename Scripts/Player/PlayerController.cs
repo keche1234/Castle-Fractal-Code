@@ -37,12 +37,7 @@ public class PlayerController : Character
     [SerializeField] protected PlayerInputActions inputActions;
     protected List<string> controlSchemes;
     [SerializeField] protected List<ControlPresetSettings> controlSettings;
-
-    // TODO: Program Targeting Reticle Settings
-    //[SerializeField] protected List<string> actions;
-    //[SerializeField] protected ControlManager controlManager;
-    //protected Dictionary<string, List<KeyCode>> myControls;
-    //protected Dictionary<string, List<int>> mouseControls;
+    [SerializeField] protected ControlSchemeFlash controlSchemeFlash;
 
     [Header("Control Settings")]
     [SerializeField] protected bool signatureCombo;
@@ -162,6 +157,9 @@ public class PlayerController : Character
 
         weaponStatsFlash.gameObject.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         weaponStatsFlash.gameObject.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, 175));
+
+        controlSchemeFlash.gameObject.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
+        controlSchemeFlash.gameObject.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, 175));
 
         SetCustomWeapon(-1);
         dodgeTrail = GetComponent<TrailRenderer>();
@@ -551,11 +549,12 @@ public class PlayerController : Character
             if (current.GetAbilities().Contains(place))
             {
                 float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1 - (targetHP / targetMax));
-                if (Random.Range(0, 0.99f) < chance)
+                if (Random.Range(0, 0.99999f) < chance)
                     damage = (int)(target.GetMaxHealth() * 2);
             }
         }
-        target.TakeDamage(damage, kbDir, triggerInvinc, kbMod, fixKB);
+
+        target.TakeDamage(Mathf.Max(damage, 1), kbDir, triggerInvinc, kbMod, fixKB);
 
         if (current != null)
         {
@@ -595,7 +594,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<StrengthDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (2.5f * a.GetModifier() * damage * bossMod / targetMax))
+                    if (Random.Range(0, 0.99999f) < (2f * a.GetModifier() * damage * bossMod / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -607,7 +606,7 @@ public class PlayerController : Character
                 if (current.GetAbilities().Contains(place))
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<DefenseDebilitator>();
-                    if (Random.Range(0, 0.9999f) < (2.5f * a.GetModifier() * damage * bossMod / targetMax))
+                    if (Random.Range(0, 0.99999f) < (2f * a.GetModifier() * damage * bossMod / targetMax))
                     {
                         Debuff debuff = (Debuff)ScriptableObject.CreateInstance("Debuff");
                         debuff.SetBuff(-Random.Range(1, 4), 5);
@@ -672,7 +671,7 @@ public class PlayerController : Character
                     if (current.GetAbilities().Contains(place))
                     {
                         float chance = weaponTypes[currentWeaponType].gameObject.GetComponents<Ability>()[place].GetModifier() * (1f - (currentHealth / maxHealth));
-                        if (Random.Range(0, 0.99f) < chance)
+                        if (Random.Range(0, 0.99999f) < chance)
                         {
                             // Successful Dodge!
                             OverrideInvincibility(0.5f);
@@ -733,10 +732,8 @@ public class PlayerController : Character
                     else StartCoroutine(TakeKnockback(damage / maxHealth, kbDir, kbMod));
                 }
 
-                Debug.Log("Taking " + damage + " damage with this attack.");
-
-                if (GetHealthPercentage() >= 0.3f && (currentHealth - damage) <= 0) // Guts (if above 30% health, can't be KO'd)
-                    currentHealth = Mathf.FloorToInt(maxHealth * 0.3f);
+                if (!IsInCrisis() && (currentHealth - damage) <= 0) // Guts (if above 30% health, can't be KO'd)
+                    currentHealth = Mathf.Max(Mathf.FloorToInt(maxHealth * CRISIS_RANGE * (0.8f + Random.Range(0.0f, 0.2f))), 1);
                 else
                     currentHealth -= Mathf.Max(Mathf.FloorToInt(damage * (IsInCrisis() ? 0.8f : 1)), 1);
             }
@@ -748,7 +745,6 @@ public class PlayerController : Character
 
         if (currentHealth <= 0)
         {
-            Debug.Log("Died at " + (myPercent * 100) + "%");
             currentHealth = 0;
             if (playerLife == LifeState.Alive)
             {
@@ -1367,17 +1363,6 @@ public class PlayerController : Character
         yield return null;
     }
 
-    //public virtual void OnTriggerEnter(Collider targetCollider)
-    //{
-    //    if (targetCollider.gameObject.CompareTag("Wall"))
-    //    {
-    //        Vector3 dir = transform.position - targetCollider.gameObject.transform.position;
-    //        dir = (new Vector3(dir.x, 0, dir.z)).normalized;
-    //        transform.position += dir * playerRb.velocity.magnitude * 2 * Time.deltaTime;
-    //        playerRb.velocity *= 0;
-    //    }
-    //}
-
     /***************
      * RANKS
      ***************/
@@ -1544,7 +1529,24 @@ public class PlayerController : Character
             }
         }
 
-        Debug.Log("Control Preset " + control + " activated.");
+        string controlSchemeName;
+        string loadName = PlayerPrefs.GetString("Preset Name Override " + control.ToString());
+        if (!string.IsNullOrEmpty(loadName))
+        {
+            Wrapper<string> wrapperToRetrieve = new Wrapper<string>(null);
+            JsonUtility.FromJsonOverwrite(loadName, wrapperToRetrieve);
+            if (!string.IsNullOrEmpty(wrapperToRetrieve.value))
+                controlSchemeName = wrapperToRetrieve.value;
+            else
+                controlSchemeName = controlSchemes[control];
+        }
+        else
+        {
+            controlSchemeName = controlSchemes[control];
+        }
+
+        controlSchemeFlash.SetControlName(controlSchemeName, control);
+        controlSchemeFlash.DrawInfoFlash();
         return true;
     }
 

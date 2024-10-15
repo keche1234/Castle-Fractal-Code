@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WeaponStatsFlash : MonoBehaviour
+public class WeaponStatsFlash : InfoFlash
 {
-    [Header("Appearing and Fading")]
-    [SerializeField] protected float appearTime;
-    [SerializeField] protected float fadeTime;
-    protected float appearTimeRemaining = 0;
-    protected float fadeTimeRemaining = 0;
-
     [Header("Information")]
     [SerializeField] protected Text powerText;
     [SerializeField] protected Image powerIcon;
@@ -18,6 +12,7 @@ public class WeaponStatsFlash : MonoBehaviour
     [SerializeField] protected Image durabilityIcon;
     [SerializeField] protected List<Sprite> abilitySprites;
     [SerializeField] protected List<Image> abilityImages;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -60,6 +55,11 @@ public class WeaponStatsFlash : MonoBehaviour
         }
     }
 
+    public override void DrawInfoFlash()
+    {
+        Debug.LogError("Need a weapon to draw info for!");
+    }
+
     public void DrawWeaponStatsFlash(CustomWeapon weapon)
     {
         if (weapon)
@@ -93,6 +93,8 @@ public class WeaponStatsFlash : MonoBehaviour
 
             appearTimeRemaining = appearTime;
             fadeTimeRemaining = fadeTime;
+
+            OverrideOtherFlashes();
         }
         else
         {
