@@ -195,10 +195,9 @@ public class PeridotPaladin : Enemy
 
         //Create Beam
         lanceBeam = Instantiate(lanceBeamPrefab, templar.transform.position + transform.forward, Quaternion.LookRotation(transform.forward));
-        lanceBeam.SetSource(this);
         lanceBeam.transform.Translate(0, -0.5f, 0);
         lanceBeam.transform.parent = roomManager.GetCurrent().transform;
-        lanceBeam.Setup(10, gameObject.GetComponent<Character>(), true, 0, 0.4f, 1, 0, true, false, 0);
+        lanceBeam.Setup(10, gameObject.GetComponent<PeridotPaladin>(), true, 0, 0.4f, 1, 0, true, false, 0);
         lanceBeam.SetDamageMod(counterMod);
         lanceSwing.SetHitboxLinks(lanceBeam);
         lanceBeam.gameObject.SetActive(true);

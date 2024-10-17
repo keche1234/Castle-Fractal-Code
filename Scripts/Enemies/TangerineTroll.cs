@@ -69,6 +69,7 @@ public class TangerineTroll : Enemy
             {
                 if (state == ActionState.Waiting && player.GetComponent<PlayerController>().GetCurrentHealth() > 0)
                 {
+                    transform.position = new Vector3(transform.position.x, player.transform.position.y + 0.5f, transform.position.z);
                     if (!knocked) charRb.velocity *= 0;
                     LookTowardsPlayer();
                     Vector3 distanceVector = new Vector3(player.transform.position.x - troll.transform.position.x, 0, player.transform.position.z - troll.transform.position.z);
@@ -90,8 +91,8 @@ public class TangerineTroll : Enemy
             ProgressBuffTime();
         }
 
-        if (transform.position.y < 1.3f)
-            transform.Translate(0, 1.3f - transform.position.y, 0);
+        //if (transform.position.y < 1.3f)
+        //    transform.Translate(0, 1.3f - transform.position.y, 0);
 
         if (currentHealth <= 0)
         {

@@ -40,7 +40,7 @@ public class Room : MonoBehaviour
     [SerializeField] protected int bossNum = 0;
     [SerializeField] protected Boss boss;
 
-    //TODO: Update stats appropriately
+    //TODO (v1.0/Plus): Update stats appropriately
     [Header("Room Stats")]
     [SerializeField] protected float roomTime;
     [SerializeField] protected int damageTaken;
@@ -54,10 +54,6 @@ public class Room : MonoBehaviour
     // Random Generation Algorithm Info
     protected int MAX_FENCES = 3;
     protected int MAX_QUADS = 2;
-    //protected int SINGLE_WALL_ATTEMPTS = 2;
-    //protected int DOUBLE_WALL_ATTEMPTS = 3;
-    //protected int QUAD_WALL_ATTEMPTS = 5;
-    //protected int PLUS_WALL_ATTEMPTS = 6;
     protected bool[,] grid; // true = there is a wall at a position (Row, Col) = (-World Z, World X) 
 
     // Start is called before the first frame update
@@ -300,20 +296,20 @@ public class Room : MonoBehaviour
             switch (corner)
             {
                 case 0: //Upper Left Corner
-                    possiblePositions = OpenGridPositions(2, 2, (zDimension / 2) - 1, (xDimension / 2) - 1);
+                    possiblePositions = OpenGridPositions(3, 3, (zDimension / 2) - 1, (xDimension / 2) - 1);
                     corner = 3;
                     break;
                 case 1: // Upper Right Corner
-                    possiblePositions = OpenGridPositions(2, (xDimension / 2) + 1, (zDimension / 2) - 1, xDimension - 2);
+                    possiblePositions = OpenGridPositions(3, (xDimension / 2) + 1, (zDimension / 2) - 1, xDimension - 2);
                     corner = 2;
                     break;
                 case 2: //Lower Left Corner
-                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, 2, zDimension - 2, (xDimension / 2) - 1);
+                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, 3, zDimension - 2, (xDimension / 2) - 1);
                     corner = 1;
                     break;
                 case 3: // Lower Right Corner
                 default:
-                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, (xDimension / 2) + 1, zDimension - 2, xDimension - 2);
+                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, (xDimension / 2) + 1, zDimension - 3, xDimension - 3);
                     corner = 0;
                     break;
             }

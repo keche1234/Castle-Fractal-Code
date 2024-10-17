@@ -137,4 +137,10 @@ public class ThunderCage : ScriptableObject
     {
         return bolting;
     }
+
+    public void DestroyBolt()
+    {
+        EndBolt();
+        Destroy(boltObject);
+    }
 }

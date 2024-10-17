@@ -63,7 +63,6 @@ public abstract class Enemy : Character
 
     public override void TakeDamage(int damage, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool fixKB = false)
     {
-        Debug.Log("Max is: " + maxHealth);
         if (!invincible || damage < 0) //if invicible => damage is negative (healing)
         {
             currentHealth -= damage;
@@ -202,12 +201,12 @@ public abstract class Enemy : Character
         PlayerController playerInfo = player.GetComponent<PlayerController>();
         if (playerInfo != null)
         {
-            float weaponChance = 1f / appearanceRate;
+            float weaponChance = 1.5f / appearanceRate;
             float potionChance = 0.5f;
-            Debug.Log(weaponChance);
+            Debug.Log(this + " tried to drop a weapon with chance : " + weaponChance);
 
             // Roll for drop
-            if (Random.Range(0, 0.9999f) < weaponChance)
+            if (Random.Range(0, 0.99999f) < weaponChance)
             {
                 float powLowRoll = POW_LOW_ROLL_BASE + (POW_LOW_ROLL_GROWTH * Mathf.Min(playerInfo.GetRank(1), growthCap));
                 float powHighRoll = POW_HIGH_ROLL_BASE + (POW_HIGH_ROLL_GROWTH * Mathf.Min(spawnManager.GetBossesDefeated(), growthCap));
@@ -216,7 +215,7 @@ public abstract class Enemy : Character
                 weaponDrop.gameObject.transform.position = new Vector3(transform.position.x, 1, transform.position.z);
                 weaponDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
             }
-            else if (Random.Range(0, 0.9999f) < potionChance)
+            else if (Random.Range(0, 0.99999f) < potionChance)
             {
                 List<int> potionTypeChance = new List<int>();
 
@@ -228,12 +227,12 @@ public abstract class Enemy : Character
                 int stunChance = 15 + Mathf.Max(0, (int)(0.6f - playerInfo.GetHealthPercentage()));
                 potionTypeChance.Add(stunChance);
 
-                // Saving: 15, +5 (when not Healthy), +15 in Crisis
+                // Saving: 15, +5 (when not Healthy), +10 in Crisis
                 int savingChance = 15;
                 if (!playerInfo.IsHealthy())
                     savingChance += 5;
                 if (!playerInfo.IsInCrisis())
-                    savingChance += 15;
+                    savingChance += 10;
 
                 potionTypeChance.Add(savingChance);
 
@@ -247,7 +246,7 @@ public abstract class Enemy : Character
                 {
                     if (roll < ceil)
                     {
-                        Potion potionDrop = Instantiate(potionDropPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+                        Potion potionDrop = Instantiate(potionDropPrefab, new Vector3(transform.position.x, player.transform.position.y, transform.position.z), Quaternion.Euler(0, 0, 0));
                         potionDrop.SetPotionAttribute(i + 1);
                         potionDrop.gameObject.transform.parent = roomManager.GetCurrent().transform;
                         i = potionTypeChance.Count;

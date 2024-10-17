@@ -184,13 +184,6 @@ public abstract class Boss : Enemy
             state = ActionState.Waiting;
     }
 
-    //TODO: Push Summon Away From Spot
-
-    //public override void TakeDamage(int damage, Vector3 kbDir, bool triggerInvinc = true, float kbMod = 0, bool fixKB = false)
-    //{
-    //    base.TakeDamage(damage, kbDir, triggerInvinc, kbMod, fixKB);
-    //}
-
     protected Vector3 GenerateSpawnPos(Enemy type)
     {
         return new Vector3(Random.Range(-(room.GetXDimension() / 2f) + 0.5f, (room.GetXDimension() / 2f) - 0.5f),

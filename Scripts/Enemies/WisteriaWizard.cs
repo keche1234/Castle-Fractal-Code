@@ -309,5 +309,6 @@ public class WisteriaWizard : Enemy
     {
         Destroy(blastAoe.gameObject);
         Destroy(maxAoe.gameObject);
+        base.OnDestroy();
     }
 }

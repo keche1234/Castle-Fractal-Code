@@ -95,6 +95,8 @@ public class GameMenuManager : MonoBehaviour
                     menu.gameObject.SetActive(false);
                 scoreManager.gameObject.SetActive(true);
                 inventoryShoulder.gameObject.SetActive(true);
+
+                player.UpdateControls();
             }
 
             if (paused && m == 2)
@@ -159,5 +161,14 @@ public class GameMenuManager : MonoBehaviour
     public void SetPausability(bool b)
     {
         canPause = b;
+        if (canPause)
+        {
+            Button[] buttons = pauseMenus[lastMenu].GetComponentsInChildren<Button>(true);
+            Debug.Log(buttons[1]);
+            if (player.GetActionInputDevice("main attack") == Keyboard.current && buttons.Length >= 2)
+                eventSystem.SetSelectedGameObject(buttons[1].gameObject);
+            else
+                eventSystem.SetSelectedGameObject(null);
+        }
     }
 }

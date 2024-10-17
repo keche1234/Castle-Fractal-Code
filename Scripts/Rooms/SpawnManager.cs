@@ -44,7 +44,7 @@ public class SpawnManager : MonoBehaviour
     protected const float ENEMY_ATTRIBUTE_GROWTH = 0.5f;
     protected const float ENEMY_ATTRIBUTE_CAP = 9;
 
-    protected const float ENEMY_HEALTHPOW_GROWTH = 0.3f;
+    protected const float ENEMY_HEALTHPOW_GROWTH = 0.25f;
 
     protected List<int> waveCounts;
     protected int[] waveBreaks = { 0, 7 }; // Tells you the floor at which to raise the number of waves

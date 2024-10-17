@@ -36,10 +36,10 @@ public class Magestic : Boss
     [SerializeField] protected List<Hitbox> laserLongBeamsX; // Rotate on the x-axis
     [SerializeField] protected List<Hitbox> laserLongBeamsZ; // Rotate on the z-axis
     [SerializeField] protected List<GameObject> laserWarning;
-    protected float laserRotateSpeedLateralMin = 30f; //degrees per second
-    protected float laserRotateSpeedLateralMax = 45f; //degrees per second
+    protected float laserRotateSpeedLateralMin = 15f; //degrees per second
+    protected float laserRotateSpeedLateralMax = 30f; //degrees per second
     protected float laserRotateSpeedLongMin = 60f; //degrees per second
-    protected float laserRotateSpeedLongMax = 90f; //degrees per second
+    protected float laserRotateSpeedLongMax = 75f; //degrees per second
     protected float laserActive;
     protected float laserLinger = 5f;
 

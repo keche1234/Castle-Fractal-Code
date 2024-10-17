@@ -29,6 +29,7 @@ public class PlayerController : Character
     [SerializeField] protected BarUI healthBar;
     [SerializeField] protected BarUI inventoryBar;
     [SerializeField] protected BarUI signatureBar;
+    [SerializeField] protected GeneralTextFlash generalTextFlash;
 
     [Header("Camera")]
     [SerializeField] protected Camera cam;
@@ -51,6 +52,7 @@ public class PlayerController : Character
 
     [Header("Weapon Management")]
     protected int currentWeaponType = -1;
+    [SerializeField] protected int BASE_MP;
     [SerializeField] protected Weapon[] weaponTypes;
     [SerializeField] protected int equippedCustomWeapon; //current index
     [SerializeField] protected List<CustomWeapon> inventory;
@@ -119,15 +121,15 @@ public class PlayerController : Character
         playerDodge = DodgeState.Available;
         playerLife = LifeState.Alive;
 
-        baseHealthCap = 30;
-        baseMPCap = 1000;
-
-        currentHealth = baseHealthCap;
-        maxHealth = baseHealthCap;
+        currentHealth = BASE_HEALTH;
+        maxHealth = BASE_HEALTH;
         currentMP = 0;
-        maxMP = baseMPCap;
-        speed = 3.5f;
+        maxMP = BASE_MP;
+        speed = BASE_SPEED;
         signatureMultiplier = 1;
+
+        baseHealthCap = (int)BASE_HEALTH;
+        baseMPCap = BASE_MP;
 
         invScrollPos = 0;
 
@@ -161,11 +163,21 @@ public class PlayerController : Character
         controlSchemeFlash.gameObject.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
         controlSchemeFlash.gameObject.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, 175));
 
+        generalTextFlash.gameObject.GetComponent<Billboard>().SetCamera(GameObject.Find("UI Camera").GetComponent<Camera>());
+        generalTextFlash.gameObject.GetComponent<UIAttach>().Setup(gameObject, GameObject.Find("UI Camera").GetComponent<Camera>(), new Vector2(0, 175));
+
         SetCustomWeapon(-1);
         dodgeTrail = GetComponent<TrailRenderer>();
 
         upgradeManager = FindObjectOfType<UpgradeManager>();
         eventSystem = FindObjectOfType<EventSystem>();
+
+        ///****************************
+        // * Cinematic Angles: Hide UI
+        // * TODO: DELETE ME WHEN NOT NEEDED
+        // ****************************/
+        //miniDurabilityBar.gameObject.SetActive(false);
+        //miniDodgeBar.gameObject.SetActive(false);
     }
 
     private void Awake()
@@ -290,7 +302,6 @@ public class PlayerController : Character
     {
         if (playerLife != LifeState.Dead && !stunned && !menuManager.IsPaused() && controllable)
         {
-            //Debug.Log(weaponTypes[currentWeaponType].IsInactive());
             if (equippedCustomWeapon >= 0 && !weaponTypes[currentWeaponType].IsInactive())
                 return;
 
@@ -383,24 +394,27 @@ public class PlayerController : Character
         if (GetAttackState() == 0 && (equippedCustomWeapon == -1 || weaponTypes[currentWeaponType].IsInactive()))
         {
             /* Set Controls */
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-                SetControls(0);
-            else if (Input.GetKeyDown(KeyCode.Alpha2))
-                SetControls(1);
-            else if (Input.GetKeyDown(KeyCode.Alpha3))
-                SetControls(2);
-            else if (Input.GetKeyDown(KeyCode.Alpha4))
-                SetControls(3);
-            else if (Input.GetKeyDown(KeyCode.Alpha5))
-                SetControls(4);
-            else if (Input.GetKeyDown(KeyCode.Alpha6))
-                SetControls(5);
-            else if (Input.GetKeyDown(KeyCode.Alpha7))
-                SetControls(6);
-            else if (Input.GetKeyDown(KeyCode.Alpha8))
-                SetControls(7);
-            else if (Input.GetKeyDown(KeyCode.Alpha9))
-                SetControls(8);
+            if (!menuManager.IsPaused())
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                    SetControls(0);
+                else if (Input.GetKeyDown(KeyCode.Alpha2))
+                    SetControls(1);
+                else if (Input.GetKeyDown(KeyCode.Alpha3))
+                    SetControls(2);
+                else if (Input.GetKeyDown(KeyCode.Alpha4))
+                    SetControls(3);
+                else if (Input.GetKeyDown(KeyCode.Alpha5))
+                    SetControls(4);
+                else if (Input.GetKeyDown(KeyCode.Alpha6))
+                    SetControls(5);
+                else if (Input.GetKeyDown(KeyCode.Alpha7))
+                    SetControls(6);
+                else if (Input.GetKeyDown(KeyCode.Alpha8))
+                    SetControls(7);
+                else if (Input.GetKeyDown(KeyCode.Alpha9))
+                    SetControls(8);
+            }
         }
 
         if (playerLife != LifeState.Dead && !stunned && !menuManager.IsPaused()) //Make sure the player is alive before they try anything
@@ -425,6 +439,7 @@ public class PlayerController : Character
                 place = System.Array.IndexOf(Ability.GetNames(), "AllOrNothingS");
                 if (current.GetAbilities().Contains(place))
                 {
+                    bool alreadyFull = current.SignaturePercentage() >= 1;
                     while (aonSignatureTimer >= 0.25f)
                     {
                         int restoration = current.GetSignatureCap() / 100;
@@ -432,6 +447,10 @@ public class PlayerController : Character
                         signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
                         aonSignatureTimer -= 0.25f;
                     }
+
+                    if (!alreadyFull && current.SignaturePercentage() >= 1)
+                        generalTextFlash.SetMessage("Signature Move Ready!", true);
+
                     aonSignatureTimer += Time.deltaTime;
                 }
             }
@@ -513,6 +532,19 @@ public class PlayerController : Character
             && Physics.Raycast(transform.position - (playerRb.velocity.normalized * Time.deltaTime),
                                 playerRb.velocity.normalized, out hit, playerRb.velocity.magnitude * Time.deltaTime * 3, LayerMask.GetMask("Wall")))
             playerRb.velocity *= 0;
+
+        ///**********************************
+        // * Cinematic Angles: Hide UI
+        // * TODO: DELETE ME WHEN NOT NEEDED
+        // **********************************/
+        //miniDurabilityBar.gameObject.SetActive(false);
+        //miniDodgeBar.gameObject.SetActive(false);
+        //healthBar.gameObject.SetActive(false);
+        //inventoryBar.gameObject.SetActive(false);
+        //signatureBar.gameObject.SetActive(false);
+        //inventoryShoulderUI.gameObject.SetActive(false);
+        //weaponStatsFlash.gameObject.SetActive(false);
+        //controlSchemeFlash.gameObject.SetActive(false);
 
         //if (IsOOB())
         //    ReturnToInBounds();
@@ -619,7 +651,7 @@ public class PlayerController : Character
             if (current.GetAbilities().Contains(index))
             {
                 Ability a = weaponTypes[currentWeaponType].GetComponent<HealthDrain>();
-                int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 10 : 1);
+                int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 30 : 1);
                 TakeDamage((int)Mathf.Floor((a.GetModifier() * percent * -1 / 30f) - Random.Range(0.001f, 1.000f) + 1.0f), Vector3.zero);
             }
 
@@ -629,7 +661,7 @@ public class PlayerController : Character
                 if (!signing)
                 {
                     Ability a = weaponTypes[currentWeaponType].GetComponent<SignatureDrain>();
-                    int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 10 : 1);
+                    int percent = (int)(damage * 100 / targetMax) * (target.GetComponent<Boss>() != null ? 30 : 1);
                     inventory[equippedCustomWeapon].AddSignature(Mathf.Max(0, (int)((a.GetModifier() * percent) - Random.Range(0.001f, 1f) + 1.0f)));
                     signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
                 }
@@ -697,7 +729,7 @@ public class PlayerController : Character
                         // Gain Signature
                         Ability a = weaponTypes[currentWeaponType].GetComponent<PitySignature>();
                         int perc = (int)(damage * 100 / maxHealth);
-                        GetCustomWeapon().AddSignature((int)Mathf.Max(0, a.GetModifier() * 0.4f * perc - Random.Range(0.001f, 1.000f) + 1));
+                        GetCustomWeapon().AddSignature((int)Mathf.Max(0, (2 * a.GetModifier() * perc) - Random.Range(0.001f, 1.000f) + 1));
                         signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
                     }
 
@@ -1276,19 +1308,18 @@ public class PlayerController : Character
             dodged.Add(h);
 
             int damage;
-            // TODO: Experiment with value
             if (h.gameObject.GetComponent<Explosive>() != null)
             {
-                damage = (int)(h.GetSource().GetPower());
+                damage = (int)(h.GetSource().GetBasePower() * ((Explosive)h).GetDamageMod());
                 Debug.Log(damage);
             }
             else
             {
-                damage = (int)(((Enemy)h.GetSource()).GetPower() * h.GetDamageMod() * 10);
-                if (h.GetSource().gameObject.GetComponent<Boss>())
-                    damage *= 2;
+                damage = (int)(((Enemy)h.GetSource()).GetBasePower() * h.GetDamageMod() * 10);
+                //if (h.GetSource().gameObject.GetComponent<Boss>())
+                //    damage *= 2;
             }
-            int pts = (int)(damage * signatureMultiplier * 1.5f * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
+            int pts = (int)(damage * signatureMultiplier * (1 + SummationBuffs(4)) * (1 + SummationDebuffs(4)));
             if (equippedCustomWeapon > -1)
             {
                 //int pity = 1;
@@ -1301,9 +1332,16 @@ public class PlayerController : Character
                 //if (current.GetAbilities().Contains(index2))
                 //    pity *= 2;
 
+                bool alreadyFull = current.SignaturePercentage() >= 1;
                 current.AddSignature(pts);
                 signatureBar.SetValue(inventory[equippedCustomWeapon].GetSignatureGauge());
-                roomManager.GetCurrent().AddSignaturePointsGained(pts);
+
+                if (!alreadyFull)
+                {
+                    roomManager.GetCurrent().AddSignaturePointsGained(pts);
+                    if (current.SignaturePercentage() >= 1)
+                        generalTextFlash.SetMessage("Signature Move Ready!", true);
+                }
             }
             return 4 * CalculateDodgeCool();
         }
@@ -1492,6 +1530,15 @@ public class PlayerController : Character
     //    return mouseControls["Main Attack"];
     //}
 
+    public void UpdateControls()
+    {
+        string rebinds = PlayerPrefs.GetString("rebinds");
+        if (!string.IsNullOrEmpty(rebinds))
+            inputActions.LoadBindingOverridesFromJson(rebinds);
+        else
+            Debug.LogWarning("Failure to update controls.");
+    }
+
     public bool SetControls(int control)
     {
         if (control < 0 || control >= controlSchemes.Count)
@@ -1499,6 +1546,7 @@ public class PlayerController : Character
             Debug.LogError("Control Preset " + control + " out of range!");
             return false;
         }
+
         inputActions.bindingMask = InputBinding.MaskByGroup(controlSchemes[control]);
         ControlPresetSettings settings = controlSettings[control];
 

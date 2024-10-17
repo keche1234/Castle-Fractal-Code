@@ -43,8 +43,8 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         }
         while (weaponType1 == weaponType2);
 
-        PickupCW startingWeapon1 = GenerateWeapon(weaponType1, 1, 1, 1, 1, true);
-        PickupCW startingWeapon2 = GenerateWeapon(weaponType2, 1, 1, 1, 1, true);
+        PickupCW startingWeapon1 = GenerateWeapon(weaponType1, 1, 1, 1, 1, true, 0, Ability.GetGenericNames().Length / 3);
+        PickupCW startingWeapon2 = GenerateWeapon(weaponType2, 1, 1, 1, 1, true, 0, Ability.GetGenericNames().Length / 3);
 
         startingWeapon1.transform.position = new Vector3(0, 1, current.GetZDimension() / 4);
         startingWeapon2.transform.position = new Vector3(0, 1, -current.GetZDimension() / 3);
@@ -163,7 +163,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         player.OverrideInvincibility(0);
     }
 
-    public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false)
+    public PickupCW GenerateWeapon(int wType, float powMultFloor = 1, float powMultCeil = 1, float durMultFloor = 1, float durMultCeil = 1, bool randomMod = false, int abilityConstraintL = 0, int abilityConstraintR = -1)
     {
         if (wType < 0 || wType > 4)
             return null;
@@ -175,11 +175,14 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         List<float> myMods = new List<float>();
         for (int i = 0; i < 2; i++)
         {
-            int ability = Random.Range(0, Ability.GetGenericNames().Length);
+            int lowAbilityRoll = Mathf.Max(0, abilityConstraintL);
+            int highAbilityRoll = abilityConstraintR < lowAbilityRoll ? Ability.GetGenericNames().Length : abilityConstraintR;
+            int ability = Random.Range(lowAbilityRoll, highAbilityRoll);
+
             if (i > 0)
             {
                 while (ability == myAbilities[0])
-                    ability = Random.Range(0, Ability.GetGenericNames().Length);
+                    ability = Random.Range(lowAbilityRoll, highAbilityRoll);
             }
             myAbilities.Add(ability);
 

@@ -224,4 +224,19 @@ public class Axe : Weapon
     {
         return 400;
     }
+
+    public void OnEnable()
+    {
+        for (int i = 0; i < mainAttack.Count; i++)
+        {
+            mainAttack[i].ClearConnected();
+            mainAttack[i].gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < sigAttack.Count; i++)
+        {
+            sigAttack[i].ClearConnected();
+            sigAttack[i].gameObject.SetActive(false);
+        }
+    }
 }

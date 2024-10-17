@@ -9,6 +9,7 @@ public class FloorScoreTimeManager : MonoBehaviour
     [SerializeField] protected Text floorText;
     [SerializeField] protected Text scoreText;
     [SerializeField] protected Text timeText;
+    [SerializeField] protected GeneralTextFlash playerMessage;
 
     protected int floorNum;
 
@@ -47,13 +48,18 @@ public class FloorScoreTimeManager : MonoBehaviour
             timeText.text = string.Format("{0:D0}:{1:D2}", (int)time / 60, (int)time % 60);
         }
 
-        if (displayScore < trueScore)
+        if (displayScore < trueScore && Time.deltaTime > 0)
         {
-            //Debug.Log(trueScore);
-            displayScore += Mathf.Max(1, (int)(DISPLAY_ROLL_SPEED * Time.deltaTime * (timerPaused ? 0.1f : 1)));
+            displayScore += Mathf.Max(1, (int)(DISPLAY_ROLL_SPEED * Time.deltaTime * (timerPaused ? 0.1f : 1))); // Timer paused means game paused or room clear
             displayScore = Mathf.Min(displayScore, trueScore);
             scoreText.text = string.Format("{0:D6}", displayScore);
         }
+
+        /**********************************
+         * Cinematic Angles: Hide UI
+         * TODO: DELETE ME WHEN NOT NEEDED
+         **********************************/
+        //gameObject.SetActive(false);
     }
 
     public void SetEnemyCount(int count)
@@ -86,8 +92,8 @@ public class FloorScoreTimeManager : MonoBehaviour
     public void ApplyTimeBonus()
     {
         PauseTime();
-        int timeBonus = (int)Mathf.Max(0, (ENEMY_EXPECTED_TIME * enemyCount) - time) * ENEMY_TIME_BONUS;
-        Debug.Log("Time Bonus: " + timeBonus);
+        int timeBonus = (int)(Mathf.Max(0, (ENEMY_EXPECTED_TIME * enemyCount) - time) * ENEMY_TIME_BONUS);
+        playerMessage.SetMessage("Time Bonus:\n+" + ((int)(timeBonus * scoreMultiplier)) + " pts.", true);
         AddToScore(timeBonus);
     }
 

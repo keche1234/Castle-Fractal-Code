@@ -289,5 +289,6 @@ public class RedMage : Enemy
     {
         Destroy(blastAoe.gameObject);
         Destroy(maxAoe.gameObject);
+        base.OnDestroy();
     }
 }

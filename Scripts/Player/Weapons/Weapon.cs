@@ -164,6 +164,12 @@ public abstract class Weapon : MonoBehaviour
             reticle.gameObject.SetActive(false);
 
         RenderSubReticle(autoTarget ? autoTarget.gameObject : null);
+
+        ///**********************************
+        // * Cinematic Angle
+        // * TODO: DELETE ME WHEN NOT NEEDED
+        // **********************************/
+        //reticle.gameObject.SetActive(false);
     }
 
     protected void RenderSubReticle(GameObject target)

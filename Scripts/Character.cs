@@ -118,6 +118,15 @@ public abstract class Character : MonoBehaviour
         roomManager = GameObject.Find("RoomManager").GetComponent<RoomManager>();
         menuManager = GameObject.Find("MenuManager").GetComponent<GameMenuManager>();
         freezeManager = FindObjectOfType<FreezeManager>();
+
+        ///***********************************
+        // * Cinematic Angles: Hide UI
+        // * TODO: DELETE ME WHEN NOT NEEDED
+        // **********************************/
+        //miniHealthBar.gameObject.SetActive(false);
+        //attributesUI.gameObject.SetActive(false);
+        //strengthUI.gameObject.SetActive(false);
+        //defenseUI.gameObject.SetActive(false);
     }
 
     //protected void Awake()

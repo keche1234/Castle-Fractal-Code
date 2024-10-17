@@ -16,6 +16,7 @@ public class ControlPresetsMainMenu : MonoBehaviour
     //[SerializeField] protected List<RebindActionUI> buttons;
     //[SerializeField] protected List<ControlPresetSettings> presets;
 
+    [SerializeField] protected PlayerController player;
     [SerializeField] protected List<ControlPresetUI> presetList;
     [SerializeField] protected TMP_InputField presetNameBox;
 
@@ -208,8 +209,6 @@ public class ControlPresetsMainMenu : MonoBehaviour
     private void OnDisable()
     {
         ClearClipboard();
+        inputActions.SaveBindingOverridesAsJson();
     }
-
-    //TODO: Load From Json
-    //TODO: Save to Json File
 }

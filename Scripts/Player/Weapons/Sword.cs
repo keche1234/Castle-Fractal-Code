@@ -186,7 +186,7 @@ public class Sword : Weapon
 
         owner.SetMobile(false);
         //owner.StopInvincibility();
-        owner.OverrideInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2));
+        owner.OverrideInvincibility(sigStartup + (sigActiveTime * duration) + (cooldownTime * 2) + 1);
         owner.gameObject.GetComponent<Collider>().isTrigger = true;
         owner.SetSigning(true);
 
@@ -278,5 +278,20 @@ public class Sword : Weapon
     public new static int GetSignatureCapacity()
     {
         return 200;
+    }
+
+    public void OnEnable()
+    {
+        for (int i = 0; i < mainAttack.Count; i++)
+        {
+            mainAttack[i].ClearConnected();
+            mainAttack[i].gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < sigAttack.Count; i++)
+        {
+            sigAttack[i].ClearConnected();
+            sigAttack[i].gameObject.SetActive(false);
+        }
     }
 }

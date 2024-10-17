@@ -200,7 +200,6 @@ public class ControlPresetSettings : MonoBehaviour
         return MAX_RANGE_ASSIST_LEVEL;
     }
 
-    //TODO: Save To and Load From Json
 
     /***************************
      * Enumerated Types
