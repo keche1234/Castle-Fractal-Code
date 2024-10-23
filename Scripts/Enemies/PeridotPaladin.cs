@@ -102,8 +102,8 @@ public class PeridotPaladin : Enemy
             spawnManager.RemoveMe(this);
         }
 
-        if (IsOOB())
-            ReturnToInBounds();
+        if (IsOOB(2f))
+            ReturnToInBounds(2f);
 
         UpdateAttributeUI();
     }
@@ -148,6 +148,7 @@ public class PeridotPaladin : Enemy
                 i += Time.deltaTime;
                 if (i >= counterWindow)
                     counterHit = true;
+                charRb.velocity *= 0;
             }
             yield return null;
         }
@@ -161,6 +162,7 @@ public class PeridotPaladin : Enemy
             if (GetMyFreezeTime() <= 0)
             {
                 actTime += Time.deltaTime;
+                charRb.velocity *= 0;
             }
             yield return null;
         }

@@ -26,7 +26,7 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
     protected FloorScoreTimeManager scoreManager;
     [SerializeField] protected PickupCW pickupPrefab;
 
-    protected const float MERCY_WEAPON_TIME = 10f;
+    protected const float MERCY_WEAPON_TIME = 5f;
     protected float spawnWeaponTimer = 0;
 
     // Start is called before the first frame update
@@ -82,7 +82,6 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
 
     public virtual void CreateNext()
     {
-        //Debug.Log(level);
         Room next = Instantiate(emptyRoomPrefab, new Vector3(0, height, 0), Quaternion.Euler(0, 0, 0));
         next.Initialize(20, 10, this, spawnManager);
         if ((level + 1) % bossInterval == 0) //Boss Room
@@ -123,6 +122,9 @@ public class RoomManager : MonoBehaviour //Doubles as game manager
         current = temp.GetNext();
         Destroy(temp.gameObject);
         current.gameObject.transform.Translate(0, -height, 0);
+
+        if (level % bossInterval == 0) //in a boss room
+            player.ResetInvincibility();
 
         //Game Info
         scoreManager.SetFloorNum(++level);

@@ -203,7 +203,6 @@ public abstract class Enemy : Character
         {
             float weaponChance = 1.5f / appearanceRate;
             float potionChance = 0.5f;
-            Debug.Log(this + " tried to drop a weapon with chance : " + weaponChance);
 
             // Roll for drop
             if (Random.Range(0, 0.99999f) < weaponChance)

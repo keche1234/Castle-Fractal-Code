@@ -99,8 +99,8 @@ public class TangerineTroll : Enemy
             spawnManager.RemoveMe(this);
         }
 
-        if (IsOOB())
-            ReturnToInBounds();
+        if (IsOOB(2f))
+            ReturnToInBounds(2f);
 
         UpdateAttributeUI();
     }

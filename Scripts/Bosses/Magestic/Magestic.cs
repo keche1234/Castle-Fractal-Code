@@ -822,7 +822,6 @@ public class Magestic : Boss
 
     public override void OnDestroy()
     {
-        //Debug.Log(myWands.Count + " wand(s)");
         for (int i = 0; i < myWands.Count; i++)
         {
             if (myWands[i] && myWands[i].gameObject)

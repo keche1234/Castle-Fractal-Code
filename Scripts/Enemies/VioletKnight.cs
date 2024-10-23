@@ -99,8 +99,8 @@ public class VioletKnight : Enemy
             spawnManager.RemoveMe(this);
         }
 
-        if (IsOOB())
-            ReturnToInBounds();
+        if (IsOOB(2f))
+            ReturnToInBounds(2f);
 
         UpdateAttributeUI();
     }
@@ -169,8 +169,8 @@ public class VioletKnight : Enemy
                 charRb.velocity = currentAim.normalized * chaseSpeed;
                 actTime += Time.deltaTime;
 
-                if (IsOOB())
-                    ReturnToInBounds();
+                if (IsOOB(0.5f))
+                    ReturnToInBounds(0.5f);
             }
             yield return null;
         }

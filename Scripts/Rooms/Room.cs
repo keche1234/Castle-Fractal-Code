@@ -127,7 +127,7 @@ public class Room : MonoBehaviour
             foreach (GameObject quad in quads)
                 walls.Add(quad);
 
-            // In a 10x20 grid, anywhere from 0 to 7 walls
+            // In a 10x20 grid, anywhere from 1 to 7 walls
             int wallCount = (int)(Random.Range(0, 0.005f * (MAX_FENCES + 1 - fences.Length + MAX_QUADS + 1 - quads.Length)) * xDimension * zDimension);
 
             int possibilityVector = 0b_11;
@@ -195,7 +195,7 @@ public class Room : MonoBehaviour
         if (!AllSpaceReachable())
             return null;
 
-        List<(int, int)> possiblePositions = OpenGridPositions(2, 2, zDimension - 2, xDimension - 2);
+        List<(int, int)> possiblePositions = OpenGridPositions(3, 3, zDimension - 2, xDimension - 2);
         (int, int) gridPosition;
 
         do
@@ -224,7 +224,7 @@ public class Room : MonoBehaviour
             return null;
 
         GameObject pair = new GameObject("Double");
-        List<(int, int)> possiblePositions = OpenGridPositions(3, 3, zDimension - 3, xDimension - 3);
+        List<(int, int)> possiblePositions = OpenGridPositions(3, 3, zDimension - 2, xDimension - 2);
         HashSet<((int, int), (int, int))> triedPairs = new HashSet<((int, int), (int, int))>();
 
         (int, int) anchorPosition;
@@ -300,11 +300,11 @@ public class Room : MonoBehaviour
                     corner = 3;
                     break;
                 case 1: // Upper Right Corner
-                    possiblePositions = OpenGridPositions(3, (xDimension / 2) + 1, (zDimension / 2) - 1, xDimension - 2);
+                    possiblePositions = OpenGridPositions(3, (xDimension / 2) + 1, (zDimension / 2) - 1, xDimension - 3);
                     corner = 2;
                     break;
                 case 2: //Lower Left Corner
-                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, 3, zDimension - 2, (xDimension / 2) - 1);
+                    possiblePositions = OpenGridPositions((zDimension / 2) + 1, 3, zDimension - 3, (xDimension / 2) - 1);
                     corner = 1;
                     break;
                 case 3: // Lower Right Corner
@@ -314,6 +314,7 @@ public class Room : MonoBehaviour
                     break;
             }
 
+            Debug.Log(possiblePositions.Count + " possible quad positions.");
             int j = Random.Range(0, possiblePositions.Count);
             (int, int) upLeftGrid = possiblePositions[j];
             possiblePositions.RemoveAt(j);
@@ -383,23 +384,23 @@ public class Room : MonoBehaviour
                 switch (border)
                 {
                     case 0: // North Border (Fence goes south)
-                        gridStart = (zDimension - 1, Random.Range(2, xDimension - 1));
+                        gridStart = (zDimension - 1, Random.Range(3, xDimension - 2));
                         gridDirection = (-1, 0);
                         length = Random.Range(3, (zDimension / 2) + 2);
                         break;
                     case 1: // East Border (Fence goes west)
-                        gridStart = (Random.Range(2, zDimension - 1), 0);
+                        gridStart = (Random.Range(3, zDimension - 2), 0);
                         gridDirection = (0, 1);
                         length = Random.Range(3, (xDimension / 2) + 2);
                         break;
                     case 2: // South Border (Fence goes north)
-                        gridStart = (0, Random.Range(2, xDimension - 1));
+                        gridStart = (0, Random.Range(3, xDimension - 2));
                         gridDirection = (1, 0);
                         length = Random.Range(3, (zDimension / 2) + 2);
                         break;
                     case 3: // West Border (Fence goes east)
                     default:
-                        gridStart = (Random.Range(2, zDimension - 1), xDimension - 1);
+                        gridStart = (Random.Range(3, zDimension - 2), xDimension - 1);
                         gridDirection = (0, -1);
                         length = Random.Range(3, (xDimension / 2) + 2);
                         break;
@@ -469,6 +470,26 @@ public class Room : MonoBehaviour
         if (col < 0 || col >= xDimension)
             Debug.LogWarning("Out of bounds z position " + row + "! Must be in range [0, " + xDimension + ")!");
         return (row, col);
+    }
+
+    public Vector3 UpperLeftCornerVector3()
+    {
+        return GridToVector3(0, 0);
+    }
+
+    public Vector3 UpperRightCornerVector3()
+    {
+        return GridToVector3(0, xDimension - 1);
+    }
+
+    public Vector3 LowerLeftCornerVector3()
+    {
+        return GridToVector3(zDimension - 1, 0);
+    }
+
+    public Vector3 LowerRightCornerVector3()
+    {
+        return GridToVector3(zDimension - 1, xDimension - 1);
     }
 
     /**************************************************************************
@@ -680,6 +701,19 @@ public class Room : MonoBehaviour
         return validSpawnPositions;
     }
 
+    public List<Vector3> OpenWorldPositions(Vector3 lowerLeft, Vector3 upperRight)
+    {
+        List<Vector3> validSpawnPositions = new List<Vector3>();
+        for (int r = 0; r < zDimension; r++)
+            for (int c = 0; c < xDimension; c++)
+            {
+                Vector3 worldPos = GridToVector3(r, c);
+                if (IsOpenPosition(r, c) && worldPos.x >= lowerLeft.x && worldPos.x <= upperRight.x && worldPos.z >= lowerLeft.z && worldPos.z <= upperRight.z)
+                    validSpawnPositions.Add(GridToVector3(r, c));
+            }
+        return validSpawnPositions;
+    }
+
     /*
      * Returns the list of open grid positions within the bounds specified (upper bound exclusive)
      */
@@ -758,6 +792,26 @@ public class Room : MonoBehaviour
         }
         doorPosition = possiblePositions[Random.Range(0, possiblePositions.Count)];
         grid[doorPosition.Item1, doorPosition.Item2] = true;
+        //switch (border)
+        //{
+        //    case 0: // North Border
+        //        grid[doorPosition.Item1, doorPosition.Item2 - 1] = true;
+        //        grid[doorPosition.Item1, doorPosition.Item2 + 1] = true;
+        //        break;
+        //    case 1: // East Border
+        //        grid[doorPosition.Item1 - 1, doorPosition.Item2] = true;
+        //        grid[doorPosition.Item1 + 1, doorPosition.Item2] = true;
+        //        break;
+        //    case 2: // South Border
+        //        grid[doorPosition.Item1, doorPosition.Item2 - 1] = true;
+        //        grid[doorPosition.Item1, doorPosition.Item2 + 1] = true;
+        //        break;
+        //    case 3: // West Border
+        //    default:
+        //        grid[doorPosition.Item1 - 1, doorPosition.Item2] = true;
+        //        grid[doorPosition.Item1 + 1, doorPosition.Item2] = true;
+        //        break;
+        //}
 
         door.transform.localPosition = GridToVector3(doorPosition.Item1, doorPosition.Item2);
         door.transform.rotation = Quaternion.Euler(0, 180 + (border * 90), 0);

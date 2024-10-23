@@ -81,8 +81,8 @@ public class YellowMinotaur : Enemy
             spawnManager.RemoveMe(this);
         }
 
-        if (IsOOB())
-            ReturnToInBounds();
+        if (IsOOB(0.5f) && state != ActionState.Attacking)
+            ReturnToInBounds(0.5f);
 
         UpdateAttributeUI();
     }

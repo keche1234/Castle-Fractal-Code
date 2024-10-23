@@ -143,4 +143,10 @@ public class ThunderCage : ScriptableObject
         EndBolt();
         Destroy(boltObject);
     }
+
+    public void DestroyAll()
+    {
+        for (int i = 0; i < totalList.Count; i++)
+            Destroy(totalList[i]);
+    }
 }

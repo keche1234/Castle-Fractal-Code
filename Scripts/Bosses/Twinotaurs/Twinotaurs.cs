@@ -948,8 +948,11 @@ public class Twinotaurs : Boss
             Destroy(pounceClouds[i].gameObject);
             pounceClouds.Remove(pounceClouds[i]);
         }
-        if (state == ActionState.Attacking && currentAttack == 1)
-            cage.DestroyBolt();
+        if (currentAttack == 1)
+        {
+            cage.DestroyAll();
+            Destroy(cage);
+        }
         base.OnDestroy();
     }
 }

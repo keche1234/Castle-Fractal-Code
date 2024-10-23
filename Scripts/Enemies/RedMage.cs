@@ -96,8 +96,8 @@ public class RedMage : Enemy
             spawnManager.RemoveMe(this);
         }
 
-        if (IsOOB())
-            ReturnToInBounds();
+        if (IsOOB(2f))
+            ReturnToInBounds(2f);
 
         UpdateAttributeUI();
     }
@@ -165,8 +165,8 @@ public class RedMage : Enemy
 
         charRb.velocity *= 0;
 
-        if (IsOOB())
-            ReturnToInBounds();
+        if (IsOOB(0.5f))
+            ReturnToInBounds(0.5f);
 
         //Grow for 0.45s
         target = new Vector3(1f, 1f, 1f);

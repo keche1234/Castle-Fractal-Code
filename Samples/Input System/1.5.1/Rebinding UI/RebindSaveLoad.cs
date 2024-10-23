@@ -7,6 +7,7 @@ public class RebindSaveLoad : MonoBehaviour
 
     public void OnEnable()
     {
+        Debug.Log("Loading controls");
         var rebinds = PlayerPrefs.GetString("rebinds");
         if (!string.IsNullOrEmpty(rebinds))
             actions.LoadBindingOverridesFromJson(rebinds);
@@ -14,6 +15,7 @@ public class RebindSaveLoad : MonoBehaviour
 
     public void OnDisable()
     {
+        Debug.Log("Saving controls");
         var rebinds = actions.SaveBindingOverridesAsJson();
         PlayerPrefs.SetString("rebinds", rebinds);
     }

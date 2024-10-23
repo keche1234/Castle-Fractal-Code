@@ -143,7 +143,8 @@ public class SpawnManager : MonoBehaviour
             yield return null;
         }
 
-        List<Vector3> positions = roomManager.GetCurrent().OpenWorldPositions();
+        List<Vector3> positions = roomManager.GetCurrent().OpenWorldPositions(roomManager.GetCurrent().LowerLeftCornerVector3() + ((Vector3.right + Vector3.forward) * 2f),
+                                                                              roomManager.GetCurrent().UpperRightCornerVector3() + ((Vector3.left + Vector3.back) * 2f));
         int ogPositionCount = positions.Count;
         for (int i = 0; i < Mathf.Min(spawnCount, ogPositionCount); i++)
         {

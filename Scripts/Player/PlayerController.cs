@@ -45,6 +45,7 @@ public class PlayerController : Character
     [SerializeField] protected bool meleeAuto;
     [SerializeField] protected float rangedAssist;
     [SerializeField] protected float scrollSensitivity;
+    protected int currentControl = 0;
 
     protected float invScrollPos; //inventory scroll position, ranges from 0-(inventory.Count + .99), cut off decimal for current weapon
 
@@ -204,7 +205,6 @@ public class PlayerController : Character
         inputActions.Player.Enable();
         inputActions.Menus.Enable();
 
-        inputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString("rebinds"));
         SetControls(0);
     }
 
@@ -1456,7 +1456,7 @@ public class PlayerController : Character
     {
         if (attributeIndex < 0 || attributeIndex >= ranks.Length)
             return false;
-        return ranks[attributeIndex] == MAX_RANK;
+        return ranks[attributeIndex] >= MAX_RANK;
     }
 
     public int GetCurrentTotalRank()
@@ -1479,7 +1479,7 @@ public class PlayerController : Character
 
     public bool IsPlayerMaxRank()
     {
-        return GetCurrentTotalRank() == MAX_RANK * ranks.Length;
+        return GetCurrentTotalRank() >= MAX_RANK * ranks.Length;
     }
 
     public void SetLifeState(bool s)
@@ -1536,7 +1536,26 @@ public class PlayerController : Character
         if (!string.IsNullOrEmpty(rebinds))
             inputActions.LoadBindingOverridesFromJson(rebinds);
         else
-            Debug.LogWarning("Failure to update controls.");
+            Debug.LogWarning("Failed to update controls.");
+
+        ControlPresetSettings settings = controlSettings[currentControl];
+
+        if (currentControl > 3)
+        {
+            string loadSettings = PlayerPrefs.GetString("Preset " + currentControl.ToString());
+            if (!string.IsNullOrEmpty(loadSettings))
+            {
+                JsonUtility.FromJsonOverwrite(loadSettings, settings);
+                signatureCombo = settings.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Combo ? true : false;
+                meleeAuto = settings.GetMeleeAim() == ControlPresetSettings.MeleeAim.Auto ? true : false;
+                rangedAssist = settings.GetRangedAssist();
+                scrollSensitivity = settings.GetScrollSensitivity();
+            }
+            else
+            {
+                Debug.LogWarning("Failed to grab preset settings.");
+            }
+        }
     }
 
     public bool SetControls(int control)
@@ -1546,6 +1565,8 @@ public class PlayerController : Character
             Debug.LogError("Control Preset " + control + " out of range!");
             return false;
         }
+        currentControl = control;
+        UpdateControls();
 
         inputActions.bindingMask = InputBinding.MaskByGroup(controlSchemes[control]);
         ControlPresetSettings settings = controlSettings[control];

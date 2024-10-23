@@ -154,6 +154,16 @@ public class Crossbow : Weapon
             while (delay >= (6f / 60))
             {
                 Vector3 dir = DetermineAttackDirection(device);
+                if (owner.GetRangedAssist() > 0 && !autoTarget)
+                {
+                    Enemy target = FindClosestTarget();
+                    if (target)
+                    {
+                        dir = target.transform.position - transform.position;
+                        dir = new Vector3(dir.x, 0, dir.z);
+                        dir = dir.normalized;
+                    }
+                }
 
                 Projectile arrow = Instantiate(arrowPrefab, owner.transform.position + dir + (Vector3.up * 0.3f), Quaternion.LookRotation(dir));
                 arrow.transform.position += ((Quaternion.AngleAxis(90, transform.up) * dir) * -0.6f) + ((Quaternion.AngleAxis(90, transform.up) * dir) * 0.2f);

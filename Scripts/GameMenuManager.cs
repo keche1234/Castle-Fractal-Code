@@ -164,7 +164,6 @@ public class GameMenuManager : MonoBehaviour
         if (canPause)
         {
             Button[] buttons = pauseMenus[lastMenu].GetComponentsInChildren<Button>(true);
-            Debug.Log(buttons[1]);
             if (player.GetActionInputDevice("main attack") == Keyboard.current && buttons.Length >= 2)
                 eventSystem.SetSelectedGameObject(buttons[1].gameObject);
             else

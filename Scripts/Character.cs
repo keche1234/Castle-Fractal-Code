@@ -610,24 +610,24 @@ public abstract class Character : MonoBehaviour
     }
 
     //Detects if the object is out of bounds
-    protected bool IsOOB()
+    protected bool IsOOB(float range)
     {
-        if (Mathf.Abs(transform.position.x) > (roomManager.GetCurrent().GetXDimension() / 2) || Mathf.Abs(transform.position.z) > (roomManager.GetCurrent().GetZDimension() / 2))
+        if (Mathf.Abs(transform.position.x) > ((roomManager.GetCurrent().GetXDimension() / 2) - range) || Mathf.Abs(transform.position.z) > ((roomManager.GetCurrent().GetZDimension() / 2) - range))
             return true;
         return false;
     }
 
-    protected void ReturnToInBounds()
+    protected void ReturnToInBounds(float range)
     {
-        if (transform.position.x > roomManager.GetCurrent().GetXDimension() / 2)
-            transform.position = new Vector3((roomManager.GetCurrent().GetXDimension() / 2) - 0.5f, transform.position.y, transform.position.z);
-        else if (transform.position.x < - roomManager.GetCurrent().GetXDimension() / 2)
-            transform.position = new Vector3(-(roomManager.GetCurrent().GetXDimension() / 2) + 0.5f, transform.position.y, transform.position.z);
+        if (transform.position.x > ((roomManager.GetCurrent().GetXDimension() / 2) - range))
+            transform.position = new Vector3((roomManager.GetCurrent().GetXDimension() / 2) - range, transform.position.y, transform.position.z);
+        else if (transform.position.x < - ((roomManager.GetCurrent().GetXDimension() / 2) - range))
+            transform.position = new Vector3(-(roomManager.GetCurrent().GetXDimension() / 2) + range, transform.position.y, transform.position.z);
 
-        if (transform.position.z > roomManager.GetCurrent().GetZDimension() / 2)
-            transform.position = new Vector3(transform.position.x, transform.position.y, roomManager.GetCurrent().GetZDimension() / 2 - 0.5f);
-        else if (transform.position.z < -roomManager.GetCurrent().GetZDimension() / 2)
-            transform.position = new Vector3(transform.position.x, transform.position.y, -roomManager.GetCurrent().GetZDimension() / 2 + 0.5f);
+        if (transform.position.z > ((roomManager.GetCurrent().GetZDimension() / 2) - range))
+            transform.position = new Vector3(transform.position.x, transform.position.y, (roomManager.GetCurrent().GetZDimension() / 2) - range);
+        else if (transform.position.z < -((roomManager.GetCurrent().GetZDimension() / 2) - range))
+            transform.position = new Vector3(transform.position.x, transform.position.y, (-roomManager.GetCurrent().GetZDimension() / 2) + range);
     }
 
     /***********************************************

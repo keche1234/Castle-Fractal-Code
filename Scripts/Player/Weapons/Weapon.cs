@@ -109,7 +109,7 @@ public abstract class Weapon : MonoBehaviour
         if (IsInactive())
         {
             // Find AutoTarget
-            if (melee && owner.GetMeleeAuto() || owner.GetRangedAssist() > 0)
+            if (melee && owner.GetMeleeAuto() || !melee && owner.GetRangedAssist() > 0)
             {
                 /*****************************************************
                  * Determine what the player might be trying to aim at

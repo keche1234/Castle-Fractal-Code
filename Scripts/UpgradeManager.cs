@@ -63,7 +63,7 @@ public class UpgradeManager : MonoBehaviour
 
         // Remove Player Control
         player.SetControllable(false);
-        player.OverrideInvincibility(10);
+        player.OverrideInvincibility(17532172);
         player.GetComponent<Rigidbody>().velocity *= 0;
 
         foreach (RankUpButton button in upgradeButtons)
@@ -101,7 +101,7 @@ public class UpgradeManager : MonoBehaviour
         // Grow Buttons to reveal them
         for (int i = 0; i < upgradeButtons.Count; i++)
         {
-            player.OverrideInvincibility(BUTTON_APPEARANCE_DELAY * 2);
+            //player.OverrideInvincibility(BUTTON_APPEARANCE_DELAY * 2);
             yield return new WaitForSeconds(BUTTON_APPEARANCE_DELAY);
             upgradeButtons[i].gameObject.GetComponent<Button>().enabled = false;
             upgradeButtons[i].gameObject.GetComponent<ButtonColorManipulation>().Select(false);

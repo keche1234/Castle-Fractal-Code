@@ -109,7 +109,7 @@ public class ControlPresetsMainMenu : MonoBehaviour
     {
         if (clipboardNumber > -1)
         {
-            ControlPresetSettings clipboardSettings = presetList[clipboardNumber].GetPresetSettings();
+            ControlPresetSettings clipboardSettings = presetList[clipboardNumber].GetPresetSettings(); // source settings
             presetList[currentPreset].PastePresetSettings(clipboardSettings);
 
             string pathToPaste;
@@ -125,27 +125,29 @@ public class ControlPresetsMainMenu : MonoBehaviour
                         }
                         break;
                     case "Signature Attack":
-                        int copyIndex;
-                        int pasteIndex;
+                        int sourceOffset;
+                        int destOffset;
 
-                        if (presetList[clipboardNumber].SignatureIsComposite(false))
+                        // if source is simple:
+                        if (clipboardSettings.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Simple)
                         {
-                            copyIndex = 1;
-                            if (clipboardSettings.GetSignatureActivationMode() == ControlPresetSettings.SignatureActivation.Simple)
-                                pasteIndex = 1;
-                            else
-                                pasteIndex = 0;
+                            // Source has signature as composite, want to copy binding
+                            if (presetList[clipboardNumber].SignatureIsComposite(false))
+                                sourceOffset = 1;
+                            else // Source has signature not as composite, want to copy binding
+                                sourceOffset = 0;
+                            destOffset = 1; // paste to binding
                         }
-                        else
+                        else // source is combo
                         {
-                            copyIndex = 0;
-                            pasteIndex = 1;
+                            //assert(presetList[clipboardNumber].SignatureIsComposite(false))
+                            // Source has signature as composite, want to copy modifier
+                            sourceOffset = 0;
+                            destOffset = 0; // paste to modifier
                         }
 
-                        Debug.Log(copyIndex + " and " + pasteIndex);
-
-                        pathToPaste = presetList[clipboardNumber].GetBindingPathForAction("Signature Attack", copyIndex);
-                        presetList[currentPreset].OverrideBindingPathForAction("Signature Attack", pathToPaste, pasteIndex);
+                        pathToPaste = presetList[clipboardNumber].GetBindingPathForAction("Signature Attack", sourceOffset);
+                        presetList[currentPreset].OverrideBindingPathForAction("Signature Attack", pathToPaste, destOffset);
                         break;
                     case "Scroll Inventory":
                         for (int j = 0; j < 2; j++)
@@ -155,6 +157,7 @@ public class ControlPresetsMainMenu : MonoBehaviour
                         }
                         break;
                     default:
+                        Debug.Log("copy pasting " + actions[i].name);
                         pathToPaste = presetList[clipboardNumber].GetBindingPathForAction(actions[i].name, 0);
                         presetList[currentPreset].OverrideBindingPathForAction(actions[i].name, pathToPaste, 0);
                         break;
@@ -165,9 +168,17 @@ public class ControlPresetsMainMenu : MonoBehaviour
 
     public void ResetControlScheme()
     {
+        // TODO: Be VERY Careful about resetting (clear out both modifier and binding for signature attack!)
         List<RebindActionUI> buttons = presetList[currentPreset].GetButtons();
         foreach (RebindActionUI button in buttons)
+        {
             button.ResetToDefault();
+        }
+
+        // when overriding settings:
+        // If already simple, then all we need to clear is binding
+        // If going from combo to simple, first reset clears modifier,
+        //   then function call copies cleared modifier to binding
         presetList[currentPreset].ResetSettingsToDefault();
         presetList[currentPreset].ApplyNameOverride(null);
         DrawNameOverrideBox();
@@ -209,6 +220,6 @@ public class ControlPresetsMainMenu : MonoBehaviour
     private void OnDisable()
     {
         ClearClipboard();
-        inputActions.SaveBindingOverridesAsJson();
+        //PlayerPrefs.SetString("rebinds", inputActions.SaveBindingOverridesAsJson());
     }
 }

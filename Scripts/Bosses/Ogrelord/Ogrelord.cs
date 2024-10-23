@@ -38,7 +38,7 @@ public class Ogrelord : Boss
     protected float airTime = 1f;
     protected float geyserStart = 1.5f;
     protected float geyserLand = 6f;
-    protected float geyserEnd = 3f;
+    protected float geyserEnd = 1.5f;
 
     [Header("Super Stomp")]
     [SerializeField] protected GameObject landingWarning;
@@ -454,7 +454,7 @@ public class Ogrelord : Boss
                 Vector3 xDir = (new Vector3(transform.position.x - player.transform.position.x, 0, 0)).normalized;
                 if (xDir.x == 0)
                     xDir = Vector3.right;
-                float xDist = (((roomManager.GetCurrent().GetXDimension() * 0.5f) - 1) * xDir.x) - transform.position.x;
+                float xDist = (((roomManager.GetCurrent().GetXDimension() * 0.5f) - 2f) * xDir.x) - transform.position.x;
                 charRb.AddForce(new Vector3(xDist / airTime, Physics.gravity.magnitude * airTime * 0.5f, (0 - transform.position.z) / airTime), ForceMode.VelocityChange);
                 transform.rotation = Quaternion.LookRotation(-xDir);
 
@@ -523,8 +523,8 @@ public class Ogrelord : Boss
                     bodyBox.gameObject.SetActive(false);
 
                     //Determine destination and set speed
-                    float z = location * ((roomManager.GetCurrent().GetZDimension() / 2) - 2f);
-                    xDist = (((roomManager.GetCurrent().GetXDimension() * 0.5f) - 1) * xDir.x) - transform.position.x;
+                    float z = location * ((roomManager.GetCurrent().GetZDimension() / 2) - 2.5f);
+                    xDist = (((roomManager.GetCurrent().GetXDimension() * 0.5f) - 2f) * xDir.x) - transform.position.x;
                     charRb.AddForce(new Vector3(xDist / airTime, Physics.gravity.magnitude * airTime * 0.5f, (z - transform.position.z) / airTime), ForceMode.VelocityChange);
 
                     //Wait for state to be cooldown (I landed)
@@ -571,9 +571,9 @@ public class Ogrelord : Boss
                 break;
             case 4: //Super Stomp
                 //startup
-
                 for (int i = 0; i < stomps; i++)
                 {
+                    GetComponent<Collider>().isTrigger = true;
                     state = ActionState.Startup;
                     charRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
                     charRb.useGravity = false;
@@ -596,8 +596,8 @@ public class Ogrelord : Boss
                         {
                             if (t < stompJumpTime)
                             {
-                                int xLimit = (roomManager.GetCurrent().GetXDimension() / 2) - 1;
-                                int zLimit = (roomManager.GetCurrent().GetZDimension() / 2) - 1;
+                                float xLimit = (roomManager.GetCurrent().GetXDimension() / 2) - 2f;
+                                float zLimit = (roomManager.GetCurrent().GetZDimension() / 2) - 2f;
 
                                 Vector3 jumpVector = new Vector3(Mathf.Max(Mathf.Min(player.transform.position.x, xLimit), -xLimit) - transform.position.x, 0,
                                                                  Mathf.Max(Mathf.Min(player.transform.position.z, zLimit), -zLimit) - transform.position.z);
@@ -613,6 +613,7 @@ public class Ogrelord : Boss
                             PushSummonsBackStomp();
 
                             t += Time.deltaTime;
+
                             float progress = t / (stompStart - (i * 0.2f));
                             //Draw Warnings
                             landingWarning.transform.localScale = new Vector3(progress, 1, progress);
